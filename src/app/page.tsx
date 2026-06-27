@@ -80,7 +80,7 @@ export default function Home() {
       </Section>
 
       {/* ───────────────── The maison line ───────────────── */}
-      <Section pad="xl" className="text-center pb-[clamp(40px,5vw,72px)]">
+      <Section pad="xl" className="text-center py-[clamp(40px,5vw,72px)]">
         <Shell>
           <Reveal variant="blur">
             <Eyebrow className="justify-center">The Velora Maison</Eyebrow>
