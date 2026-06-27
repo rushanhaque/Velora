@@ -41,33 +41,47 @@ export function CollectionCard({
         </div>
 
         <div className="burnish relative aspect-[16/8] overflow-hidden">
+          {/* base ground */}
           <div
             className="absolute inset-0"
             style={{
               background: `radial-gradient(120% 100% at 50% 12%, ${GLOW[c.tone]}, transparent 60%), linear-gradient(180deg,#fcfbf7,#efeae0)`,
             }}
           />
+          {/* underglow blooms beneath the piece as it lifts */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 opacity-0 transition-opacity duration-[800ms] ease-silk group-hover:opacity-100"
+            style={{ background: `radial-gradient(80% 66% at 50% 46%, ${GLOW[c.tone]}, transparent 66%)` }}
+          />
           {c.cover ? (
-            <div className="absolute inset-0 transition-transform duration-[1.1s] ease-silk group-hover:scale-[1.06]">
+            <div className="absolute inset-0 overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={c.cover}
                 alt={`${c.name} — ${c.material}`}
-                className="absolute inset-0 h-full w-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover transition-[filter] duration-[800ms] ease-silk group-hover:brightness-[1.05]"
               />
             </div>
           ) : (
             hero && (
-              <div className="absolute inset-0 grid place-items-center p-6 transition-transform duration-[1.1s] ease-silk group-hover:scale-[1.08]">
+              // Parallax levitation: the piece floats up out of its vitrine, casting a deeper shadow
+              <div className="absolute inset-0 grid place-items-center p-6 transition-transform duration-[850ms] ease-silk will-change-transform group-hover:-translate-y-[14px]">
                 <SpecimenArt
                   shape={hero.shape}
                   tone={hero.tone}
                   seed={`col-${hero.slug}`}
-                  className="h-full w-full drop-shadow-[0_22px_28px_rgba(34,26,12,0.22)]"
+                  className="h-full w-full drop-shadow-[0_22px_28px_rgba(34,26,12,0.22)] transition-[filter] duration-[850ms] ease-silk group-hover:drop-shadow-[0_46px_56px_rgba(34,26,12,0.44)]"
                 />
               </div>
             )
           )}
+          {/* brass light-catch draws along the lower edge */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-6 bottom-0 h-px origin-center scale-x-0 transition-transform duration-[700ms] ease-silk group-hover:scale-x-100"
+            style={{ background: "linear-gradient(90deg, transparent, rgba(200,167,101,0.9), transparent)" }}
+          />
         </div>
 
         <div className="flex flex-1 flex-col px-7 py-7">
