@@ -4,10 +4,10 @@ import { cn } from "@/lib/utils";
 type Pad = "sm" | "md" | "lg" | "xl";
 
 const PAD: Record<Pad, string> = {
-  sm: "py-[clamp(40px,6vw,72px)]",
-  md: "py-[clamp(56px,8vw,104px)]",
-  lg: "py-[clamp(72px,10vw,150px)]",
-  xl: "py-[clamp(90px,12vw,180px)]",
+  sm: "py-[clamp(28px,4vw,52px)]",
+  md: "py-[clamp(40px,5.5vw,76px)]",
+  lg: "py-[clamp(52px,7vw,104px)]",
+  xl: "py-[clamp(64px,8.5vw,128px)]",
 };
 
 export function Section({

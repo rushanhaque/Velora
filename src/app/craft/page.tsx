@@ -32,6 +32,7 @@ export default function CraftPage() {
         eyebrow="The Craft"
         titleLines={["Raised by hand,", <span key="e" className="serif-italic text-brass-deep">finished by eye.</span>]}
         intro="In Moradabad, metal is not manufactured — it is coaxed. Sheet becomes vessel under thousands of measured blows; colour is drawn from the surface with heat and time. This is the slow craft behind every Velora object."
+        align="center"
       />
 
       {/* Editorial */}

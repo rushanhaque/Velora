@@ -23,7 +23,7 @@ export function PageHero({
   return (
     <header
       className={cn(
-        "relative overflow-hidden pb-[clamp(48px,7vw,84px)] pt-[clamp(150px,18vw,230px)]",
+        "relative overflow-hidden pb-[clamp(36px,5vw,64px)] pt-[clamp(100px,12vw,160px)]",
         className,
       )}
     >
