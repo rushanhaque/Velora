@@ -190,7 +190,7 @@ export default function Home() {
       </Section>
 
       {/* ───────────────── Trade ───────────────── */}
-      <Section pad="lg" className="bg-parchment-deep/45">
+      <Section pad="sm" className="bg-parchment-deep/45">
         <Shell>
           <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
             <div>
@@ -225,7 +225,7 @@ export default function Home() {
       </Section>
 
       {/* ───────────────── Catalogue CTA (dark) ───────────────── */}
-      <Section tint pad="xl" id="catalogue" className="overflow-hidden">
+      <Section tint pad="sm" id="catalogue" className="overflow-hidden">
         <Shell>
           <div className="grid gap-14 lg:grid-cols-2 lg:items-center">
             <div>
