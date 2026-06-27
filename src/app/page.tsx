@@ -80,7 +80,7 @@ export default function Home() {
       </Section>
 
       {/* ───────────────── The maison line ───────────────── */}
-      <Section pad="xl" className="text-center">
+      <Section pad="xl" className="text-center pb-[clamp(40px,5vw,72px)]">
         <Shell>
           <Reveal variant="blur">
             <Eyebrow className="justify-center">The Velora Maison</Eyebrow>
@@ -119,7 +119,7 @@ export default function Home() {
       </Section>
 
       {/* ───────────────── The craft ───────────────── */}
-      <Section pad="xl">
+      <Section pad="xl" className="pt-[clamp(40px,5vw,72px)]">
         <Shell>
           <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr]">
             <div className="lg:sticky lg:top-28 lg:self-start">
