@@ -55,7 +55,7 @@ export function CartPanel() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ duration: 0.5, ease: SILK }}
-            className="fixed inset-y-0 right-0 z-[200] flex w-[20vw] min-w-[200px] flex-col bg-bitumen"
+            className="fixed inset-y-0 right-0 z-[200] flex w-[40vw] min-w-[280px] flex-col bg-bitumen"
             style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}
           >
             {/* Panel header */}
