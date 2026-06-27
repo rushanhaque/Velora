@@ -116,7 +116,7 @@ function MobileHouse({ h, i }: { h: (typeof HOUSES)[0]; i: number }) {
               shape={h.art.shape}
               tone={h.art.tone}
               seed={`clm-${h.slug}`}
-              className="h-full w-full drop-shadow-[0_22px_38px_rgba(34,26,12,0.20)] transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+              className="h-full w-full transition-[transform,filter] duration-700 ease-out group-hover:-translate-y-3 group-hover:drop-shadow-[0_38px_54px_rgba(34,26,12,0.38)] drop-shadow-[0_22px_38px_rgba(34,26,12,0.20)]"
             />
           )}
         </div>
@@ -248,7 +248,21 @@ function Strip({
           </span>
         </div>
 
-        {/* Art piece — subtle parallax tilt on active */}
+        {/* Metal shimmer — diagonal glint sweeps once on activation */}
+        <div
+          className="pointer-events-none absolute inset-0 z-[4] overflow-hidden"
+        >
+          <div
+            style={{
+              position: "absolute", inset: 0,
+              background: "linear-gradient(118deg, transparent 30%, rgba(255,248,225,0.26) 50%, transparent 70%)",
+              transform: isActive ? "translateX(140%)" : "translateX(-140%)",
+              transition: isActive ? `transform 1000ms ${EASE}` : "none",
+            }}
+          />
+        </div>
+
+        {/* Art piece — levitates off the surface on active */}
         <div
           className="pointer-events-none absolute inset-0 z-[2]"
           style={{
@@ -260,10 +274,13 @@ function Strip({
           <div
             className="h-full w-full"
             style={{
-              transform:  isActive
-                ? `perspective(900px) rotateX(${(cy - 50) * -0.045}deg) rotateY(${(cx - 50) * 0.065}deg)`
-                : "none",
-              transition: isActive ? "transform 90ms linear" : `transform 800ms ${EASE}`,
+              transform:  isActive ? "translateY(-18px)" : "translateY(0)",
+              filter:     isActive
+                ? "drop-shadow(0 52px 72px rgba(34,26,12,0.42))"
+                : "drop-shadow(0 28px 44px rgba(34,26,12,0.22))",
+              transition: isActive
+                ? "transform 800ms cubic-bezier(0.34,1.56,0.64,1), filter 700ms ease-out"
+                : `transform 900ms ${EASE}, filter 700ms ease-out`,
             }}
           >
             {h.art && (
@@ -271,7 +288,7 @@ function Strip({
                 shape={h.art.shape}
                 tone={h.art.tone}
                 seed={`cl-${h.slug}`}
-                className="h-full w-full drop-shadow-[0_28px_44px_rgba(34,26,12,0.22)]"
+                className="h-full w-full"
               />
             )}
           </div>
