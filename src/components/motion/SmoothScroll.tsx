@@ -22,6 +22,7 @@ export function SmoothScroll() {
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
+    (window as any).__lenis = lenis;
 
     // Let in-page anchor links use Lenis
     const onClick = (e: MouseEvent) => {
@@ -43,6 +44,7 @@ export function SmoothScroll() {
       cancelAnimationFrame(raf);
       document.removeEventListener("click", onClick);
       lenis.destroy();
+      (window as any).__lenis = undefined;
     };
   }, []);
 

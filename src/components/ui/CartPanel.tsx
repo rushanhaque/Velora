@@ -14,12 +14,18 @@ export function CartPanel() {
   const items = slugs.map(getSpecimen).filter(Boolean) as NonNullable<ReturnType<typeof getSpecimen>>[];
 
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    document.documentElement.dataset.cartPanel = open ? "open" : "";
+    const lenis = (window as any).__lenis;
+    if (open) {
+      lenis?.stop();
+      document.documentElement.dataset.cartPanel = "open";
+    } else {
+      lenis?.start();
+      document.documentElement.dataset.cartPanel = "";
+    }
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") cartPanel.close(); };
     if (open) document.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = "";
+      lenis?.start();
       document.documentElement.dataset.cartPanel = "";
       document.removeEventListener("keydown", onKey);
     };
