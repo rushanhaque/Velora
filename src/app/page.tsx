@@ -103,12 +103,12 @@ export default function Home() {
             </Button>
           </Reveal>
         </Shell>
-        <div className="mt-16">
+        <div className="mt-16 overflow-hidden bg-bitumen py-3">
           <Marquee
             items={TICKER.map((t) => (
               <span
                 key={t}
-                className="font-display text-[clamp(1.8rem,4.5vw,3.2rem)] italic text-bitumen/15"
+                className="font-display text-[clamp(1.8rem,4.5vw,3.2rem)] italic text-parchment-pale/20"
               >
                 {t}
               </span>

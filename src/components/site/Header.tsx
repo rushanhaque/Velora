@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Logo, Mark } from "@/components/brand/Logo";
 import { HeroBrand } from "@/components/home/HeroBrand";
 import { NAV, BRAND } from "@/lib/data";
-import { useEnquiry } from "@/lib/enquiry";
+import { useEnquiry, cartPanel } from "@/lib/enquiry";
 import { cn } from "@/lib/utils";
 import { SILK } from "@/lib/motion";
 
@@ -156,8 +156,9 @@ export function Header() {
             <Logo />
           </Link>
 
-          {/* Right — desktop nav */}
+          {/* Right — desktop nav + mobile balancer (matches hamburger width for optical centre) */}
           <div className="flex items-center justify-end gap-6" style={sideStyle(chrome)}>
+            <div className="h-10 w-10 shrink-0 lg:hidden" aria-hidden="true" />
             <nav className="hidden items-center gap-8 lg:flex">{NAV_RIGHT.map(navLink)}</nav>
           </div>
         </div>
@@ -239,9 +240,10 @@ export function Header() {
               transition={{ delay: 0.55, duration: 0.6 }}
               className="relative"
             >
-              <Link
-                href="/cart"
-                className="group flex items-center justify-between rounded-full border border-brass-leaf/25 px-5 py-3.5 text-parchment-pale transition-colors duration-500 hover:border-brass-leaf/60"
+              <button
+                type="button"
+                onClick={() => { setOpen(false); cartPanel.open(); }}
+                className="group flex w-full items-center justify-between rounded-full border border-brass-leaf/25 px-5 py-3.5 text-parchment-pale transition-colors duration-500 hover:border-brass-leaf/60"
               >
                 <span className="flex items-center gap-3 text-[0.78rem] uppercase tracking-wide3">
                   <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -254,7 +256,7 @@ export function Header() {
                 <span className="text-[0.78rem] tracking-wide3 text-brass-leaf">
                   {cartCount === 0 ? "Empty" : `${cartCount} ${cartCount === 1 ? "piece" : "pieces"}`}
                 </span>
-              </Link>
+              </button>
 
               <div className="mt-7 text-haze">
                 <p className="eyebrow text-brass-leaf">The trade desk</p>

@@ -6,6 +6,7 @@ import { Footer } from "@/components/site/Footer";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { ScrollProgress } from "@/components/motion/Parallax";
 import { CartFloat } from "@/components/ui/CartFloat";
+import { CartPanel } from "@/components/ui/CartPanel";
 import { BRAND } from "@/lib/data";
 import "./globals.css";
 
@@ -70,6 +71,7 @@ export default function RootLayout({
         <main id="main">{children}</main>
         <Footer />
         <CartFloat />
+        <CartPanel />
       </body>
     </html>
   );

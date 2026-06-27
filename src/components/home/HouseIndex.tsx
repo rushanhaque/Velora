@@ -165,7 +165,7 @@ export function HouseIndex() {
                     {/* museum placard */}
                     <div
                       key={cur.slug}
-                      className="meta-in plate absolute bottom-6 left-1/2 w-[min(78%,22rem)] -translate-x-1/2 rounded-card px-6 py-4 text-center"
+                      className="meta-in plate absolute bottom-3 left-1/2 w-[min(78%,22rem)] -translate-x-1/2 rounded-card px-6 py-4 text-center"
                     >
                       <h3 className="font-display text-2xl text-bitumen">{cur.name}</h3>
                       <p className="mt-1 text-[0.64rem] uppercase tracking-wider2 text-ash">

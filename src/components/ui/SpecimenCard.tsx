@@ -42,20 +42,12 @@ export function SpecimenCard({
           />
           {/* floor shadow line */}
           <div className="absolute inset-x-8 bottom-[20%] h-px bg-bitumen/5" />
-          <div className="absolute inset-0 transition-transform duration-[1.1s] ease-silk group-hover:scale-[1.06]">
+          <div className="absolute inset-0">
             <SpecimenMedia
               s={s}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
           </div>
-
-          {/* v3.0 — inner glow on hover */}
-          <div
-            className="pointer-events-none absolute inset-0 z-[2] opacity-0 transition-opacity duration-700 ease-silk group-hover:opacity-100"
-            style={{
-              background: "radial-gradient(ellipse 80% 60% at 50% 30%, rgba(226,207,166,0.12), transparent 60%)",
-            }}
-          />
 
           {/* ref tag */}
           <span className="ref absolute left-4 top-4 text-stone/70">{s.ref}</span>

@@ -64,3 +64,23 @@ export function useInEnquiry(slug: string): boolean {
     () => false,
   );
 }
+
+/* ── Cart panel open/close store ── */
+let panelOpen = false;
+const panelListeners = new Set<() => void>();
+function emitPanel() { panelListeners.forEach((l) => l()); }
+
+export const cartPanel = {
+  subscribe(cb: () => void) {
+    panelListeners.add(cb);
+    return () => panelListeners.delete(cb);
+  },
+  get() { return panelOpen; },
+  open() { panelOpen = true; emitPanel(); },
+  close() { panelOpen = false; emitPanel(); },
+  toggle() { panelOpen = !panelOpen; emitPanel(); },
+};
+
+export function useCartPanel(): boolean {
+  return useSyncExternalStore(cartPanel.subscribe, () => panelOpen, () => false);
+}
