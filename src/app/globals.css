@@ -527,22 +527,18 @@ html[data-menu="open"] [data-header-logo] {
    DEPTH CARDS — v3.0 enhanced with glow + richer shadows
    ============================================================ */
 .depth-card {
-  transform: translateY(0);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.55) inset,
     0 12px 22px -18px rgba(34, 26, 12, 0.34),
     0 34px 56px -40px rgba(34, 26, 12, 0.5);
-  transition:
-    transform 0.65s var(--ease-silk),
-    box-shadow 0.65s var(--ease-silk);
+  transition: box-shadow 0.65s var(--ease-silk);
 }
 .depth-card:hover {
-  transform: translateY(-10px);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.6) inset,
-    0 20px 30px -20px rgba(34, 26, 12, 0.4),
-    0 60px 92px -46px rgba(34, 26, 12, 0.55),
-    0 0 40px rgba(176, 145, 92, 0.08);
+    0 20px 40px -16px rgba(34, 26, 12, 0.45),
+    0 60px 92px -36px rgba(34, 26, 12, 0.55),
+    0 0 48px rgba(176, 145, 92, 0.10);
 }
 
 /* ============================================================
