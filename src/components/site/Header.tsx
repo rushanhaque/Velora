@@ -156,10 +156,23 @@ export function Header() {
             <Logo />
           </Link>
 
-          {/* Right — desktop nav + mobile balancer (matches hamburger width for optical centre) */}
+          {/* Right — desktop nav + cart + mobile balancer */}
           <div className="flex items-center justify-end gap-6" style={sideStyle(chrome)}>
             <div className="h-10 w-10 shrink-0 lg:hidden" aria-hidden="true" />
             <nav className="hidden items-center gap-8 lg:flex">{NAV_RIGHT.map(navLink)}</nav>
+            <button
+              type="button"
+              onClick={() => cartPanel.open()}
+              aria-label="Open cart"
+              className="hidden lg:flex items-center gap-2 rounded-full border border-stone/25 px-4 py-2 text-[0.72rem] uppercase tracking-wide3 text-stone transition-all duration-300 hover:border-brass/50 hover:text-brass-deep"
+            >
+              <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <path d="M16 10a4 4 0 0 1-8 0" />
+              </svg>
+              {cartCount > 0 ? `${cartCount}` : "Cart"}
+            </button>
           </div>
         </div>
       </div>

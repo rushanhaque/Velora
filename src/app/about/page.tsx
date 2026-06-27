@@ -11,7 +11,7 @@ import { SpecimenStage } from "@/components/visual/SpecimenStage";
 import { PROCESS, getSpecimen } from "@/lib/data";
 
 export const metadata: Metadata = {
-  title: "The Craft — raised by hand, finished by eye",
+  title: "About Us — Velora International",
   description:
     "In Moradabad, metal is not manufactured — it is coaxed. The slow craft of raising, chasing, patinating and burnishing behind every Velora object.",
 };
@@ -221,8 +221,8 @@ export default function CraftPage() {
             </p>
           </Reveal>
           <Reveal delay={210} className="mt-9 flex flex-wrap justify-center gap-5">
-            <Button href="/maison" variant="brass" arrow magnetic>
-              Meet the maison
+            <Button href="/collections" variant="brass" arrow magnetic>
+              Browse the catalogue
             </Button>
             <Button href="/collections" variant="outline" arrow>
               Browse the catalogue

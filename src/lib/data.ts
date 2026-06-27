@@ -33,8 +33,7 @@ export type Shape =
 
 export const NAV = [
   { label: "Collections", href: "/collections" },
-  { label: "The Craft", href: "/craft" },
-  { label: "The Maison", href: "/maison" },
+  { label: "About Us", href: "/about" },
   { label: "Connect", href: "/connect" },
 ];
 

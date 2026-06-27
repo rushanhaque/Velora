@@ -98,8 +98,8 @@ export default function Home() {
             </p>
           </Reveal>
           <Reveal delay={220} className="mt-10">
-            <Button href="/maison" variant="outline" arrow magnetic>
-              Enter the maison
+            <Button href="/about" variant="outline" arrow magnetic>
+              About the maison
             </Button>
           </Reveal>
         </Shell>
@@ -140,7 +140,7 @@ export default function Home() {
                 </p>
               </Reveal>
               <Reveal delay={220} className="mt-9">
-                <Button href="/craft" variant="solid" arrow magnetic>
+                <Button href="/about" variant="solid" arrow magnetic>
                   Inside the atelier
                 </Button>
               </Reveal>
