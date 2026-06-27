@@ -161,9 +161,6 @@ export function CartPanel() {
                     Send via email
                   </a>
                 </div>
-                <p className="mt-4 text-center text-[0.56rem] uppercase tracking-wider2 text-parchment/25">
-                  MOQ 6 pcs · Lead 6–8 wks · 18 countries
-                </p>
               </div>
             )}
           </motion.div>
