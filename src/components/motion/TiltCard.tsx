@@ -16,13 +16,10 @@ export function TiltCard({
   max?: number;
   glare?: boolean;
 }) {
+  // The inner .depth-card handles the hover lift + its own rounded shadow.
+  // This wrapper stays a passthrough so no sharp-cornered rectangle shows behind the card.
   return (
-    <div
-      className={cn(
-        "group relative transition-transform duration-[0.8s] ease-silk hover:-translate-y-1 hover:shadow-xl",
-        className
-      )}
-    >
+    <div className={cn("group relative", className)}>
       {children}
     </div>
   );
