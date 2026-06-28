@@ -9,7 +9,7 @@ import { getCollection, specimensByCollection } from "@/lib/data";
 export const metadata: Metadata = {
   title: "The Collections — brass, bronze & silver made by hand",
   description:
-    "Browse the Velora catalogue across four houses of metal. Hand-raised vessels, tableware, lighting and objects. Trade pricing on application.",
+    "Browse the Velora catalogue across five houses of metal. Hand-raised vessels, tableware, lighting and objects. Trade pricing on application.",
 };
 
 export default function CollectionsPage({

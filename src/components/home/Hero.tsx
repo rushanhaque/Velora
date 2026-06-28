@@ -58,10 +58,9 @@ export function Hero() {
         </span>
       </div>
 
-      {/* Tagline + CTA — below the mark. Phone/tablet only: on desktop the
-          wordmark grows tall enough to want the space to itself. */}
+      {/* Tagline + CTA — below the mark, all viewports. */}
       <div
-        className="absolute inset-x-0 top-[63svh] flex flex-col items-center px-6 text-center lg:hidden"
+        className="absolute inset-x-0 top-[63svh] flex flex-col items-center px-6 text-center"
         style={fade}
       >
         <p className="max-w-[17rem] font-display text-[clamp(1.4rem,6vw,2rem)] leading-[1.12] text-bitumen sm:max-w-sm">

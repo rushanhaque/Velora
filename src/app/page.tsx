@@ -1,13 +1,13 @@
 import { Hero } from "@/components/home/Hero";
 import { HouseIndex } from "@/components/home/HouseIndex";
+import { SignatureScroll } from "@/components/home/SignatureScroll";
 import { Section, Shell } from "@/components/ui/Section";
 import { Reveal } from "@/components/motion/Reveal";
 import { MaskText } from "@/components/motion/MaskText";
 import { Marquee } from "@/components/motion/Marquee";
 import { Counter } from "@/components/motion/Counter";
 import { Button } from "@/components/ui/Button";
-import { Eyebrow, Rule } from "@/components/ui/Atoms";
-import { SpecimenCard } from "@/components/ui/SpecimenCard";
+import { Eyebrow } from "@/components/ui/Atoms";
 import { EnquiryForm } from "@/components/forms/EnquiryForm";
 import {
   PROCESS,
@@ -15,12 +15,9 @@ import {
   TRADE_POINTS,
   PRESS,
   TICKER,
-  featuredSpecimens,
 } from "@/lib/data";
 
 export default function Home() {
-  const lookbook = featuredSpecimens();
-
   return (
     <>
       <Hero />
@@ -48,36 +45,10 @@ export default function Home() {
       {/* ───────────────── Collections ───────────────── */}
       <HouseIndex />
 
-      {/* ───────────────── Signature pieces ───────────────── */}
-      <Section pad="xl">
-        <Shell>
-          <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
-            <div>
-              <Reveal variant="blur">
-                <Eyebrow>Signature pieces</Eyebrow>
-              </Reveal>
-              <MaskText
-                as="h2"
-                className="display mt-6 text-[clamp(2.2rem,5vw,4rem)] text-bitumen"
-                lines={["Made to be remembered."]}
-              />
-            </div>
-            <Reveal delay={120}>
-              <Button href="/collections" variant="link" arrow>
-                Browse the catalogue
-              </Button>
-            </Reveal>
-          </div>
-
-          <div className="mt-14 grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
-            {lookbook.slice(0, 6).map((s, i) => (
-              <Reveal key={s.slug} delay={(i % 3) * 70} className="h-full">
-                <SpecimenCard s={s} index={i} />
-              </Reveal>
-            ))}
-          </div>
-        </Shell>
-      </Section>
+      {/* ───────────────── Signature pieces (scroll photo switcher) ───────────────── */}
+      <div className="mt-[clamp(48px,7vw,96px)]">
+        <SignatureScroll />
+      </div>
 
       {/* ───────────────── The maison line ───────────────── */}
       <Section pad="xl" className="text-center py-[clamp(40px,5vw,72px)]">
@@ -108,7 +79,7 @@ export default function Home() {
             items={TICKER.map((t) => (
               <span
                 key={t}
-                className="font-display text-[clamp(1.8rem,4.5vw,3.2rem)] italic text-parchment-pale/20"
+                className="font-display text-[clamp(1.8rem,4.5vw,3.2rem)] italic text-brass-leaf/70"
               >
                 {t}
               </span>

@@ -60,7 +60,7 @@ export function Reveal({
       data-reveal={variant === "rise" ? "" : variant}
       className={className}
       style={{
-        transitionDelay: `${delay}ms`,
+        transitionDelay: `${delay + 200}ms`,
         ...(variant === "rise" ? { ["--rev-y" as string]: `${y}px` } : {}),
         ...style,
       }}

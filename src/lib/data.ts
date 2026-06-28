@@ -95,6 +95,17 @@ export const COLLECTIONS: Collection[] = [
     tone: "bronze",
     index: "IV",
   },
+  {
+    slug: "bespoke",
+    name: "Bespoke",
+    material: "Brass, Bronze & Silver",
+    count: 12,
+    tagline: "Commissioned by hand",
+    blurb:
+      "One-off and limited commissions raised to order — candelabra, centrepieces and architectural metalwork drawn from a single brief. The maison's rarest work, made for a single room.",
+    tone: "brass",
+    index: "V",
+  },
 ];
 
 export interface Specimen {
@@ -392,7 +403,7 @@ export const SPECIMENS: Specimen[] = [
     ref: "V—6377",
     slug: "atlas-candelabra",
     name: "Atlas Candelabra",
-    collection: "accessories",
+    collection: "bespoke",
     material: "Hand-raised brass",
     tone: "brass",
     shape: "candelabra",

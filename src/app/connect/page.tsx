@@ -5,6 +5,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { Eyebrow } from "@/components/ui/Atoms";
 import { EnquiryForm } from "@/components/forms/EnquiryForm";
 import { BRAND } from "@/lib/data";
+import { SectionReveal } from "@/components/motion/SectionReveal";
 
 export const metadata: Metadata = {
   title: "Connect — contact & enquiries",
@@ -22,6 +23,7 @@ export default function ConnectPage() {
       />
 
       {/* Contact + enquiry form */}
+      <SectionReveal>
       <Section pad="md" className="pt-0">
         <Shell>
           <div className="grid gap-14 lg:grid-cols-[0.85fr_1.15fr]">
@@ -65,19 +67,6 @@ export default function ConnectPage() {
                 <EnquiryForm
                   submitLabel="Send enquiry"
                   success="Thank you — our desk has your note and will reply within two working days."
-                  choices={[
-                    {
-                      name: "interest",
-                      label: "I'm interested in…",
-                      options: [
-                        "Wholesale / stocking",
-                        "A bespoke commission",
-                        "Private label",
-                        "A hospitality programme",
-                        "The 2026 catalogue",
-                      ],
-                    },
-                  ]}
                   fields={[
                     { name: "name", label: "Name", placeholder: "Your name", required: true, half: true },
                     { name: "business", label: "Business", placeholder: "Studio, gallery or group", half: true },
@@ -91,8 +80,10 @@ export default function ConnectPage() {
           </div>
         </Shell>
       </Section>
+      </SectionReveal>
 
       {/* Map — Moradabad */}
+      <SectionReveal>
       <Section pad="lg">
         <Shell>
           <Reveal>
@@ -131,6 +122,7 @@ export default function ConnectPage() {
           </Reveal>
         </Shell>
       </Section>
+      </SectionReveal>
     </>
   );
 }

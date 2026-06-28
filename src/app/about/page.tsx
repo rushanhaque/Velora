@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Eyebrow, Rule } from "@/components/ui/Atoms";
 import { SpecimenStage } from "@/components/visual/SpecimenStage";
 import { PROCESS, getSpecimen } from "@/lib/data";
+import { SectionReveal } from "@/components/motion/SectionReveal";
 
 export const metadata: Metadata = {
   title: "About Us — Velora International",
@@ -36,6 +37,7 @@ export default function CraftPage() {
       />
 
       {/* Editorial */}
+      <SectionReveal>
       <Section pad="lg">
         <Shell>
           <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
@@ -81,8 +83,10 @@ export default function CraftPage() {
           </div>
         </Shell>
       </Section>
+      </SectionReveal>
 
       {/* Pull quote */}
+      <SectionReveal>
       <Section tint pad="lg" className="overflow-hidden text-center">
         <Shell>
           <Reveal>
@@ -104,8 +108,10 @@ export default function CraftPage() {
           </Reveal>
         </Shell>
       </Section>
+      </SectionReveal>
 
       {/* Process — sticky visual + steps */}
+      <SectionReveal>
       <Section pad="xl">
         <Shell>
           <div className="mb-14">
@@ -163,8 +169,10 @@ export default function CraftPage() {
           </div>
         </Shell>
       </Section>
+      </SectionReveal>
 
       {/* The metals */}
+      <SectionReveal>
       <Section pad="lg" className="bg-parchment-deep/45">
         <Shell>
           <Reveal>
@@ -205,8 +213,10 @@ export default function CraftPage() {
           </div>
         </Shell>
       </Section>
+      </SectionReveal>
 
       {/* CTA */}
+      <SectionReveal>
       <Section tint pad="lg" className="text-center">
         <Shell>
           <MaskText
@@ -240,6 +250,7 @@ export default function CraftPage() {
           />
         </div>
       </Section>
+      </SectionReveal>
     </>
   );
 }
