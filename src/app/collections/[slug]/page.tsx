@@ -27,7 +27,7 @@ export function generateMetadata({
   if (!s) return { title: "Piece not found" };
   return {
     title: `${s.name} — ${s.ref}`,
-    description: `${s.desc} ${s.material}, ${s.finish}. Hand-raised in Moradabad, made to order.`,
+    description: `${s.desc} ${s.material}${s.finish ? `, ${s.finish}` : ""}. Handcrafted in Moradabad, made to order.`,
   };
 }
 
@@ -39,7 +39,7 @@ export default function SpecimenPage({ params }: { params: { slug: string } }) {
 
   return (
     <>
-      <Section pad="md" className="pt-[clamp(120px,14vw,170px)]">
+      <Section pad="md" className="pt-[clamp(88px,10vw,120px)]">
         <Shell>
           <SpecimenDetail s={s} collection={collection} />
         </Shell>

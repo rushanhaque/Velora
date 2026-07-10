@@ -7,9 +7,9 @@ import { MaskText } from "@/components/motion/MaskText";
 import { getCollection, specimensByCollection } from "@/lib/data";
 
 export const metadata: Metadata = {
-  title: "The Collections — brass, bronze & silver made by hand",
+  title: "The Collections — lighting, decor, tableware & more",
   description:
-    "Browse the Velora catalogue across five houses of metal. Hand-raised vessels, tableware, lighting and objects. Trade pricing on application.",
+    "Browse the Velora catalogue across six collections — lighting, decor, kitchenware, accessories, clocks and wedding. Handcrafted objects in brass, glass, crystal, porcelain and silver.",
 };
 
 export default function CollectionsPage({
@@ -35,7 +35,7 @@ export default function CollectionsPage({
   return (
     <Section pad="md" className="pt-[clamp(110px,13vw,160px)]">
       <Shell>
-        <div className="mt-6 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
+        <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
           <div>
             <MaskText
               as="h1"
@@ -52,7 +52,7 @@ export default function CollectionsPage({
         </div>
 
         <div className="mt-14">
-          <CatalogueClient specimens={specimens} />
+          <CatalogueClient specimens={specimens} subcategories={collection.subcategories} />
         </div>
       </Shell>
     </Section>

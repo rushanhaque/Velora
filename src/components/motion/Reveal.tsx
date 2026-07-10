@@ -60,7 +60,9 @@ export function Reveal({
       data-reveal={variant === "rise" ? "" : variant}
       className={className}
       style={{
-        transitionDelay: `${delay + 200}ms`,
+        // No base wait; incoming stagger is damped to a barely-there cascade
+        // so grids still resolve in order but read as fast and immediate.
+        transitionDelay: `${Math.min(delay * 0.25, 80)}ms`,
         ...(variant === "rise" ? { ["--rev-y" as string]: `${y}px` } : {}),
         ...style,
       }}

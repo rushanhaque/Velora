@@ -37,9 +37,9 @@ export function SpecimenDetail({
   );
 
   return (
-    <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+    <div className="grid gap-10 lg:grid-cols-2 lg:gap-12 lg:items-start">
       {/* Stage */}
-      <div className="lg:sticky lg:top-28 lg:self-start">
+      <div className="lg:sticky lg:top-24 lg:self-start">
         <motion.div
           initial={{ opacity: 0, scale: 1.06, filter: "blur(14px)" }}
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
@@ -48,7 +48,7 @@ export function SpecimenDetail({
           className="plate group/stage group overflow-hidden rounded-xl2 transition-shadow duration-700 hover:shadow-glow-warm"
         >
           <div
-            className={cn("relative transition-transform duration-[1.2s] ease-silk group-hover/stage:scale-[1.04]", hasMedia(s) && "aspect-[4/5]")}
+            className={cn("relative transition-transform duration-[1.2s] ease-silk group-hover/stage:scale-[1.04]", hasMedia(s) && "aspect-[4/5] lg:aspect-auto lg:h-[min(66svh,600px)]")}
             style={{
               background:
                 "radial-gradient(110% 80% at 50% 16%, #fcfbf7, #efeae0)",
@@ -66,11 +66,13 @@ export function SpecimenDetail({
               />
             )}
             <span className="ref absolute left-5 top-5 text-stone/70">{s.ref}</span>
-            <div className="absolute bottom-5 left-1/2 -translate-x-1/2">
-              <span className="rounded-full border border-line bg-parchment-pale/70 px-4 py-1.5 text-[0.6rem] uppercase tracking-wider2 text-stone backdrop-blur">
-                {finish}
-              </span>
-            </div>
+            {finish && (
+              <div className="absolute bottom-5 left-1/2 -translate-x-1/2">
+                <span className="rounded-full border border-line bg-parchment-pale/70 px-4 py-1.5 text-[0.6rem] uppercase tracking-wider2 text-stone backdrop-blur">
+                  {finish}
+                </span>
+              </div>
+            )}
             {/* maker's hallmark — stamps in on hover */}
             <span aria-hidden="true" className="hallmark absolute bottom-5 right-5 text-brass-deep">
               <Mark className="h-6 w-6" />
@@ -97,7 +99,7 @@ export function SpecimenDetail({
           </div>
         )}
 
-        <div className="mt-4 grid grid-cols-3 gap-3">
+        <div className="mt-3 grid grid-cols-3 gap-3">
           {["Hand-raised", "One maker", "Made to order"].map((t) => (
             <span
               key={t}
@@ -134,21 +136,23 @@ export function SpecimenDetail({
 
         <MaskText
           as="h1"
-          className="display mt-6 text-[clamp(2.4rem,5.5vw,4rem)] text-bitumen"
+          className="display mt-4 text-[clamp(2rem,4.4vw,3.3rem)] text-bitumen"
           lines={[s.name]}
         />
 
         <Reveal delay={120}>
           <p className="mt-3 text-sm uppercase tracking-wide3 text-brass-deep">
-            {s.material} · {s.price}
+            {collection?.name}
+            {s.subcategory ? ` · ${s.subcategory}` : ""} · {s.material}
           </p>
         </Reveal>
 
         <Reveal delay={160}>
-          <p className="mt-7 max-w-prose2 leading-relaxed text-stone">{s.story}</p>
+          <p className="mt-5 max-w-prose2 leading-relaxed text-stone">{s.story}</p>
         </Reveal>
 
-        {/* Finish selector */}
+        {/* Finish selector — only for pieces with a metal finish */}
+        {s.finish && (
         <Reveal delay={200}>
           <div className="mt-9">
             <p className="text-[0.6rem] uppercase tracking-wider2 text-ash">Finish</p>
@@ -175,24 +179,34 @@ export function SpecimenDetail({
             </div>
           </div>
         </Reveal>
+        )}
 
         {/* Spec table */}
         <Reveal delay={240}>
-          <dl className="mt-10 grid grid-cols-1 gap-y-0 border-t border-line pt-2 sm:grid-cols-2 sm:gap-x-8">
-            {[
+          <dl className="mt-7 grid grid-cols-1 gap-y-0 border-t border-line pt-2 sm:grid-cols-2 sm:gap-x-8">
+            {([
               ["Material", s.material],
-              ["Dimensions", s.dims],
-              ["Lead time", s.leadTime],
-              ["Edition", s.edition],
-              ["Made by", s.maker],
-              ["Introduced", String(s.year)],
-            ].map(([k, v], i) => (
+              ["Collection", collection?.name],
+              ["Category", s.subcategory],
+              ["Finish", s.finish],
+              ["Reference", s.ref],
+              ["Craft", "Handmade to order"],
+            ].filter((row): row is [string, string] => Boolean(row[1]))).map(([k, v], i) => (
               <Reveal key={k} delay={i * 40}>
-                <div className="group/spec py-4 border-b border-line/50 transition-colors duration-500 hover:border-brass/40">
+                <div className="group/spec py-3 border-b border-line/50 transition-colors duration-500 hover:border-brass/40">
                   <dt className="text-[0.58rem] uppercase tracking-wider2 text-ash transition-colors duration-500 group-hover/spec:text-brass-deep">
                     {k}
                   </dt>
-                  <dd className="mt-1.5 font-display text-lg text-bitumen">{v}</dd>
+                  <dd
+                    className={cn(
+                      "mt-1.5 text-bitumen",
+                      k === "Craft"
+                        ? "font-sans text-[0.9rem] font-light tracking-wide"
+                        : "font-display text-lg",
+                    )}
+                  >
+                    {v}
+                  </dd>
                 </div>
               </Reveal>
             ))}
@@ -201,7 +215,7 @@ export function SpecimenDetail({
 
         {/* CTA */}
         <Reveal delay={280}>
-          <div className="mt-10 flex flex-wrap items-center gap-4">
+          <div className="mt-7 flex flex-wrap items-center gap-4">
             <Button
               variant={added ? "outline" : "solid"}
               arrow={!added}
@@ -214,8 +228,8 @@ export function SpecimenDetail({
               {added ? "View cart" : "Enquire"}
             </Button>
           </div>
-          <p className="mt-6 text-[0.66rem] uppercase tracking-wider2 text-ash">
-            MOQ 6 pieces · Trade price on application · Spec sheet (PDF) on request
+          <p className="mt-5 text-[0.66rem] uppercase tracking-wider2 text-ash">
+            Handcrafted in Moradabad · Made to order · Trade enquiries welcome
           </p>
         </Reveal>
       </div>

@@ -14,16 +14,34 @@ export function Hero() {
     opacity: "var(--scroll-cue-o, 1)",
     transition: "opacity .5s var(--ease-silk)",
   };
+  // Soft cream glow bound to the glyphs — lifts the dark copy off the
+  // photograph without laying a whitish sheet over the whole hero.
+  const glow = {
+    textShadow:
+      "0 1px 1px rgba(250,247,240,0.6), 0 1px 14px rgba(250,247,240,0.72), 0 0 30px rgba(250,247,240,0.4)",
+  };
 
   return (
     <section className="relative flex min-h-[100svh] flex-col overflow-hidden">
-      {/* Ambient grounds — warm light pooling behind the mark */}
+      {/* Landing photograph — the golden-hour terrace, behind everything.
+         Left vivid: no flat wash — legibility is handled locally on the text. */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-20">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/media/landing-bg.png"
+          alt=""
+          className="h-full w-full object-cover object-center"
+        />
+      </div>
+
+      {/* A whisper of light seated behind the mark + a faint warm floor glow —
+         just enough to hold the dark wordmark, nowhere near a full wash. */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10"
         style={{
           background:
-            "radial-gradient(58% 46% at 50% 34%, #fcfbf7 0%, rgba(250,246,238,0) 62%), radial-gradient(90% 60% at 50% 118%, rgba(200,167,101,0.12), transparent 60%)",
+            "radial-gradient(30% 24% at 50% 45%, rgba(252,251,247,0.26) 0%, rgba(250,246,238,0) 72%), radial-gradient(90% 55% at 50% 122%, rgba(200,167,101,0.10), transparent 60%)",
         }}
       />
 
@@ -61,7 +79,10 @@ export function Hero() {
         className="absolute inset-x-0 top-[clamp(104px,19svh,200px)] flex justify-center px-6"
         style={fade}
       >
-        <span className="eyebrow eyebrow-settle inline-flex items-center gap-3 text-brass-deep">
+        <span
+          className="eyebrow eyebrow-settle inline-flex items-center gap-3 text-brass-deep"
+          style={glow}
+        >
           <span className="h-px w-7 bg-current opacity-40 sm:w-10" aria-hidden="true" />
           Métaux d&apos;Art · Est. 1972
           <span className="h-px w-7 bg-current opacity-40 sm:w-10" aria-hidden="true" />
@@ -73,13 +94,17 @@ export function Hero() {
         className="absolute inset-x-0 top-[63svh] flex flex-col items-center px-6 text-center"
         style={fade}
       >
-        <p className="max-w-[17rem] font-display text-[clamp(1.4rem,6vw,2rem)] leading-[1.12] text-bitumen sm:max-w-sm">
+        <p
+          className="max-w-[17rem] font-display text-[clamp(1.5rem,6.2vw,2.15rem)] font-medium leading-[1.12] text-bitumen sm:max-w-sm"
+          style={glow}
+        >
           Hand-raised metalware for the{" "}
           <span className="serif-italic text-brass-deep">world&apos;s finest interiors.</span>
         </p>
         <Link
           href="/collections"
           className="link-draw group mt-7 inline-flex items-center gap-1.5 text-[0.72rem] uppercase tracking-wide3 text-bitumen"
+          style={glow}
         >
           Explore the collections
           <span className="text-brass-deep transition-transform duration-500 ease-silk group-hover:translate-x-1">

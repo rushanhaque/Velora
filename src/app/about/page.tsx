@@ -25,7 +25,7 @@ const METALS = [
 ];
 
 export default function CraftPage() {
-  const formA = getSpecimen("noor-temple-ewer")!;
+  const formA = getSpecimen("pomegranate-branch-bowl")!;
 
   return (
     <>

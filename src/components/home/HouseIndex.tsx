@@ -20,10 +20,10 @@ const GLOW: Record<string, string> = {
 const HOUSES = COLLECTIONS.map((c) => ({ ...c, art: specimensByCollection(c.slug)[0] }));
 
 // Scroll breakpoints: cumulative fraction of scrollable height at which each
-// collection hands off to the next. Lighting holds longer; Bespoke shorter.
-const SCROLL_BREAKS = [0.24, 0.44, 0.64, 0.84, 1.0];
+// collection hands off to the next. One entry per collection; last is 1.0.
+const SCROLL_BREAKS = [0.18, 0.34, 0.5, 0.66, 0.82, 1.0];
 
-const STACK_OFFSET = 52;
+const STACK_OFFSET = 36;
 const STACK_SCALE  = 0.075;
 const STACK_TILT   = 4;
 
@@ -45,15 +45,24 @@ function DeckCard({ h }: { h: (typeof HOUSES)[number] }) {
           background: `radial-gradient(120% 95% at 50% 10%, ${GLOW[h.tone]}, transparent 62%), linear-gradient(180deg,#fcfbf7,#efeae0)`,
         }}
       >
-        {h.art && (
-          <div className="absolute inset-0 grid place-items-center p-[9%] transition-transform duration-[850ms] ease-silk will-change-transform group-hover:-translate-y-[10px]">
-            <SpecimenArt
-              shape={h.art.shape}
-              tone={h.art.tone}
-              seed={`deck-${h.slug}`}
-              className="h-full w-full drop-shadow-[0_22px_30px_rgba(34,26,12,0.22)] transition-[filter] duration-[850ms] ease-silk group-hover:drop-shadow-[0_44px_54px_rgba(34,26,12,0.36)]"
-            />
-          </div>
+        {h.cover ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={h.cover}
+            alt={`${h.name} — ${h.material}`}
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-silk will-change-transform group-hover:scale-[1.05]"
+          />
+        ) : (
+          h.art && (
+            <div className="absolute inset-0 grid place-items-center p-[9%] transition-transform duration-[850ms] ease-silk will-change-transform group-hover:-translate-y-[10px]">
+              <SpecimenArt
+                shape={h.art.shape}
+                tone={h.art.tone}
+                seed={`deck-${h.slug}`}
+                className="h-full w-full drop-shadow-[0_22px_30px_rgba(34,26,12,0.22)] transition-[filter] duration-[850ms] ease-silk group-hover:drop-shadow-[0_44px_54px_rgba(34,26,12,0.36)]"
+              />
+            </div>
+          )
         )}
         {/* brass light-catch draws along the lower edge on hover */}
         <div
@@ -110,7 +119,7 @@ export function HouseIndex() {
       >
         <div className="sticky top-0 relative flex h-[100svh] items-center overflow-hidden py-[clamp(40px,5vh,80px)]">
           <Shell>
-            <div className="max-w-[clamp(300px,40vw,500px)]">
+            <div className="max-w-[clamp(300px,40vw,500px)] mt-10">
               <Reveal>
                 <Eyebrow className="mb-5">The collections</Eyebrow>
               </Reveal>
@@ -128,7 +137,7 @@ export function HouseIndex() {
                           <span className={cn("numeral w-6 shrink-0 text-[0.82rem] transition-colors duration-500", on ? "text-brass-deep" : "text-haze")}>
                             {h.index}
                           </span>
-                          <h3 className={cn("font-display text-[clamp(2.2rem,4vw,3.6rem)] leading-[1] transition-all duration-500 ease-silk", on ? "translate-x-2 text-bitumen" : "text-stone/50 group-hover/row:translate-x-1 group-hover/row:text-bitumen/80")}>
+                          <h3 className={cn("font-display text-[clamp(1.76rem,3.2vw,2.88rem)] leading-[1] transition-all duration-500 ease-silk", on ? "translate-x-2 text-bitumen" : "text-stone/50 group-hover/row:translate-x-1 group-hover/row:text-bitumen/80")}>
                             {h.name}
                           </h3>
                         </div>
@@ -145,13 +154,13 @@ export function HouseIndex() {
             </div>
           </Shell>
 
-          <div className="absolute right-[clamp(0px,1.4vw,20px)] top-[53%] w-[clamp(386px,39.5vw,552px)] -translate-y-1/2 [perspective:1900px]">
+          <div className="absolute right-[clamp(0px,1.4vw,20px)] top-[53%] w-[clamp(463px,47.4vw,662px)] -translate-y-1/2 [perspective:1900px]">
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0 -m-12 rounded-full blur-[80px] transition-all duration-1000"
               style={{ background: `radial-gradient(circle, ${GLOW[cur.tone]}, transparent 70%)`, opacity: 0.5 }}
             />
-            <div className="relative aspect-[7/5] w-full">
+            <div className="relative aspect-[7/4.6] w-full">
               {HOUSES.map((h, i) => {
                 const len  = HOUSES.length;
                 const half = Math.floor(len / 2);
@@ -192,9 +201,9 @@ export function HouseIndex() {
               </Reveal>
               <Reveal delay={60}>
                 <h2 className="display mt-5 text-[clamp(2rem,9vw,2.8rem)] leading-[0.98] text-bitumen">
-                  Five houses
+                  Six collections
                   <br />
-                  <span className="text-leaf">of metal.</span>
+                  <span className="text-leaf">to live with.</span>
                 </h2>
               </Reveal>
             </div>

@@ -11,11 +11,12 @@ const COLLECTIONS_LINKS = [
   { label: "Kitchenware", href: "/collections?house=kitchenware" },
   { label: "Accessories", href: "/collections?house=accessories" },
 ];
-const MAISON_LINKS = [
-  { label: "The Craft", href: "/craft" },
-  { label: "The Maison", href: "/maison" },
-  { label: "FAQ", href: "/faq" },
+const PAGE_LINKS = [
+  { label: "Home", href: "/" },
+  { label: "About", href: "/about" },
+  { label: "Collections", href: "/collections" },
   { label: "Connect", href: "/connect" },
+  { label: "FAQ", href: "/faq" },
 ];
 
 export function Footer() {
@@ -60,11 +61,11 @@ export function Footer() {
             </ul>
           </Reveal>
 
-          {/* Maison */}
+          {/* Pages */}
           <Reveal delay={140}>
-            <p className="eyebrow text-brass-leaf">Maison</p>
+            <p className="eyebrow text-brass-leaf">Pages</p>
             <ul className="mt-6 space-y-3">
-              {MAISON_LINKS.map((l) => (
+              {PAGE_LINKS.map((l) => (
                 <li key={l.href}>
                   <Link
                     href={l.href}

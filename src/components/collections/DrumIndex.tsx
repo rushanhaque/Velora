@@ -15,9 +15,9 @@ import { cn } from "@/lib/utils";
    Label pitch = 2·R·tan(12°) ≈ 127px CSS ≈ 156px rendered.               */
 const STEP = 24;
 const RADIUS = 300;
-const PERSPECTIVE = 1600;
+const PERSPECTIVE = 1000;
 const N = COLLECTIONS.length;
-/* House V reaches its detent at 85% of the scroll, then rests. */
+/* The final house reaches its detent at 85% of the scroll, then rests. */
 const REST = 0.85;
 
 const PEDESTAL: Record<string, string> = {
@@ -27,7 +27,7 @@ const PEDESTAL: Record<string, string> = {
   bronze: "rgba(140,110,79,0.26)",
 };
 
-const ROMAN = ["I", "II", "III", "IV", "V"];
+const ROMAN = ["I", "II", "III", "IV", "V", "VI"];
 
 type House = (typeof COLLECTIONS)[number] & {
   hero: Specimen | undefined;
@@ -189,7 +189,7 @@ export function DrumIndex() {
 
           <div className="shell grid w-full grid-cols-12 items-center gap-[clamp(24px,4vw,64px)]">
             {/* ── The drum (cols 1–5) ── */}
-            <div className="relative col-span-5 flex items-center gap-10">
+            <div className="relative col-span-4 flex items-center gap-10">
               {/* index rail — five quiet marks; the active one is a longer brass tick */}
               <div className="relative flex h-[min(58svh,520px)] flex-col items-center justify-between py-2">
                 {HOUSES.map((h, i) => (
@@ -230,15 +230,14 @@ export function DrumIndex() {
                   ))}
                 </div>
               ) : (
-                <div className="relative h-[min(58svh,520px)] flex-1 overflow-hidden" aria-hidden="true">
-                  {/* ambient occlusion at the roll-off */}
-                  <div
-                    className="absolute inset-0"
-                    style={{
-                      background:
-                        "linear-gradient(180deg, rgba(34,26,12,0.05) 0%, transparent 20% 80%, rgba(34,26,12,0.06) 100%)",
-                    }}
-                  />
+                <div
+                  className="relative h-[min(58svh,520px)] flex-1 overflow-hidden"
+                  aria-hidden="true"
+                  style={{
+                    maskImage: "linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)",
+                    WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)",
+                  }}
+                >
                   <div className="absolute inset-0" style={{ perspective: `${PERSPECTIVE}px` }}>
                     <div
                       ref={drumRef}
@@ -251,7 +250,7 @@ export function DrumIndex() {
                           ref={(el) => {
                             labelRefs.current[i] = el;
                           }}
-                          className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 items-baseline gap-4 pl-[11%] pr-[12%]"
+                          className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 items-baseline gap-4 pl-[20%] pr-[8%]"
                           style={{
                             transform: `translateY(-50%) rotateX(${-i * STEP}deg) translateZ(${RADIUS}px)`,
                             backfaceVisibility: "hidden",
@@ -259,7 +258,7 @@ export function DrumIndex() {
                         >
                           <span
                             className={cn(
-                              "drum-label whitespace-nowrap font-display text-[clamp(22px,2.1vw,34px)] uppercase tracking-[0.16em] leading-none",
+                              "drum-label whitespace-nowrap font-display text-[clamp(17px,1.6vw,26px)] uppercase tracking-[0.16em] leading-none",
                               active === i && "is-read",
                             )}
                           >
@@ -269,11 +268,7 @@ export function DrumIndex() {
                       ))}
                     </div>
                   </div>
-                  {/* curvature caps — OVER the drum, never a mask on a 3D ancestor */}
-                  <div className="drum-cap drum-cap--top" />
-                  <div className="drum-cap drum-cap--bottom" />
-
-                  {/* the reading line — one quiet static brass tick at the active row */}
+                  {/* reading line — single brass tick at the active row */}
                   <div
                     className="pointer-events-none absolute left-0 top-1/2 z-20 -translate-y-1/2"
                     aria-hidden="true"
@@ -284,8 +279,8 @@ export function DrumIndex() {
               )}
             </div>
 
-            {/* ── The stage (cols 6–12) ── */}
-            <div className="relative col-span-7 h-[min(80svh,700px)]">
+            {/* ── The stage (cols 5–12) ── */}
+            <div className="relative col-span-8 h-[min(80svh,700px)] pl-[clamp(20px,4vw,64px)]">
               {HOUSES.map((h, i) => {
                 const on = active === i;
                 return (
@@ -325,7 +320,7 @@ export function DrumIndex() {
                     </div>
 
                     {/* the plate copy */}
-                    <div className="relative z-10 mt-[clamp(12px,2.5svh,26px)] max-w-[560px]">
+                    <div className="relative z-10 mt-[clamp(12px,2.5svh,26px)] ml-auto max-w-[560px] text-right">
                       <h2 className="st st-name font-display text-[clamp(2.2rem,3.8vw,3.5rem)] leading-[1.02] tracking-[-0.01em] text-bitumen">
                         {h.name}
                       </h2>
@@ -336,7 +331,7 @@ export function DrumIndex() {
                       <p className="st st-blurb mt-5 max-w-[46ch] text-[0.92rem] leading-[1.55] text-stone">
                         {h.blurb}
                       </p>
-                      <div className="st st-cta mt-6">
+                      <div className="st st-cta mt-6 flex justify-end">
                         <Button
                           href={`/collections?house=${h.slug}`}
                           variant="outline"
@@ -349,7 +344,7 @@ export function DrumIndex() {
                     </div>
 
                     {/* the fan — a hand of three pieces, spreads under the visitor's hand */}
-                    <div className="st relative z-10 mt-[clamp(16px,3svh,36px)] flex h-[clamp(96px,17svh,128px)] justify-center pt-2 lg:justify-start lg:pl-[52px]">
+                    <div className="st relative z-10 mt-[clamp(16px,3svh,36px)] flex h-[clamp(96px,17svh,128px)] justify-end pt-2">
                       {h.fan.map(({ s, seed }, fi) => (
                         <div
                           key={seed}
@@ -388,7 +383,7 @@ export function DrumIndex() {
 
       {/* ═══ MOBILE / TABLET — engraved plaques, fans pre-spread ═══ */}
       <div className="lg:hidden">
-        <div className="shell pt-10">
+        <div className="shell pt-[68px]">
           <span className="eyebrow eyebrow-settle inline-flex items-center gap-3 text-brass-deep">
             <span className="h-px w-7 bg-current opacity-40" aria-hidden="true" />
             The collections
