@@ -3,6 +3,7 @@ import type { Specimen } from "@/lib/data";
 import { SpecimenMedia } from "@/components/visual/SpecimenMedia";
 import { TiltCard } from "@/components/motion/TiltCard";
 import { EnquiryToggle } from "@/components/ui/EnquiryToggle";
+import { Mark } from "@/components/brand/Logo";
 import { cn } from "@/lib/utils";
 
 const TONE_DOT: Record<string, string> = {
@@ -29,6 +30,7 @@ export function SpecimenCard({
       <Link
         href={`/collections/${s.slug}`}
         data-cursor="link"
+        data-lit
         className="plate depth-card group flex h-full flex-col overflow-hidden rounded-card"
       >
         {/* Studio frame */}
@@ -54,6 +56,11 @@ export function SpecimenCard({
 
           {/* add-to-enquiry */}
           <EnquiryToggle slug={s.slug} name={s.name} className="absolute right-3.5 top-3.5" />
+
+          {/* maker's hallmark — stamps in on hover, like a die striking */}
+          <span aria-hidden="true" className="hallmark absolute bottom-3.5 right-3.5 text-brass-deep">
+            <Mark className="h-5 w-5" />
+          </span>
 
 
         </div>

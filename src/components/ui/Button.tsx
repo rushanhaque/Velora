@@ -17,6 +17,7 @@ interface Props {
   magnetic?: boolean;
   arrow?: boolean;
   className?: string;
+  tabIndex?: number;
 }
 
 function Arrow() {
@@ -45,28 +46,29 @@ export function Button({
   magnetic = false,
   arrow = false,
   className,
+  tabIndex,
 }: Props) {
   const rippleRef = useRef<HTMLSpanElement>(null);
 
   const base =
-    "group relative inline-flex items-center justify-center gap-1 font-sans text-[0.82rem] tracking-wide3 uppercase overflow-hidden active:scale-[0.97] transition-all duration-500 ease-silk";
+    "group relative inline-flex items-center justify-center gap-1 font-sans text-[0.82rem] tracking-wide3 uppercase overflow-hidden active:scale-[0.97] active:translate-y-[1px] transition-all duration-500 ease-silk";
 
   const shapes: Record<Variant, string> = {
     solid: cn(
-      "burnish rounded-full px-7 py-3.5",
+      "burnish btn-gild rounded-full px-7 py-3.5",
       onDark
         ? "bg-parchment-pale text-bitumen hover:bg-white hover:shadow-glow-brass"
-        : "bg-bitumen text-parchment-pale hover:bg-bitumen-umber hover:shadow-[0_16px_40px_-12px_rgba(20,17,11,0.5)]",
+        : "bg-bitumen text-parchment-pale hover:bg-bitumen-umber hover:shadow-[0_16px_40px_-12px_rgba(34,26,12,0.45)]",
     ),
     brass: cn(
-      "burnish rounded-full px-7 py-3.5 text-bitumen",
+      "burnish btn-gild rounded-full px-7 py-3.5 text-bitumen",
       "bg-[linear-gradient(96deg,#7b5a26,#c8a765_45%,#dcc089_55%,#a77e36)] shadow-[0_10px_30px_-12px_rgba(167,126,54,0.7)] hover:shadow-[0_18px_40px_-10px_rgba(167,126,54,0.8)]",
     ),
     outline: cn(
-      "rounded-full px-7 py-3.5 border",
+      "btn-gild rounded-full px-7 py-3.5 border",
       onDark
-        ? "border-brass-leaf/35 text-parchment-pale hover:border-brass-leaf hover:bg-white/5 hover:shadow-[0_0_30px_rgba(201,174,124,0.12)]"
-        : "border-bitumen/25 text-bitumen hover:border-brass hover:bg-brass/[0.04] hover:shadow-[0_0_30px_rgba(176,145,92,0.08)]",
+        ? "border-brass-leaf/35 text-parchment-pale hover:border-brass-leaf hover:bg-white/5 hover:shadow-[0_0_30px_rgba(201,174,124,0.14)]"
+        : "border-bitumen/25 text-bitumen hover:border-brass hover:bg-brass/[0.04] hover:shadow-[0_0_30px_rgba(176,145,92,0.10)]",
     ),
     link: cn(
       "link-draw px-0 py-1",
@@ -96,11 +98,11 @@ export function Button({
   const cls = cn(base, shapes[variant], className);
 
   const inner = href ? (
-    <Link href={href} className={cls} onClick={(e) => { spawnRipple(e); onClick?.(); }} data-cursor="link">
+    <Link href={href} className={cls} tabIndex={tabIndex} onClick={(e) => { spawnRipple(e); onClick?.(); }} data-cursor="link">
       {content}
     </Link>
   ) : (
-    <button type={type} onClick={(e) => { spawnRipple(e); onClick?.(); }} className={cls} data-cursor="link">
+    <button type={type} onClick={(e) => { spawnRipple(e); onClick?.(); }} className={cls} tabIndex={tabIndex} data-cursor="link">
       <span ref={rippleRef} />
       {content}
     </button>

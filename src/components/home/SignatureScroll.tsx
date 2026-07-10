@@ -91,7 +91,10 @@ export function SignatureScroll() {
                 transition: `opacity 1s ${EASE_CSS}, transform 1s ${EASE_CSS}`,
               }}
             >
-              <SlideMedia slide={s} index={i} />
+              {/* slow cinematic push-in while the slide holds the screen */}
+              <div className={cn("h-full w-full", active === i && "slow-drift")}>
+                <SlideMedia slide={s} index={i} />
+              </div>
             </div>
           ))}
 
@@ -182,7 +185,7 @@ function SlideMedia({ slide, index }: { slide: Slide; index: number }) {
     <div
       className={cn(
         "grid h-full w-full place-items-center",
-        "bg-[linear-gradient(135deg,#2a2620,#15120d)]",
+        "bg-[linear-gradient(135deg,#17293c,#0b1928)]",
       )}
     >
       <div className="text-center text-parchment-pale/25">

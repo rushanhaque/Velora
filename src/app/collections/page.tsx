@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Section, Shell } from "@/components/ui/Section";
-import { CollectionLanding } from "@/components/collections/CollectionLanding";
+import { DrumIndex } from "@/components/collections/DrumIndex";
 import { CatalogueClient } from "@/components/collections/CatalogueClient";
 import { Reveal } from "@/components/motion/Reveal";
 import { MaskText } from "@/components/motion/MaskText";
@@ -20,11 +20,11 @@ export default function CollectionsPage({
   const houseParam = searchParams.house;
   const collection = houseParam ? getCollection(houseParam) : null;
 
-  // ── Category landing ────────────────────────────────────────────────────────
+  // ── Category landing — the indexing drum ───────────────────────────────────
   if (!collection) {
     return (
-      <div className="pt-[80px]">
-        <CollectionLanding />
+      <div className="pt-[72px]">
+        <DrumIndex />
       </div>
     );
   }

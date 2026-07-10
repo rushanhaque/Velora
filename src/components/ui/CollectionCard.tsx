@@ -26,6 +26,7 @@ export function CollectionCard({
       <Link
         href={`/collections?house=${c.slug}`}
         data-cursor="link"
+        data-lit
         className="plate depth-card group relative flex h-full flex-col overflow-hidden rounded-xl2"
       >
         {/* index numeral */}
@@ -71,7 +72,7 @@ export function CollectionCard({
                   shape={hero.shape}
                   tone={hero.tone}
                   seed={`col-${hero.slug}`}
-                  className="h-full w-full drop-shadow-[0_22px_28px_rgba(34,26,12,0.22)] transition-[filter] duration-[850ms] ease-silk group-hover:drop-shadow-[0_46px_56px_rgba(34,26,12,0.44)]"
+                  className="h-full w-full drop-shadow-[0_22px_28px_rgba(34,26,12,0.22)] transition-[filter] duration-[850ms] ease-silk group-hover:drop-shadow-[0_46px_56px_rgba(34,26,12,0.42)]"
                 />
               </div>
             )

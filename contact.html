@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trade Enquiries — Velora Atelier</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:      #1a1714;
+    --ink-mid:  #5a524a;
+    --ink-soft: #8c8078;
+    --rule:     #e4ddd7;
+    --cream:    #f9f6f2;
+    --sand:     #ede8e2;
+    --accent:   #b0875a;
+    --sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --serif: 'Georgia', 'Times New Roman', serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--cream);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── section wrapper ─────────────────────────────── */
+  .trade {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 80px 48px 96px;
+  }
+
+  /* ── top row: heading left · map right ───────────── */
+  .trade-top {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 56px;
+    align-items: start;
+    margin-bottom: 56px;
+  }
+
+  .trade-heading {
+    padding-top: 4px;
+  }
+
+  .trade-heading .eyebrow {
+    font-size: 10.5px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  .trade-heading h2 {
+    font-family: var(--serif);
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--ink);
+    letter-spacing: -.01em;
+    margin-bottom: 24px;
+  }
+
+  .trade-heading p {
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--ink-mid);
+    max-width: 44ch;
+  }
+
+  /* ── map ─────────────────────────────────────────── */
+  .trade-map {
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+    height: 340px;
+    background: var(--sand);
+    position: relative;
+  }
+
+  .trade-map iframe {
+    width: 100%;
+    height: 100%;
+    display: block;
+    border: 0;
+    filter: saturate(.82) contrast(.96);
+  }
+
+  /* ── bottom row: contact left · form right ───────── */
+  .trade-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 56px;
+    align-items: start;
+    padding-top: 48px;
+    border-top: 1px solid var(--rule);
+  }
+
+  /* contact details */
+  .contact-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .contact-list li {
+    display: grid;
+    grid-template-columns: 116px 1fr;
+    gap: 16px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--rule);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .contact-list li:first-child {
+    border-top: 1px solid var(--rule);
+  }
+
+  .contact-list .label {
+    font-size: 10.5px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 600;
+    padding-top: 2px;
+  }
+
+  .contact-list .value {
+    color: var(--ink);
+  }
+
+  .contact-list a {
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule);
+    transition: border-color .18s;
+  }
+
+  .contact-list a:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* ── form ────────────────────────────────────────── */
+  .trade-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field label {
+    font-size: 10.5px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    font-family: var(--sans);
+    font-size: 14px;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color .18s;
+    width: 100%;
+    -webkit-appearance: none;
+  }
+
+  .field input::placeholder,
+  .field textarea::placeholder {
+    color: #c5bdb6;
+  }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    border-color: var(--accent);
+  }
+
+  .field textarea {
+    resize: vertical;
+    min-height: 108px;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238c8078' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 38px;
+    cursor: pointer;
+  }
+
+  .btn-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+    padding: 14px 32px;
+    background: var(--ink);
+    color: #fff;
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    font-weight: 600;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background .2s;
+    align-self: flex-start;
+  }
+
+  .btn-submit:hover { background: var(--accent); }
+
+  .btn-submit svg {
+    transition: transform .2s;
+  }
+
+  .btn-submit:hover svg { transform: translateX(3px); }
+
+  .form-note {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  /* ── responsive ──────────────────────────────────── */
+  @media (max-width: 900px) {
+    .trade { padding: 56px 24px 72px; }
+    .trade-top,
+    .trade-body { grid-template-columns: 1fr; gap: 36px; }
+    .trade-map { height: 260px; }
+    .field-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<section class="trade">
+
+  <!-- top: heading + intro  |  map -->
+  <div class="trade-top">
+
+    <div class="trade-heading">
+      <span class="eyebrow">Trade &amp; Wholesale</span>
+      <h2>Let's connect</h2>
+      <p>Designers, retailers, galleries and hospitality groups are welcome. Send us a note and our desk replies within two working days — with pricing, samples and a dedicated contact.</p>
+    </div>
+
+    <div class="trade-map">
+      <iframe
+        title="Velora Atelier — Civil Lines, Moradabad"
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3481.3!2d78.773!3d28.836!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390afef4a3d96261%3A0x7b2b2b2b2b2b2b2b!2sCivil%20Lines%2C%20Moradabad%2C%20Uttar%20Pradesh%20244001!5e0!3m2!1sen!2sin!4v1"
+        allowfullscreen
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+    </div>
+
+  </div>
+
+  <!-- bottom: contact details  |  form -->
+  <div class="trade-body">
+
+    <ul class="contact-list">
+      <li>
+        <span class="label">Email</span>
+        <span class="value"><a href="mailto:trade@velora.example">trade@velora.example</a></span>
+      </li>
+      <li>
+        <span class="label">Telephone</span>
+        <span class="value"><a href="tel:+910000000000">+91 (000) 000 0000</a></span>
+      </li>
+      <li>
+        <span class="label">Atelier &amp; showroom</span>
+        <span class="value">Civil Lines, Moradabad<br>Uttar Pradesh 244001, India</span>
+      </li>
+      <li>
+        <span class="label">Hours</span>
+        <span class="value">Mon–Sat · 9:30–18:30 IST</span>
+      </li>
+    </ul>
+
+    <form class="trade-form" action="#" method="post" novalidate>
+      <div class="field-row">
+        <div class="field">
+          <label for="name">Full name</label>
+          <input type="text" id="name" name="name" placeholder="Your name" autocomplete="name">
+        </div>
+        <div class="field">
+          <label for="company">Company</label>
+          <input type="text" id="company" name="company" placeholder="Studio / brand">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email">
+        </div>
+        <div class="field">
+          <label for="type">Trade type</label>
+          <select id="type" name="type">
+            <option value="" disabled selected>Select one</option>
+            <option>Interior designer</option>
+            <option>Retailer</option>
+            <option>Gallery</option>
+            <option>Hospitality group</option>
+            <option>Architect</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" placeholder="Tell us about your project or enquiry…"></textarea>
+      </div>
+      <div>
+        <button type="submit" class="btn-submit">
+          Send enquiry
+          <svg width="14" height="10" viewBox="0 0 14 10" fill="none">
+            <path d="M1 5h12M8 1l5 4-5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <p class="form-note">We reply within two working days with pricing, samples and a dedicated contact.</p>
+    </form>
+
+  </div>
+
+</section>
+
+</body>
+</html>

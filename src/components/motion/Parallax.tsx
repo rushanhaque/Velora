@@ -62,7 +62,9 @@ export function Parallax({
   );
 }
 
-/** Top-of-page reading progress, a thin brass thread. */
+/** Top-of-page reading progress — a gilded thread drawn across the
+ *  page with a molten tip at its leading edge. Translated (not scaled)
+ *  so the tip stays crisp at every progress value. */
 export function ScrollProgress() {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -75,7 +77,7 @@ export function ScrollProgress() {
       const h = document.documentElement;
       const max = h.scrollHeight - h.clientHeight;
       const p = max > 0 ? h.scrollTop / max : 0;
-      el.style.transform = `scaleX(${p.toFixed(4)})`;
+      el.style.transform = `translate3d(${(-100 + p * 100).toFixed(3)}%, 0, 0)`;
       ticking = false;
     };
     const onScroll = () => {
@@ -95,11 +97,15 @@ export function ScrollProgress() {
   }, []);
 
   return (
-    <div
-      ref={ref}
-      className="fixed inset-x-0 top-0 z-[60] h-[3px] origin-left bg-gradient-to-r from-brass-deep via-brass to-brass-gilt shadow-[0_0_12px_rgba(176,145,92,0.4),0_0_4px_rgba(176,145,92,0.6)]"
-      style={{ transform: "scaleX(0)" }}
-      aria-hidden="true"
-    />
+    <div className="pointer-events-none fixed inset-x-0 top-0 z-[60] h-[3px] overflow-hidden" aria-hidden="true">
+      <div
+        ref={ref}
+        className="relative h-full w-full bg-gradient-to-r from-transparent via-brass/70 to-brass-gilt"
+        style={{ transform: "translate3d(-100%, 0, 0)", willChange: "transform" }}
+      >
+        {/* molten tip */}
+        <span className="absolute right-0 top-1/2 h-[3px] w-10 -translate-y-1/2 rounded-full bg-[linear-gradient(90deg,transparent,#fff7e0)] shadow-[0_0_14px_rgba(234,222,179,0.9),0_0_36px_rgba(200,167,101,0.5)]" />
+      </div>
+    </div>
   );
 }

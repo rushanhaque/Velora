@@ -48,7 +48,7 @@ export function CatalogueClient({ specimens }: { specimens: Specimen[] }) {
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96 }}
-              transition={{ duration: 0.6, ease: SILK, delay: (i % 3) * 0.05 }}
+              transition={{ duration: 0.6, ease: SILK, delay: Math.min(i * 0.055, 0.5) }}
               className="h-full"
             >
               <SpecimenCard s={s} index={i} showCaption />

@@ -12,7 +12,7 @@ export function CartFloat() {
       data-cart-float
       aria-label={`Cart — ${items.length} ${items.length === 1 ? "piece" : "pieces"}`}
       onClick={() => cartPanel.open()}
-      className="fixed right-5 bottom-[max(1.25rem,env(safe-area-inset-bottom))] z-[100] flex h-14 w-14 items-center justify-center rounded-full border border-brass/30 bg-bitumen text-parchment-pale shadow-[0_8px_32px_rgba(0,0,0,0.45)] backdrop-blur transition-all duration-500 hover:border-brass hover:shadow-[0_8px_32px_rgba(0,0,0,0.5),0_0_28px_rgba(176,145,92,0.22)] active:scale-95 sm:right-8 sm:bottom-8 sm:h-[52px] sm:w-[52px]"
+      className="fixed right-5 bottom-[max(1.25rem,env(safe-area-inset-bottom))] z-[100] flex h-14 w-14 items-center justify-center rounded-full border border-brass/30 bg-bitumen text-parchment-pale shadow-[0_8px_32px_rgba(0,0,0,0.45)] backdrop-blur transition-all duration-500 hover:border-brass hover:shadow-[0_8px_32px_rgba(0,0,0,0.5),0_0_28px_rgba(176,145,92,0.24)] active:scale-95 sm:right-8 sm:bottom-8 sm:h-[52px] sm:w-[52px]"
     >
       <svg
         viewBox="0 0 24 24"

@@ -31,8 +31,9 @@ export function Section({
       className={cn(
         "relative",
         PAD[pad],
-        dark && "vignette bg-bitumen text-haze",
-        tint && "bg-parchment-deep",
+        dark && "vignette border-t border-brass-leaf/10 bg-bitumen text-haze",
+        tint &&
+          "border-y border-line/70 bg-[radial-gradient(90%_70%_at_50%_0%,rgba(200,167,101,0.08),transparent_55%),linear-gradient(180deg,#EAE4D6_0%,#E4DECF_100%)]",
         className,
       )}
     >

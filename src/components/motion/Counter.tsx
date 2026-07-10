@@ -40,7 +40,12 @@ export function Counter({
               // easeOutExpo
               const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
               setDisplay(Math.round(eased * value));
-              if (t < 1) requestAnimationFrame(tick);
+              if (t < 1) {
+                requestAnimationFrame(tick);
+              } else {
+                // the number lands — a brief brass flash, like a die striking
+                el.classList.add("counter-struck");
+              }
             };
             requestAnimationFrame(tick);
             io.unobserve(el);

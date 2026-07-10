@@ -34,15 +34,18 @@ export function EnquiryToggle({
       )}
     >
       <span className="sr-only">{inList ? "In cart" : "Add to cart"}</span>
-      {inList ? (
-        <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
-          <path d="M5 12l5 5L19 7" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      ) : (
-        <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
-          <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-        </svg>
-      )}
+      {/* key remount strikes the icon in on every state change */}
+      <span key={String(inList)} className="animate-scale-in grid place-items-center">
+        {inList ? (
+          <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+            <path d="M5 12l5 5L19 7" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        ) : (
+          <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+          </svg>
+        )}
+      </span>
     </button>
   );
 }

@@ -77,7 +77,7 @@ export function Header() {
         key={n.href}
         href={n.href}
         className={cn(
-          "nav-link relative text-[0.78rem] uppercase tracking-wide3 transition-colors",
+          "nav-link relative text-[0.78rem] uppercase tracking-wide3 transition-[color,letter-spacing] duration-500 ease-silk hover:tracking-[0.2em]",
           active ? "nav-link-active text-brass-deep" : "text-stone hover:text-bitumen",
         )}
       >
@@ -164,9 +164,12 @@ export function Header() {
               type="button"
               onClick={() => cartPanel.open()}
               aria-label="Open cart"
-              className="hidden lg:flex items-center rounded-full border border-stone/25 px-4 py-2 text-[0.72rem] uppercase tracking-wide3 text-stone transition-all duration-300 hover:border-brass/50 hover:text-brass-deep"
+              className="btn-gild relative hidden lg:flex items-center rounded-full border border-stone/25 px-4 py-2 text-[0.72rem] uppercase tracking-wide3 text-stone transition-all duration-300 hover:border-brass/50 hover:text-brass-deep"
             >
-              {cartCount > 0 ? `Cart (${cartCount})` : "Cart"}
+              {/* key remount pops the label whenever the count changes */}
+              <span key={cartCount} className="animate-scale-in inline-block">
+                {cartCount > 0 ? `Cart (${cartCount})` : "Cart"}
+              </span>
             </button>
           </div>
         </div>
@@ -189,7 +192,7 @@ export function Header() {
             <div
               aria-hidden="true"
               className="pointer-events-none absolute right-[-10%] top-[-6%] h-[320px] w-[320px] rounded-full opacity-25 blur-[90px]"
-              style={{ background: "radial-gradient(circle, rgba(200,167,101,0.4), transparent 70%)" }}
+              style={{ background: "radial-gradient(circle, rgba(200,167,101,0.42), transparent 70%)" }}
             />
 
             {/* Brand lockup */}

@@ -15,9 +15,9 @@ export default function OpengraphImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "linear-gradient(150deg, #211E17 0%, #2A271D 60%, #1b1812 100%)",
+          background: "linear-gradient(150deg, #12100C 0%, #1A1711 60%, #0A0907 100%)",
           padding: "72px",
-          color: "#F7F4EE",
+          color: "#F0EBE1",
           fontFamily: "sans-serif",
         }}
       >
@@ -31,13 +31,13 @@ export default function OpengraphImage() {
               height="25.5"
               transform="rotate(45 24 6)"
               fill="none"
-              stroke="#C9AE7C"
+              stroke="#D4B986"
               strokeWidth="1.6"
             />
             <path
               d="M17 18 L24 32 L31 18"
               fill="none"
-              stroke="#C9AE7C"
+              stroke="#D4B986"
               strokeWidth="1.8"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -48,7 +48,7 @@ export default function OpengraphImage() {
               fontSize: 30,
               letterSpacing: 14,
               fontWeight: 600,
-              color: "#F7F4EE",
+              color: "#F0EBE1",
             }}
           >
             VELORA
@@ -57,13 +57,13 @@ export default function OpengraphImage() {
 
         {/* headline */}
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <div style={{ fontSize: 26, letterSpacing: 8, color: "#C9AE7C", marginBottom: 24 }}>
+          <div style={{ fontSize: 26, letterSpacing: 8, color: "#D4B986", marginBottom: 24 }}>
             MÉTAUX D&apos;ART · MORADABAD, SINCE 1972
           </div>
-          <div style={{ display: "flex", fontSize: 88, lineHeight: 1.04, color: "#F7F4EE" }}>
+          <div style={{ display: "flex", fontSize: 88, lineHeight: 1.04, color: "#F0EBE1" }}>
             Heirloom objects in
           </div>
-          <div style={{ display: "flex", fontSize: 88, lineHeight: 1.04, color: "#D8C29A" }}>
+          <div style={{ display: "flex", fontSize: 88, lineHeight: 1.04, color: "#C8A765" }}>
             brass, bronze &amp; silver.
           </div>
         </div>

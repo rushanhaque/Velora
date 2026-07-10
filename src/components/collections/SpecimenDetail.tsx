@@ -8,6 +8,7 @@ import { FINISHES, hasMedia } from "@/lib/data";
 import { SpecimenStage } from "@/components/visual/SpecimenStage";
 import { SpecimenMedia } from "@/components/visual/SpecimenMedia";
 import { Button } from "@/components/ui/Button";
+import { Mark } from "@/components/brand/Logo";
 import { Reveal } from "@/components/motion/Reveal";
 import { MaskText } from "@/components/motion/MaskText";
 import { SILK } from "@/lib/motion";
@@ -43,7 +44,8 @@ export function SpecimenDetail({
           initial={{ opacity: 0, scale: 1.06, filter: "blur(14px)" }}
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
           transition={{ duration: 1.2, ease: SILK }}
-          className="plate group/stage overflow-hidden rounded-xl2 transition-shadow duration-700 hover:shadow-glow-warm"
+          data-lit
+          className="plate group/stage group overflow-hidden rounded-xl2 transition-shadow duration-700 hover:shadow-glow-warm"
         >
           <div
             className={cn("relative transition-transform duration-[1.2s] ease-silk group-hover/stage:scale-[1.04]", hasMedia(s) && "aspect-[4/5]")}
@@ -69,6 +71,10 @@ export function SpecimenDetail({
                 {finish}
               </span>
             </div>
+            {/* maker's hallmark — stamps in on hover */}
+            <span aria-hidden="true" className="hallmark absolute bottom-5 right-5 text-brass-deep">
+              <Mark className="h-6 w-6" />
+            </span>
           </div>
         </motion.div>
 
@@ -160,7 +166,7 @@ export function SpecimenDetail({
                   )}
                 >
                   <span
-                    className="h-6 w-6 rounded-full ring-1 ring-bitumen/10"
+                    className="h-6 w-6 rounded-full ring-1 ring-bitumen/10 transition-transform duration-500 ease-silk group-hover:scale-110"
                     style={{ background: f.swatch }}
                   />
                   <span className="text-[0.72rem] tracking-wide text-stone">{f.name}</span>
@@ -182,8 +188,10 @@ export function SpecimenDetail({
               ["Introduced", String(s.year)],
             ].map(([k, v], i) => (
               <Reveal key={k} delay={i * 40}>
-                <div className="py-4 border-b border-line/50">
-                  <dt className="text-[0.58rem] uppercase tracking-wider2 text-ash">{k}</dt>
+                <div className="group/spec py-4 border-b border-line/50 transition-colors duration-500 hover:border-brass/40">
+                  <dt className="text-[0.58rem] uppercase tracking-wider2 text-ash transition-colors duration-500 group-hover/spec:text-brass-deep">
+                    {k}
+                  </dt>
                   <dd className="mt-1.5 font-display text-lg text-bitumen">{v}</dd>
                 </div>
               </Reveal>

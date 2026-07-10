@@ -120,7 +120,7 @@ export default function Home() {
             <ol className="relative">
               {PROCESS.map((s, i) => (
                 <Reveal key={s.n} delay={i * 60}>
-                  <li className="group grid grid-cols-[auto_1fr] gap-7 border-t border-line py-8 transition-colors last:border-b">
+                  <li className="group grid grid-cols-[auto_1fr] gap-7 border-t border-line py-8 transition-colors duration-500 last:border-b hover:border-t-brass/40">
                     <span className="numeral text-[2.2rem] text-brass/40 transition-colors duration-500 group-hover:text-brass-deep">
                       {s.n}
                     </span>
@@ -139,12 +139,12 @@ export default function Home() {
       </Section>
 
       {/* ───────────────── Stats (dark) — v3.0 museum placards ───────────────── */}
-      <Section tint pad="lg">
+      <Section tint pad="xl">
         <Shell>
           <div className="grid grid-cols-2 gap-6 sm:gap-8 lg:grid-cols-4">
             {STATS.map((st, i) => (
               <Reveal key={st.label} delay={i * 80} variant="scale">
-                <div className="group plate rounded-xl2 border-t-2 border-t-brass/40 p-6 text-center transition-all duration-700 hover:border-t-brass hover:shadow-glow-brass sm:p-8">
+                <div data-lit className="group plate rounded-xl2 border-t-2 border-t-brass/40 p-6 text-center transition-all duration-700 hover:border-t-brass hover:shadow-glow-brass sm:p-8">
                   <p className="font-display text-[clamp(2.6rem,5vw,4.2rem)] leading-none text-leaf">
                     <Counter value={st.value} suffix={st.suffix} />
                   </p>
@@ -161,7 +161,7 @@ export default function Home() {
       </Section>
 
       {/* ───────────────── Trade ───────────────── */}
-      <Section pad="sm" className="bg-parchment-deep/45">
+      <Section pad="md" className="bg-parchment-deep/45">
         <Shell>
           <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
             <div>
@@ -183,7 +183,7 @@ export default function Home() {
             <div className="grid gap-px overflow-hidden rounded-xl2 border border-line bg-line sm:grid-cols-2">
               {TRADE_POINTS.map((t, i) => (
                 <Reveal key={t.title} delay={i * 60}>
-                  <div className="group h-full bg-parchment-pale p-8 transition-all duration-500 hover:bg-parchment hover:shadow-inner-glow">
+                  <div data-lit className="group h-full bg-parchment-pale p-8 transition-all duration-500 hover:bg-parchment hover:shadow-inner-glow">
                     <span className="ref text-brass-deep">0{i + 1}</span>
                     <h3 className="mt-4 font-display text-xl text-bitumen">{t.title}</h3>
                     <p className="mt-2 text-[0.92rem] leading-relaxed text-stone">{t.body}</p>
@@ -196,7 +196,7 @@ export default function Home() {
       </Section>
 
       {/* ───────────────── Catalogue CTA (dark) ───────────────── */}
-      <Section tint pad="sm" id="catalogue" className="overflow-hidden">
+      <Section tint pad="md" id="catalogue" className="overflow-hidden">
         <Shell>
           <div className="grid gap-14 lg:grid-cols-2 lg:items-center">
             <div>
@@ -231,7 +231,7 @@ export default function Home() {
             </div>
 
             <Reveal delay={120} variant="blur">
-              <div className="plate rounded-xl2 p-8 sm:p-10">
+              <div data-lit className="plate rounded-xl2 p-8 sm:p-10">
                 <CatalogueRequest />
               </div>
             </Reveal>

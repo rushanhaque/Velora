@@ -7,9 +7,9 @@ export function Mark({ className }: { className?: string }) {
     <svg viewBox="0 0 48 48" className={cn(className)} aria-hidden="true">
       <defs>
         <linearGradient id="mark-grad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#dcc089" />
-          <stop offset="50%" stopColor="#a77e36" />
-          <stop offset="100%" stopColor="#7b5a26" />
+          <stop offset="0%" stopColor="#eadeb3" />
+          <stop offset="50%" stopColor="#b89b6a" />
+          <stop offset="100%" stopColor="#8c703a" />
         </linearGradient>
       </defs>
       <rect

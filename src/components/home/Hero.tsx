@@ -27,6 +27,16 @@ export function Hero() {
         }}
       />
 
+      {/* Breathing forge-light behind the wordmark — barely there, alive */}
+      <div
+        aria-hidden="true"
+        className="animate-pulse-glow pointer-events-none absolute left-1/2 top-[38%] -z-10 h-[min(60vw,420px)] w-[min(80vw,640px)] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[90px]"
+        style={{
+          background: "radial-gradient(ellipse at center, rgba(176,145,92,0.18), transparent 70%)",
+          animationDuration: "9s",
+        }}
+      />
+
       {/* Faint rotating ornament, centred behind the wordmark */}
       <div
         aria-hidden="true"
@@ -36,7 +46,7 @@ export function Hero() {
           viewBox="0 0 200 200"
           className="h-[min(78vw,420px)] w-[min(78vw,420px)]"
           fill="none"
-          stroke="rgba(176,145,92,0.10)"
+          stroke="rgba(176,145,92,0.12)"
           strokeWidth="0.6"
         >
           <rect x="100" y="8" width="130" height="130" transform="rotate(45 100 8)" rx="2" />
@@ -51,7 +61,7 @@ export function Hero() {
         className="absolute inset-x-0 top-[clamp(104px,19svh,200px)] flex justify-center px-6"
         style={fade}
       >
-        <span className="eyebrow inline-flex items-center gap-3 text-brass-deep">
+        <span className="eyebrow eyebrow-settle inline-flex items-center gap-3 text-brass-deep">
           <span className="h-px w-7 bg-current opacity-40 sm:w-10" aria-hidden="true" />
           Métaux d&apos;Art · Est. 1972
           <span className="h-px w-7 bg-current opacity-40 sm:w-10" aria-hidden="true" />

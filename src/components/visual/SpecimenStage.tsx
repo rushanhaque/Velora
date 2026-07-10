@@ -13,7 +13,7 @@ export function SpecimenStage({
   className,
   ring = true,
   float = true,
-  glow = "rgba(200,167,101,0.20)",
+  glow = "rgba(176,145,92,0.20)",
 }: {
   shape: Shape;
   tone: Tone;
@@ -67,7 +67,7 @@ export function SpecimenStage({
           shape={shape}
           tone={tone}
           seed={seed}
-          className="h-full w-full drop-shadow-[0_40px_50px_rgba(34,26,12,0.34)]"
+          className="h-full w-full drop-shadow-[0_40px_50px_rgba(34,26,12,0.30)]"
         />
       </div>
     </div>

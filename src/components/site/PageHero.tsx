@@ -45,7 +45,7 @@ export function PageHero({
 
       {/* v3.0 — large faint ornamental mark */}
       <div aria-hidden="true" className="ornamental-mark -z-10 right-[5%] top-1/2 -translate-y-1/2 hidden lg:block">
-        <svg viewBox="0 0 200 200" className="h-[320px] w-[320px]" fill="none" stroke="rgba(176,145,92,0.08)" strokeWidth="0.8">
+        <svg viewBox="0 0 200 200" className="h-[320px] w-[320px]" fill="none" stroke="rgba(176,145,92,0.10)" strokeWidth="0.8">
           <rect x="100" y="8" width="130" height="130" transform="rotate(45 100 8)" rx="2" />
           <rect x="100" y="28" width="100" height="100" transform="rotate(45 100 28)" rx="2" />
           <circle cx="100" cy="100" r="50" />
@@ -63,7 +63,7 @@ export function PageHero({
         >
           <div className={cn(align === "center" && "mx-auto max-w-4xl")}>
             <Reveal variant="blur">
-              <Eyebrow className={cn(align === "center" && "justify-center")}>
+              <Eyebrow className={cn("eyebrow-settle", align === "center" && "justify-center")}>
                 {eyebrow}
               </Eyebrow>
             </Reveal>

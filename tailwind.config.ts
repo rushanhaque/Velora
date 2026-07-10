@@ -11,14 +11,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Grounds — airy warm porcelain (the new light canvas)
+        // Grounds — airy warm porcelain (the light canvas)
         parchment: {
           DEFAULT: "#F0EBE1",
           pale: "#F8F6F0",
           deep: "#E4DECF",
           shell: "#D8D0BD",
         },
-        // Ink — warm near-black, kept for the footer & rare dark accent
+        // Ink — warm near-black, for the footer & dark accents
         bitumen: {
           DEFAULT: "#0A0907",
           ink: "#12100C",
@@ -67,12 +67,12 @@ const config: Config = {
       },
       boxShadow: {
         plate:
-          "0 1px 0 rgba(255,255,255,0.5) inset, 0 18px 40px -24px rgba(34,26,12,0.45), 0 4px 14px -8px rgba(34,26,12,0.25)",
+          "0 1px 0 rgba(255,255,255,0.7) inset, 0 18px 40px -24px rgba(34,26,12,0.28), 0 4px 14px -8px rgba(34,26,12,0.16)",
         plateHover:
-          "0 1px 0 rgba(255,255,255,0.6) inset, 0 40px 70px -34px rgba(34,26,12,0.55), 0 10px 24px -12px rgba(34,26,12,0.32)",
-        lift: "0 30px 60px -30px rgba(20,17,11,0.5)",
-        ring: "0 0 0 1px rgba(167,126,54,0.4)",
-        // v3.0 — glow variants for ambient effects
+          "0 1px 0 rgba(255,255,255,0.8) inset, 0 40px 70px -34px rgba(34,26,12,0.34), 0 10px 24px -12px rgba(34,26,12,0.20)",
+        lift: "0 30px 60px -30px rgba(12,33,56,0.4)",
+        ring: "0 0 0 1px rgba(167,126,54,0.45)",
+        // v5 — glow variants for ambient effects (sky)
         "glow-brass":
           "0 0 40px rgba(176,145,92,0.22), 0 0 80px rgba(176,145,92,0.10)",
         "glow-brass-lg":
@@ -80,9 +80,9 @@ const config: Config = {
         "glow-copper":
           "0 0 40px rgba(166,106,69,0.22), 0 0 80px rgba(166,106,69,0.10)",
         "glow-warm":
-          "0 0 80px rgba(200,167,101,0.18), 0 8px 32px rgba(34,26,12,0.14)",
+          "0 0 80px rgba(200,167,101,0.18), 0 8px 32px rgba(34,26,12,0.12)",
         "inner-glow":
-          "inset 0 0 60px rgba(200,167,101,0.08), inset 0 1px 0 rgba(255,255,255,0.5)",
+          "inset 0 0 60px rgba(200,167,101,0.10), inset 0 1px 0 rgba(255,255,255,0.6)",
       },
       transitionTimingFunction: {
         silk: "cubic-bezier(0.16, 1, 0.3, 1)",

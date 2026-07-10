@@ -133,8 +133,8 @@ export function EnquiryForm({
                           "rounded-full border px-4 py-2 text-[0.72rem] tracking-wide transition-all duration-500 ease-silk inline-flex items-center gap-1.5",
                           active
                             ? dark
-                              ? "border-brass bg-brass/15 text-parchment-pale shadow-[0_0_16px_rgba(176,145,92,0.12)]"
-                              : "border-brass bg-brass/10 text-bitumen shadow-[0_0_16px_rgba(176,145,92,0.08)]"
+                              ? "border-brass bg-brass/15 text-parchment-pale shadow-[0_0_16px_rgba(176,145,92,0.14)]"
+                              : "border-brass bg-brass/10 text-bitumen shadow-[0_0_16px_rgba(176,145,92,0.10)]"
                             : dark
                               ? "border-brass-leaf/20 text-haze hover:border-brass-leaf/50"
                               : "border-line text-stone hover:border-brass/50",

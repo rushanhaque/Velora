@@ -82,10 +82,10 @@ export function HeroParticles({ className }: { className?: string }) {
         if (m.x < -10) m.x = w + 10;
         if (m.x > w + 10) m.x = -10;
 
-        // Draw with warm tones
+        // Draw with warm brass tones
         const grad = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, m.r);
-        grad.addColorStop(0, `rgba(226, 207, 166, ${m.o})`);
-        grad.addColorStop(0.5, `rgba(201, 174, 124, ${m.o * 0.6})`);
+        grad.addColorStop(0, `rgba(255, 240, 214, ${m.o})`);
+        grad.addColorStop(0.5, `rgba(212, 185, 134, ${m.o * 0.6})`);
         grad.addColorStop(1, `rgba(176, 145, 92, 0)`);
         ctx.fillStyle = grad;
         ctx.beginPath();

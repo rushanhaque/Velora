@@ -20,12 +20,12 @@ const MAISON_LINKS = [
 
 export function Footer() {
   return (
-    <footer className="vignette relative overflow-hidden bg-bitumen text-haze">
+    <footer className="vignette relative overflow-hidden border-t border-brass/25 bg-bitumen text-haze">
       {/* v3.0 — ambient warm glow behind brand column */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute left-[10%] top-[30%] h-[400px] w-[400px] rounded-full opacity-20 blur-[100px]"
-        style={{ background: "radial-gradient(circle, rgba(200,167,101,0.3), transparent 70%)" }}
+        style={{ background: "radial-gradient(circle, rgba(200,167,101,0.32), transparent 70%)" }}
       />
 
       <div className="shell relative pt-[clamp(60px,9vw,120px)] pb-[clamp(16px,2.5vw,32px)]">

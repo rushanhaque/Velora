@@ -5,6 +5,7 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { ScrollProgress } from "@/components/motion/Parallax";
+import { LightBench } from "@/components/motion/LightBench";
 import { CartFloat } from "@/components/ui/CartFloat";
 import { CartPanel } from "@/components/ui/CartPanel";
 import { BRAND } from "@/lib/data";
@@ -67,11 +68,14 @@ export default function RootLayout({
         </a>
         <SmoothScroll />
         <ScrollProgress />
+        <LightBench />
         <Header />
         <main id="main">{children}</main>
         <Footer />
         <CartFloat />
         <CartPanel />
+        {/* Film grain — cinematic warmth over everything, inert */}
+        <div className="grain" aria-hidden="true" />
       </body>
     </html>
   );

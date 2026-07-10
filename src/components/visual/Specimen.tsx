@@ -1,18 +1,19 @@
 import type { Shape, Tone } from "@/lib/data";
 
-/* Turned-metal cylinder ramps, per tone. The bright band sits left of
-   centre so every form reads as metal catching a single side light. */
+/* Turned-metal cylinder ramps, per tone — a polished band catches a
+   single side light against a deep shadow. Warm worked metal: brass gold,
+   copper rose, bronze umber, silver a cool neutral. */
 const RAMP: Record<Tone, string[]> = {
-  brass: ["#503614", "#7b5a26", "#c8a765", "#fff4d8", "#c8a765", "#a77e36", "#4a3312"],
-  copper: ["#5a2f1c", "#8a4327", "#cf7e52", "#ffe0c4", "#cf7e52", "#a85a37", "#4a2616"],
-  bronze: ["#2f2410", "#574022", "#9c7a44", "#ecd29a", "#9c7a44", "#6e5230", "#241c0d"],
-  silver: ["#5f6163", "#8b8d8e", "#d9dadb", "#ffffff", "#d9dadb", "#9fa0a0", "#56585a"],
+  brass: ["#6f4f20", "#8a6532", "#c8a765", "#fff3d6", "#c8a765", "#8a6532", "#5f4319"], // burnished brass
+  copper: ["#4a2a1a", "#8a4e30", "#c07a4e", "#f6ddc6", "#c07a4e", "#7a4128", "#3a1f14"], // rose copper
+  bronze: ["#2a1e10", "#6e5230", "#9c7c46", "#e0cc9a", "#9c7c46", "#6e5230", "#241a0e"], // umber bronze
+  silver: ["#6a6c6d", "#9fa0a0", "#e8e9ea", "#ffffff", "#e8e9ea", "#9fa0a0", "#6a6c6d"], // bright silver
 };
 const INTERIOR: Record<Tone, [string, string]> = {
-  brass: ["#3a2810", "#7b5a26"],
-  copper: ["#3c1f12", "#8a4327"],
-  bronze: ["#1f1809", "#574022"],
-  silver: ["#54565a", "#9fa0a0"],
+  brass: ["#3a2c14", "#6e5230"],
+  copper: ["#331e14", "#7a4128"],
+  bronze: ["#241a0e", "#5a4324"],
+  silver: ["#6a6c6d", "#9fa0a0"],
 };
 
 /* Deterministic per-piece variation — so two pieces that share a shape
@@ -93,9 +94,9 @@ export function Specimen({
           <stop offset="100%" stopColor={iB} />
         </linearGradient>
         <radialGradient id={`${uid}-shadow`} cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="rgba(20,17,11,0.45)" />
-          <stop offset="70%" stopColor="rgba(20,17,11,0.18)" />
-          <stop offset="100%" stopColor="rgba(20,17,11,0)" />
+          <stop offset="0%" stopColor="rgba(34,26,12,0.42)" />
+          <stop offset="70%" stopColor="rgba(34,26,12,0.16)" />
+          <stop offset="100%" stopColor="rgba(34,26,12,0)" />
         </radialGradient>
         <linearGradient id={`${uid}-spec`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="rgba(255,255,255,0.0)" />
@@ -106,7 +107,7 @@ export function Specimen({
 
       {ground && <ellipse cx="120" cy="262" rx="84" ry="13" fill={`url(#${uid}-shadow)`} />}
 
-      <g fill={`url(#${uid}-body)`} stroke="rgba(20,17,11,0.18)" strokeWidth="0.6">
+      <g fill={`url(#${uid}-body)`} stroke="rgba(34,26,12,0.16)" strokeWidth="0.6">
         {renderShape(shape, uid, d)}
       </g>
 
@@ -134,8 +135,8 @@ function renderShape(shape: Shape, uid: string, d: Delta) {
         <>
           <path d="M110,232 h20 v8 q0,6 -10,6 q-10,0 -10,-6 Z" />
           <path d="M44,158 q0,-10 12,-10 h128 q12,0 12,10 q-6,52 -38,72 q-18,10 -38,10 q-20,0 -38,-10 q-32,-20 -38,-72 Z" />
-          <ellipse cx="120" cy="158" rx={`${76 + d.rim}`} ry="17" fill={intFill} stroke="rgba(20,17,11,0.22)" />
-          <ellipse cx="120" cy="156" rx={`${76 + d.rim}`} ry="15" fill="none" stroke="rgba(255,244,216,0.35)" strokeWidth="1.4" />
+          <ellipse cx="120" cy="158" rx={`${76 + d.rim}`} ry="17" fill={intFill} stroke="rgba(34,26,12,0.20)" />
+          <ellipse cx="120" cy="156" rx={`${76 + d.rim}`} ry="15" fill="none" stroke="rgba(255,250,240,0.4)" strokeWidth="1.4" />
         </>
       );
     case "vase":
@@ -145,7 +146,7 @@ function renderShape(shape: Shape, uid: string, d: Delta) {
           <path
             d={`M120,52 q-9,0 -10,8 l-3,30 q-${26 + d.spread},18 -${26 + d.spread},62 q0,58 ${39 + d.spread / 2},82 q${39 + d.spread / 2},-24 ${39 + d.spread / 2},-82 q0,-44 -${26 + d.spread},-62 l-3,-30 q-1,-8 -10,-8 Z`}
           />
-          <ellipse cx="120" cy="54" rx={`${13 + d.neck}`} ry="5" fill={intFill} stroke="rgba(20,17,11,0.25)" />
+          <ellipse cx="120" cy="54" rx={`${13 + d.neck}`} ry="5" fill={intFill} stroke="rgba(34,26,12,0.22)" />
         </>
       );
     case "ewer":
@@ -161,7 +162,7 @@ function renderShape(shape: Shape, uid: string, d: Delta) {
           />
           <path d="M120,70 q-10,0 -12,9 l-4,22 q-26,16 -26,60 q0,52 42,78 q42,-26 42,-78 q0,-44 -26,-60 l-4,-22 q-2,-9 -12,-9 Z" />
           <path d="M118,72 q-6,-14 -20,-22 q14,0 26,12 Z" />
-          <ellipse cx="120" cy="72" rx="12" ry="4.5" fill={intFill} stroke="rgba(20,17,11,0.25)" />
+          <ellipse cx="120" cy="72" rx="12" ry="4.5" fill={intFill} stroke="rgba(34,26,12,0.22)" />
         </>
       );
     case "urn":
@@ -171,7 +172,7 @@ function renderShape(shape: Shape, uid: string, d: Delta) {
           <path d={`M66,128 q-${22 + d.handle},2 -16,40`} fill="none" stroke={`url(#${uid}-body)`} strokeWidth="11" strokeLinecap="round" />
           <path d={`M174,128 q${22 + d.handle},2 16,40`} fill="none" stroke={`url(#${uid}-body)`} strokeWidth="11" strokeLinecap="round" />
           <path d="M120,74 q-16,0 -18,10 l-2,16 q-36,18 -36,74 q0,42 56,64 q56,-22 56,-64 q0,-56 -36,-74 l-2,-16 q-2,-10 -18,-10 Z" />
-          <ellipse cx="120" cy="78" rx={`${20 + d.rim}`} ry="7" fill={intFill} stroke="rgba(20,17,11,0.25)" />
+          <ellipse cx="120" cy="78" rx={`${20 + d.rim}`} ry="7" fill={intFill} stroke="rgba(34,26,12,0.22)" />
         </>
       );
     case "platter":
@@ -179,8 +180,8 @@ function renderShape(shape: Shape, uid: string, d: Delta) {
         <>
           <ellipse cx="120" cy="200" rx="98" ry="40" />
           <ellipse cx="120" cy="196" rx="98" ry="40" fill={intFill} opacity="0.55" />
-          <ellipse cx="120" cy="196" rx={`${72 + d.rim}`} ry={`${29 + d.rim / 3}`} fill="none" stroke="rgba(255,244,216,0.4)" strokeWidth="1.4" />
-          <ellipse cx="120" cy="196" rx={`${44 - d.rim}`} ry={`${18 - d.rim / 3}`} fill="none" stroke="rgba(20,17,11,0.18)" strokeWidth="1" />
+          <ellipse cx="120" cy="196" rx={`${72 + d.rim}`} ry={`${29 + d.rim / 3}`} fill="none" stroke="rgba(255,250,240,0.45)" strokeWidth="1.4" />
+          <ellipse cx="120" cy="196" rx={`${44 - d.rim}`} ry={`${18 - d.rim / 3}`} fill="none" stroke="rgba(34,26,12,0.16)" strokeWidth="1" />
         </>
       );
     case "lamp":
@@ -206,7 +207,7 @@ function renderShape(shape: Shape, uid: string, d: Delta) {
           <ellipse cx="120" cy="240" rx={`${26 + d.rim}`} ry="7" />
           <path d="M116,168 h8 v66 h-8 Z" />
           <path d={`M${86 - d.spread},96 q0,46 ${34 + d.spread},66 q${34 + d.spread},-20 ${34 + d.spread},-66 q-${34 + d.spread},12 -${68 + d.spread * 2},0 Z`} />
-          <ellipse cx="120" cy="96" rx={`${34 + d.spread}`} ry="9" fill={intFill} stroke="rgba(20,17,11,0.25)" />
+          <ellipse cx="120" cy="96" rx={`${34 + d.spread}`} ry="9" fill={intFill} stroke="rgba(34,26,12,0.22)" />
         </>
       );
     case "candelabra":
@@ -237,7 +238,7 @@ function renderShape(shape: Shape, uid: string, d: Delta) {
         <>
           <ellipse cx="120" cy="206" rx="104" ry="46" />
           <ellipse cx="120" cy="200" rx="104" ry="46" fill={intFill} opacity="0.5" />
-          <ellipse cx="120" cy="200" rx={`${92 + d.rim}`} ry={`${39 + d.rim / 3}`} fill="none" stroke="rgba(255,244,216,0.4)" strokeWidth="1.4" />
+          <ellipse cx="120" cy="200" rx={`${92 + d.rim}`} ry={`${39 + d.rim / 3}`} fill="none" stroke="rgba(255,250,240,0.45)" strokeWidth="1.4" />
         </>
       );
     default:
