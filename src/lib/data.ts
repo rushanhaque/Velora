@@ -34,7 +34,7 @@ export type Shape =
 export const NAV = [
   { label: "Collections", href: "/collections" },
   { label: "About Us", href: "/about" },
-  { label: "Connect", href: "/connect" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export interface Collection {

@@ -15,7 +15,7 @@ const PAGE_LINKS = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "Collections", href: "/collections" },
-  { label: "Connect", href: "/connect" },
+  { label: "Contact", href: "/contact" },
   { label: "FAQ", href: "/faq" },
 ];
 
@@ -89,7 +89,7 @@ export function Footer() {
             <p className="mt-2 text-sm">{BRAND.phone}</p>
             <p className="mt-1 text-sm">{BRAND.hours}</p>
             <div className="mt-6">
-              <Button href="/connect" variant="brass" arrow magnetic className="!py-3 !text-[0.7rem]">
+              <Button href="/contact" variant="brass" arrow magnetic className="!py-3 !text-[0.7rem]">
                 Get in touch
               </Button>
             </div>

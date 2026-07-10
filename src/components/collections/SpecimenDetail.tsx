@@ -48,7 +48,7 @@ export function SpecimenDetail({
           className="plate group/stage group overflow-hidden rounded-xl2 transition-shadow duration-700 hover:shadow-glow-warm"
         >
           <div
-            className={cn("relative transition-transform duration-[1.2s] ease-silk group-hover/stage:scale-[1.04]", hasMedia(s) && "aspect-[4/5] lg:aspect-auto lg:h-[min(66svh,600px)]")}
+            className={cn("relative transition-transform duration-[1.2s] ease-silk group-hover/stage:scale-[1.04]", hasMedia(s) && "aspect-[4/5] lg:aspect-auto lg:h-[min(80svh,760px)]")}
             style={{
               background:
                 "radial-gradient(110% 80% at 50% 16%, #fcfbf7, #efeae0)",
@@ -99,16 +99,6 @@ export function SpecimenDetail({
           </div>
         )}
 
-        <div className="mt-3 grid grid-cols-3 gap-3">
-          {["Hand-raised", "One maker", "Made to order"].map((t) => (
-            <span
-              key={t}
-              className="rounded-card border border-line bg-parchment-pale px-3 py-3 text-center text-[0.6rem] uppercase tracking-wider2 text-stone"
-            >
-              {t}
-            </span>
-          ))}
-        </div>
       </div>
 
       {/* Details */}
@@ -139,13 +129,6 @@ export function SpecimenDetail({
           className="display mt-4 text-[clamp(2rem,4.4vw,3.3rem)] text-bitumen"
           lines={[s.name]}
         />
-
-        <Reveal delay={120}>
-          <p className="mt-3 text-sm uppercase tracking-wide3 text-brass-deep">
-            {collection?.name}
-            {s.subcategory ? ` · ${s.subcategory}` : ""} · {s.material}
-          </p>
-        </Reveal>
 
         <Reveal delay={160}>
           <p className="mt-5 max-w-prose2 leading-relaxed text-stone">{s.story}</p>
@@ -224,13 +207,12 @@ export function SpecimenDetail({
             >
               {added ? "Added to cart ✓" : "Add to cart"}
             </Button>
-            <Button href={added ? "/cart" : "/connect"} variant="link" arrow>
-              {added ? "View cart" : "Enquire"}
-            </Button>
+            {added && (
+              <Button href="/cart" variant="link" arrow>
+                View cart
+              </Button>
+            )}
           </div>
-          <p className="mt-5 text-[0.66rem] uppercase tracking-wider2 text-ash">
-            Handcrafted in Moradabad · Made to order · Trade enquiries welcome
-          </p>
         </Reveal>
       </div>
     </div>

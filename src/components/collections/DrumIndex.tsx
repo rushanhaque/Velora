@@ -2,54 +2,20 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { COLLECTIONS, specimensByCollection, type Specimen } from "@/lib/data";
-import { Specimen as SpecimenArt } from "@/components/visual/Specimen";
-import { Button } from "@/components/ui/Button";
-import { Reveal } from "@/components/motion/Reveal";
+import { COLLECTIONS } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
-/* ── the instrument's geometry ─────────────────────────────────────────────
+/* ── instrument geometry ─────────────────────────────────────────────────────
    24° between engravings. Perspective foreshortening scales anything at
-   translateZ(R) by P/(P−R) — with P=1600, R=300 that is ×1.23, so label
-   font sizes below are chosen for their RENDERED size, not their CSS size.
-   Label pitch = 2·R·tan(12°) ≈ 127px CSS ≈ 156px rendered.               */
+   translateZ(R) by P/(P−R) — with P=1000, R=300 that is ×1.43.              */
 const STEP = 24;
 const RADIUS = 300;
 const PERSPECTIVE = 1000;
 const N = COLLECTIONS.length;
-/* The final house reaches its detent at 85% of the scroll, then rests. */
 const REST = 0.85;
-
-const PEDESTAL: Record<string, string> = {
-  brass: "rgba(184,155,106,0.28)",
-  copper: "rgba(184,115,85,0.26)",
-  silver: "rgba(168,173,181,0.30)",
-  bronze: "rgba(140,110,79,0.26)",
-};
 
 const ROMAN = ["I", "II", "III", "IV", "V", "VI"];
 
-type House = (typeof COLLECTIONS)[number] & {
-  hero: Specimen | undefined;
-  fan: { s: Specimen; seed: string }[];
-};
-
-const HOUSES: House[] = COLLECTIONS.map((c) => {
-  const pieces = specimensByCollection(c.slug);
-  const hero = pieces.find((p) => p.featured) ?? pieces[0];
-  const rest = pieces.filter((p) => p !== hero);
-  // Always deal a full hand of three — sparse houses fan variations
-  // of their hero (the procedural art varies with the seed).
-  const fan = Array.from({ length: 3 }, (_, i) => {
-    const s = rest[i] ?? hero;
-    return s ? { s, seed: rest[i] ? `fan-${s.slug}` : `fan-var-${c.slug}-${i}` } : null;
-  }).filter(Boolean) as { s: Specimen; seed: string }[];
-  return { ...c, hero, fan };
-});
-
-/* Detent curve — the drum dwells on each house and rolls briskly
-   between them, like a ball-detent indexing head. Pure math on the
-   scroll position: fully reversible, no snap, no hijack. */
 const detent = (t: number) => {
   const i = Math.floor(t);
   const f = t - i;
@@ -68,7 +34,7 @@ export function DrumIndex() {
   const entranceRef = useRef(true);
   const geom = useRef({ top: 0, scrollable: 1 });
 
-  /* geometry: measured once + on resize, never inside the scroll handler */
+  /* geometry: measured once + on resize */
   useEffect(() => {
     const outer = outerRef.current;
     if (!outer) return;
@@ -93,8 +59,7 @@ export function DrumIndex() {
     setReduce(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   }, []);
 
-  /* ONE rAF writer: drum angle + per-label falloff as direct style
-     writes; React state changes only when the active house changes. */
+  /* ONE rAF writer: drum angle + per-label falloff as direct style writes */
   useEffect(() => {
     if (reduce) return;
     let raf = 0;
@@ -106,7 +71,7 @@ export function DrumIndex() {
       labelRefs.current.forEach((el, i) => {
         if (!el) return;
         const a = Math.abs((i - fd) * STEP);
-        el.style.opacity = String(Math.max(0.05, Math.min(1, 1 - a / 70)).toFixed(3));
+        el.style.opacity = String(Math.max(0.04, Math.min(1, 1 - a / 65)).toFixed(3));
       });
     };
 
@@ -117,7 +82,6 @@ export function DrumIndex() {
       const p = Math.max(0, Math.min(1, (window.scrollY - top) / scrollable));
       const fi = Math.min(p / REST, 1) * (N - 1);
       paint(fi);
-      // hysteresis so the stage doesn't flicker at detent boundaries
       const cur = activeRef.current;
       if (Math.abs(fi - cur) > 0.56) {
         const next = Math.max(0, Math.min(N - 1, Math.round(fi)));
@@ -134,7 +98,7 @@ export function DrumIndex() {
       }
     };
 
-    /* entrance — the drum rolls up from -18° once, teaching that it turns */
+    /* entrance — drum rolls in from below */
     const t0 = performance.now();
     const spin = (now: number) => {
       const t = Math.min(1, (now - t0) / 900);
@@ -156,17 +120,14 @@ export function DrumIndex() {
     };
   }, [reduce]);
 
-  /* debounced announcement for screen readers — one line per settled house */
   useEffect(() => {
-    const h = HOUSES[active];
     const t = setTimeout(
-      () => setAnnounced(`House ${ROMAN[active]} — ${h.name}. ${h.material}, ${h.count} pieces.`),
+      () => setAnnounced(`Collection ${ROMAN[active]} — ${COLLECTIONS[active].name}.`),
       600,
     );
     return () => clearTimeout(t);
   }, [active]);
 
-  /* pip click — roll the drum there through every intermediate house */
   const goTo = useCallback((i: number) => {
     const { top, scrollable } = geom.current;
     const target = top + ((REST * i) / (N - 1)) * scrollable + 2;
@@ -180,291 +141,173 @@ export function DrumIndex() {
 
   return (
     <>
-      {/* ═══ DESKTOP — the indexing drum ═══ */}
+      {/* ═══ DESKTOP — full-bleed cover + centered drum ═══ */}
       <div ref={outerRef} className="hidden lg:block" style={{ height: `${N * 88}svh` }}>
-        <div className="sticky top-0 flex h-svh items-center overflow-hidden">
-          <span aria-live="polite" className="sr-only">
-            {announced}
-          </span>
+        <div className="sticky top-0 h-svh overflow-hidden">
+          <span aria-live="polite" className="sr-only">{announced}</span>
 
-          <div className="shell grid w-full grid-cols-12 items-center gap-[clamp(24px,4vw,64px)]">
-            {/* ── The drum (cols 1–5) ── */}
-            <div className="relative col-span-4 flex items-center gap-10">
-              {/* index rail — five quiet marks; the active one is a longer brass tick */}
-              <div className="relative flex h-[min(58svh,520px)] flex-col items-center justify-between py-2">
-                {HOUSES.map((h, i) => (
-                  <button
-                    key={h.slug}
-                    type="button"
-                    onClick={() => goTo(i)}
-                    aria-current={active === i ? "true" : undefined}
-                    className="group/pip relative z-10 flex h-9 w-9 items-center justify-center"
+          {/* Full-bleed cover images — React-state crossfade */}
+          {COLLECTIONS.map((c, i) =>
+            c.cover ? (
+              <div
+                key={c.slug}
+                className="absolute inset-0 transition-opacity duration-[800ms] ease-in-out"
+                style={{ opacity: active === i ? 1 : 0 }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={c.cover}
+                  alt=""
+                  aria-hidden="true"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ) : null
+          )}
+
+          {/* Persistent dark overlay */}
+          <div className="absolute inset-0 bg-bitumen/52" />
+
+          {/* Warm brass ambient behind active label */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[30vw] w-[50vw] rounded-full blur-[80px]"
+            style={{ background: "radial-gradient(ellipse, rgba(184,145,88,0.18), transparent 70%)" }}
+          />
+
+          {/* Centred drum */}
+          <div className="relative z-10 flex h-full flex-col items-center justify-center">
+            {reduce ? (
+              /* reduced-motion: static list */
+              <div className="flex flex-col items-center gap-5" aria-hidden="true">
+                {COLLECTIONS.map((c, i) => (
+                  <Link
+                    key={c.slug}
+                    href={`/collections?house=${c.slug}`}
+                    className={cn(
+                      "font-display uppercase tracking-[0.08em] leading-none transition-all duration-500",
+                      active === i
+                        ? "text-[clamp(3.2rem,6vw,6.5rem)] text-parchment-pale"
+                        : "text-[clamp(1.8rem,3vw,3rem)] text-parchment-pale/25",
+                    )}
                   >
-                    <span
-                      aria-hidden="true"
-                      className={cn(
-                        "block h-px transition-all duration-500 ease-silk",
-                        active === i
-                          ? "w-8 bg-brass"
-                          : "w-3.5 bg-line group-hover/pip:w-6 group-hover/pip:bg-brass/50",
-                      )}
-                    />
-                    <span className="sr-only">{`House ${ROMAN[i]} — ${h.name}`}</span>
-                  </button>
+                    {c.name}
+                  </Link>
                 ))}
               </div>
-
-              {/* the cylinder — mask-free 3D (Safari-safe): caps painted over it */}
-              {reduce ? (
-                <div className="flex flex-col gap-6" aria-hidden="true">
-                  {HOUSES.map((h, i) => (
-                    <span
-                      key={h.slug}
-                      className={cn(
-                        "font-display text-[clamp(27px,2.6vw,42px)] uppercase tracking-[0.16em] leading-none",
-                        active === i ? "text-brass-deep" : "drum-label",
-                      )}
-                    >
-                      {h.name}
-                    </span>
-                  ))}
-                </div>
-              ) : (
+            ) : (
+              /* the spinning drum */
+              <div
+                className="relative h-[min(60svh,560px)] w-full overflow-hidden"
+                aria-hidden="true"
+                style={{
+                  maskImage: "linear-gradient(to bottom, transparent 0%, black 24%, black 76%, transparent 100%)",
+                  WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 24%, black 76%, transparent 100%)",
+                }}
+              >
                 <div
-                  className="relative h-[min(58svh,520px)] flex-1 overflow-hidden"
-                  aria-hidden="true"
-                  style={{
-                    maskImage: "linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)",
-                    WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)",
-                  }}
+                  className="absolute inset-0"
+                  style={{ perspective: `${PERSPECTIVE}px` }}
                 >
-                  <div className="absolute inset-0" style={{ perspective: `${PERSPECTIVE}px` }}>
-                    <div
-                      ref={drumRef}
-                      className="absolute inset-0"
-                      style={{ transformStyle: "preserve-3d", willChange: "transform" }}
-                    >
-                      {HOUSES.map((h, i) => (
-                        <div
-                          key={h.slug}
-                          ref={(el) => {
-                            labelRefs.current[i] = el;
-                          }}
-                          className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 items-baseline gap-4 pl-[20%] pr-[8%]"
+                  <div
+                    ref={drumRef}
+                    className="absolute inset-0"
+                    style={{ transformStyle: "preserve-3d", willChange: "transform" }}
+                  >
+                    {COLLECTIONS.map((c, i) => (
+                      <div
+                        key={c.slug}
+                        ref={(el) => { labelRefs.current[i] = el; }}
+                        className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 items-baseline justify-center px-8"
+                        style={{
+                          transform: `translateY(-50%) rotateX(${-i * STEP}deg) translateZ(${RADIUS}px)`,
+                          backfaceVisibility: "hidden",
+                        }}
+                      >
+                        <Link
+                          href={`/collections?house=${c.slug}`}
+                          tabIndex={active === i ? 0 : -1}
+                          className="font-display text-[clamp(3.2rem,6.2vw,7rem)] uppercase tracking-[0.06em] leading-none text-parchment-pale transition-colors duration-500 hover:text-brass"
                           style={{
-                            transform: `translateY(-50%) rotateX(${-i * STEP}deg) translateZ(${RADIUS}px)`,
-                            backfaceVisibility: "hidden",
+                            textShadow:
+                              active === i
+                                ? "0 0 60px rgba(200,165,92,0.5), 0 2px 24px rgba(0,0,0,0.55)"
+                                : "0 2px 16px rgba(0,0,0,0.45)",
                           }}
                         >
-                          <span
-                            className={cn(
-                              "drum-label whitespace-nowrap font-display text-[clamp(17px,1.6vw,26px)] uppercase tracking-[0.16em] leading-none",
-                              active === i && "is-read",
-                            )}
-                          >
-                            {h.name}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  {/* reading line — single brass tick at the active row */}
-                  <div
-                    className="pointer-events-none absolute left-0 top-1/2 z-20 -translate-y-1/2"
-                    aria-hidden="true"
-                  >
-                    <span className="block h-px w-4 bg-brass/60" />
+                          {c.name}
+                        </Link>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
-            {/* ── The stage (cols 5–12) ── */}
-            <div className="relative col-span-8 h-[min(80svh,700px)] pl-[clamp(20px,4vw,64px)]">
-              {HOUSES.map((h, i) => {
-                const on = active === i;
-                return (
-                  <div
-                    key={h.slug}
-                    data-on={on}
-                    aria-hidden={!on}
-                    className="stage-layer absolute inset-0 flex flex-col justify-center"
-                  >
-                    {/* the piece on its pedestal */}
-                    <div className="relative h-[clamp(150px,26svh,300px)]">
-                      <div
-                        className="st-glow absolute inset-x-[12%] bottom-0 h-[60%]"
-                        style={{
-                          background: `radial-gradient(50% 60% at 50% 100%, ${PEDESTAL[h.tone]}, transparent 70%)`,
-                        }}
-                      />
-                      {h.hero && (
-                        <div className="st st-art absolute inset-0 grid place-items-center">
-                          <div className={cn("h-full", !reduce && "levitate")}>
-                            <SpecimenArt
-                              shape={h.hero.shape}
-                              tone={h.hero.tone}
-                              seed={`drum-${h.slug}`}
-                              className="h-full w-auto drop-shadow-[0_18px_26px_rgba(34,26,12,0.22)]"
-                            />
-                          </div>
-                          <span
-                            aria-hidden="true"
-                            className={cn(
-                              "lev-shadow absolute bottom-[6%] left-1/2 h-2.5 w-[38%] -translate-x-1/2 rounded-[50%] bg-bitumen/20 blur-[6px]",
-                              reduce && "[animation:none]",
-                            )}
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* the plate copy */}
-                    <div className="relative z-10 mt-[clamp(12px,2.5svh,26px)] ml-auto max-w-[560px] text-right">
-                      <h2 className="st st-name font-display text-[clamp(2.2rem,3.8vw,3.5rem)] leading-[1.02] tracking-[-0.01em] text-bitumen">
-                        {h.name}
-                      </h2>
-                      <p className="st st-meta mt-2 whitespace-nowrap text-[0.7rem] uppercase tracking-[0.18em] text-stone">
-                        {h.material} <span className="text-brass">·</span> {h.tagline}{" "}
-                        <span className="text-brass">·</span> {h.count} pieces
-                      </p>
-                      <p className="st st-blurb mt-5 max-w-[46ch] text-[0.92rem] leading-[1.55] text-stone">
-                        {h.blurb}
-                      </p>
-                      <div className="st st-cta mt-6 flex justify-end">
-                        <Button
-                          href={`/collections?house=${h.slug}`}
-                          variant="outline"
-                          arrow
-                          tabIndex={on ? undefined : -1}
-                        >
-                          Enter the house
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* the fan — a hand of three pieces, spreads under the visitor's hand */}
-                    <div className="st relative z-10 mt-[clamp(16px,3svh,36px)] flex h-[clamp(96px,17svh,128px)] justify-end pt-2">
-                      {h.fan.map(({ s, seed }, fi) => (
-                        <div
-                          key={seed}
-                          className={cn(
-                            "fan-card absolute h-[clamp(84px,15svh,112px)] w-[clamp(66px,11.8svh,88px)]",
-                            fi === 0 && "fan-card--l",
-                            fi === 2 && "fan-card--r",
-                          )}
-                          style={{ zIndex: fi === 1 ? 2 : 1 }}
-                        >
-                          <Link
-                            href={`/collections/${s.slug}`}
-                            data-lit
-                            tabIndex={on ? undefined : -1}
-                            aria-label={s.name}
-                            className="plate relative h-full w-full overflow-hidden rounded-xl p-2"
-                          >
-                            <SpecimenArt
-                              shape={s.shape}
-                              tone={s.tone}
-                              seed={seed}
-                              className="h-full w-full drop-shadow-[0_8px_10px_rgba(34,26,12,0.18)]"
-                            />
-                          </Link>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
+            {/* Dot nav — horizontal row below the drum */}
+            <div className="mt-10 flex items-center gap-5">
+              {COLLECTIONS.map((c, i) => (
+                <button
+                  key={c.slug}
+                  type="button"
+                  onClick={() => goTo(i)}
+                  aria-current={active === i ? "true" : undefined}
+                  className="group relative flex h-8 w-8 items-center justify-center"
+                >
+                  <span
+                    className={cn(
+                      "block rounded-full transition-all duration-500 ease-silk",
+                      active === i
+                        ? "h-2.5 w-2.5 bg-brass shadow-[0_0_8px_rgba(184,145,88,0.7)]"
+                        : "h-1.5 w-1.5 bg-parchment-pale/35 group-hover:bg-parchment-pale/65",
+                    )}
+                  />
+                  <span className="sr-only">{`Collection ${ROMAN[i]} — ${c.name}`}</span>
+                </button>
+              ))}
             </div>
           </div>
-
         </div>
       </div>
 
-      {/* ═══ MOBILE / TABLET — engraved plaques, fans pre-spread ═══ */}
+      {/* ═══ MOBILE / TABLET — full-bleed panels stacked ═══ */}
       <div className="lg:hidden">
-        <div className="shell pt-[68px]">
-          <span className="eyebrow eyebrow-settle inline-flex items-center gap-3 text-brass-deep">
-            <span className="h-px w-7 bg-current opacity-40" aria-hidden="true" />
-            The collections
-          </span>
-        </div>
-        <div className="mt-8 flex flex-col gap-10 pb-16">
-          {HOUSES.map((h, i) => (
-            <div key={h.slug} className="shell">
-              <Reveal y={40}>
-                <MobilePlaque h={h} i={i} />
-              </Reveal>
-            </div>
-          ))}
-        </div>
-      </div>
-    </>
-  );
-}
-
-function MobilePlaque({ h, i }: { h: House; i: number }) {
-  return (
-    <div className="plate relative overflow-hidden rounded-xl2 p-6 sm:p-8">
-      <div className="flex items-baseline justify-between">
-        <span className="ref text-[0.62rem] text-brass-deep/60">{ROMAN[i]}</span>
-        <span className="ref text-[0.58rem] text-ash">{h.count} pcs</span>
-      </div>
-
-      <div className="relative mt-4 h-[190px]">
-        <div
-          aria-hidden="true"
-          className="absolute inset-x-[10%] bottom-0 h-[62%]"
-          style={{
-            background: `radial-gradient(50% 60% at 50% 100%, ${PEDESTAL[h.tone]}, transparent 70%)`,
-          }}
-        />
-        {h.hero && (
-          <div className="absolute inset-0 grid place-items-center">
-            <SpecimenArt
-              shape={h.hero.shape}
-              tone={h.hero.tone}
-              seed={`drum-${h.slug}`}
-              className="h-full w-auto drop-shadow-[0_14px_20px_rgba(34,26,12,0.2)]"
-            />
-          </div>
-        )}
-      </div>
-
-      <h2 className="mt-5 font-display text-[2rem] leading-none text-bitumen">{h.name}</h2>
-      <p className="mt-2 text-[0.62rem] uppercase tracking-wider2 text-stone">
-        {h.material} <span className="text-brass">·</span> {h.tagline}
-      </p>
-      <p className="mt-3 text-[0.9rem] leading-relaxed text-stone">{h.blurb}</p>
-
-      {/* pre-spread hand */}
-      <div className="relative mx-auto mt-6 flex h-[96px] w-full max-w-[260px] justify-center">
-        {h.fan.map(({ s, seed }, fi) => (
-          <div
-            key={seed}
-            className="absolute h-[88px] w-[70px]"
-            style={{
-              transform: `translateX(${(fi - 1) * 58}px) rotate(${(fi - 1) * 12}deg)`,
-              transformOrigin: "50% 100%",
-              zIndex: fi === 1 ? 2 : 1,
-            }}
+        {COLLECTIONS.map((c, i) => (
+          <Link
+            key={c.slug}
+            href={`/collections?house=${c.slug}`}
+            className="group relative block overflow-hidden"
+            style={{ height: "58svh" }}
           >
-            <Link
-              href={`/collections/${s.slug}`}
-              aria-label={s.name}
-              className="plate block h-full w-full overflow-hidden rounded-lg p-1.5"
+            {c.cover && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={c.cover}
+                alt={c.name}
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-silk group-hover:scale-[1.04]"
+              />
+            )}
+            {/* gradient — deep at bottom for name */}
+            <div className="absolute inset-0 bg-gradient-to-t from-bitumen/85 via-bitumen/30 to-transparent" />
+
+            <div className="absolute bottom-0 left-0 right-0 p-7">
+              <span className="block text-[0.58rem] uppercase tracking-wider2 text-parchment-pale/50">
+                {ROMAN[i]}
+              </span>
+              <h2 className="mt-2 font-display text-[clamp(2rem,8vw,3rem)] leading-none text-parchment-pale">
+                {c.name}
+              </h2>
+            </div>
+
+            <span
+              aria-hidden="true"
+              className="absolute bottom-7 right-7 text-parchment-pale/40 transition-all duration-500 ease-silk group-hover:translate-x-1 group-hover:text-brass"
             >
-              <SpecimenArt shape={s.shape} tone={s.tone} seed={seed} className="h-full w-full" />
-            </Link>
-          </div>
+              →
+            </span>
+          </Link>
         ))}
       </div>
-
-      <div className="mt-6">
-        <Button href={`/collections?house=${h.slug}`} variant="outline" arrow>
-          Enter the house
-        </Button>
-      </div>
-    </div>
+    </>
   );
 }

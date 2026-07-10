@@ -67,10 +67,10 @@ export default function FaqPage() {
                 Our trade desk is happy to help.
               </h2>
               <div className="mt-7 flex flex-wrap justify-center gap-5">
-                <Button href="/connect" variant="solid" arrow magnetic>
+                <Button href="/contact" variant="solid" arrow magnetic>
                   Get in touch
                 </Button>
-                <Button href="/connect" variant="link" arrow>
+                <Button href="/contact" variant="link" arrow>
                   Start a commission
                 </Button>
               </div>

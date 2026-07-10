@@ -11,7 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/collections",
     "/craft",
     "/maison",
-    "/connect",
+    "/contact",
     "/faq",
   ].map((path) => ({
     url: `${BASE}${path}`,

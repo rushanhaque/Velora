@@ -7,7 +7,7 @@ import { BRAND } from "@/lib/data";
 import { SectionReveal } from "@/components/motion/SectionReveal";
 
 export const metadata: Metadata = {
-  title: "Connect — contact & enquiries",
+  title: "Contact — enquiries & trade desk",
   description:
     "Reach the Velora atelier in Moradabad, India. Contact details, our location and an enquiry form — we reply within two working days.",
 };
@@ -24,11 +24,11 @@ const DESK_ROWS: { k: string; v: string; href?: string }[] = [
   { k: "Hours", v: BRAND.hours },
 ];
 
-export default function ConnectPage() {
+export default function ContactPage() {
   return (
     <>
       <PageHero
-        eyebrow="Connect"
+        eyebrow="Contact"
         titleLines={[<span key="l">Let&apos;s <span className="text-leaf">connect.</span></span>]}
         intro="Designers, retailers, galleries and hospitality groups are welcome. Send us a note and our desk replies within two working days — with pricing, samples and a dedicated contact."
       />

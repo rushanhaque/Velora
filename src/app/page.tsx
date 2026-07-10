@@ -174,7 +174,7 @@ export default function Home() {
                 lines={["Built for", <span key="t" className="serif-italic text-brass-deep">the trade.</span>]}
               />
               <Reveal delay={150} className="mt-8">
-                <Button href="/connect" variant="solid" arrow magnetic>
+                <Button href="/contact" variant="solid" arrow magnetic>
                   Get in touch
                 </Button>
               </Reveal>

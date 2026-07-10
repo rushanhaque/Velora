@@ -1,4 +1,3 @@
-import Link from "next/link";
 
 /**
  * Home hero — the stage the fixed <HeroBrand/> wordmark lives over.
@@ -101,16 +100,6 @@ export function Hero() {
           Hand-raised metalware for the{" "}
           <span className="serif-italic text-brass-deep">world&apos;s finest interiors.</span>
         </p>
-        <Link
-          href="/collections"
-          className="link-draw group mt-7 inline-flex items-center gap-1.5 text-[0.72rem] uppercase tracking-wide3 text-bitumen"
-          style={glow}
-        >
-          Explore the collections
-          <span className="text-brass-deep transition-transform duration-500 ease-silk group-hover:translate-x-1">
-            →
-          </span>
-        </Link>
       </div>
 
       {/* Scroll cue — bottom, all viewports */}
