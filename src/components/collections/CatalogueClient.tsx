@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import type { Specimen } from "@/lib/data";
 import { SpecimenCard } from "@/components/ui/SpecimenCard";
@@ -19,6 +19,16 @@ export function CatalogueClient({
   const [sort, setSort] = useState<(typeof SORTS)[number]>("Featured");
   const [cat, setCat] = useState<string>("All");
   const reduce = useReducedMotion();
+  // Phones get a lighter reveal: a clean rise + fade instead of the 3D hinge —
+  // cheaper on weak GPUs and calmer at single-column width.
+  const [mobile, setMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 640px)");
+    const set = () => setMobile(mq.matches);
+    set();
+    mq.addEventListener("change", set);
+    return () => mq.removeEventListener("change", set);
+  }, []);
 
   // Only surface filter groups that actually have pieces in this collection.
   const groups = useMemo(
@@ -98,16 +108,23 @@ export function CatalogueClient({
                 initial={
                   reduce
                     ? { opacity: 0 }
-                    : { opacity: 0, y: 76, rotateX: 26, scale: 0.94 }
+                    : mobile
+                      ? { opacity: 0, y: 34 }
+                      : { opacity: 0, y: 76, rotateX: 26, scale: 0.94 }
                 }
                 whileInView={
                   reduce
                     ? { opacity: 1 }
-                    : { opacity: 1, y: 0, rotateX: 0, scale: 1 }
+                    : mobile
+                      ? { opacity: 1, y: 0 }
+                      : { opacity: 1, y: 0, rotateX: 0, scale: 1 }
                 }
                 viewport={{ once: true, amount: 0.2, margin: "0px 0px -8% 0px" }}
-                transition={{ duration: 0.85, ease: SILK, delay: (i % 4) * 0.08 }}
-                style={{ transformOrigin: "center bottom", willChange: "transform, opacity" }}
+                transition={{
+                  duration: mobile ? 0.6 : 0.85,
+                  ease: SILK,
+                }}
+                style={{ transformOrigin: "center bottom" }}
                 className="h-full"
               >
                 <SpecimenCard s={s} index={i} showCaption />

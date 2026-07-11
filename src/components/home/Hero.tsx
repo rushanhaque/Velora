@@ -1,3 +1,4 @@
+import Image from "next/image";
 
 /**
  * Home hero — the stage the fixed <HeroBrand/> wordmark lives over.
@@ -25,11 +26,14 @@ export function Hero() {
       {/* Landing photograph — the golden-hour terrace, behind everything.
          Left vivid: no flat wash — legibility is handled locally on the text. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-20">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/media/landing-bg.png"
+        <Image
+          src="/media/landing-bg.jpg"
           alt=""
-          className="h-full w-full object-cover object-center"
+          fill
+          priority
+          quality={80}
+          sizes="100vw"
+          className="object-cover object-[center_70%]"
         />
       </div>
 
@@ -47,9 +51,9 @@ export function Hero() {
       {/* Breathing forge-light behind the wordmark — barely there, alive */}
       <div
         aria-hidden="true"
-        className="animate-pulse-glow pointer-events-none absolute left-1/2 top-[38%] -z-10 h-[min(60vw,420px)] w-[min(80vw,640px)] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[90px]"
+        className="animate-pulse-glow pointer-events-none absolute left-1/2 top-[38%] -z-10 h-[min(60vw,420px)] w-[min(80vw,640px)] -translate-x-1/2 -translate-y-1/2 rounded-full"
         style={{
-          background: "radial-gradient(ellipse at center, rgba(176,145,92,0.18), transparent 70%)",
+          background: "radial-gradient(ellipse at center, rgba(176,145,92,0.16), transparent 68%)",
           animationDuration: "9s",
         }}
       />
@@ -102,21 +106,6 @@ export function Hero() {
         </p>
       </div>
 
-      {/* Scroll cue — bottom, all viewports */}
-      <div
-        className="absolute inset-x-0 bottom-[max(1.5rem,env(safe-area-inset-bottom))] flex justify-center"
-        style={fade}
-      >
-        <span className="flex flex-col items-center gap-3">
-          <span className="hero-cue-line" aria-hidden="true" />
-        </span>
-      </div>
-
-      {/* Bottom vignette — depth into the page below */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-48 bg-gradient-to-t from-parchment to-transparent"
-      />
     </section>
   );
 }

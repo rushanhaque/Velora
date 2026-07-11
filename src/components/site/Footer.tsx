@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { Mark } from "@/components/brand/Logo";
 import { Reveal } from "@/components/motion/Reveal";
 import { MaskText } from "@/components/motion/MaskText";
+import { ContactDeveloper } from "@/components/site/ContactDeveloper";
 import { BRAND } from "@/lib/data";
 
 const COLLECTIONS_LINKS = [
@@ -25,7 +26,7 @@ export function Footer() {
       {/* v3.0 — ambient warm glow behind brand column */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-[10%] top-[30%] h-[400px] w-[400px] rounded-full opacity-20 blur-[100px]"
+        className="pointer-events-none absolute left-[10%] top-[30%] h-[400px] w-[400px] rounded-full opacity-20"
         style={{ background: "radial-gradient(circle, rgba(200,167,101,0.32), transparent 70%)" }}
       />
 
@@ -89,7 +90,7 @@ export function Footer() {
             <p className="mt-2 text-sm">{BRAND.phone}</p>
             <p className="mt-1 text-sm">{BRAND.hours}</p>
             <div className="mt-6">
-              <Button href="/contact" variant="brass" arrow magnetic className="!py-3 !text-[0.7rem]">
+              <Button href="/contact" variant="brass" arrow className="!py-3 !text-[0.7rem]">
                 Get in touch
               </Button>
             </div>
@@ -111,6 +112,8 @@ export function Footer() {
         </Reveal>
       </div>
 
+      {/* Bottom-right developer credit */}
+      <ContactDeveloper />
     </footer>
   );
 }

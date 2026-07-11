@@ -14,7 +14,7 @@ export function MaskText({
   className,
   lineClassName,
   delay = 0,
-  step = 52,
+  step = 30,
   once = true,
 }: {
   lines: ReactNode[];
@@ -59,7 +59,9 @@ export function MaskText({
         <span key={i} className="mask-line" aria-hidden="true">
           <span
             className={cn("mask-inner", lineClassName)}
-            style={{ transitionDelay: `${Math.min(delay * 0.25, 60) + i * step}ms` }}
+            // No base delay — only the tiny per-line cascade that makes the
+            // mask effect read as lines, kept short enough to feel instant.
+            style={{ transitionDelay: `${i * step}ms` }}
           >
             {ln}
           </span>

@@ -1,9 +1,12 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { display, sans } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
+import { ScrollReset } from "@/components/motion/ScrollReset";
+import { ChromeGate } from "@/components/site/ChromeGate";
 import { ScrollProgress } from "@/components/motion/Parallax";
 import { LightBench } from "@/components/motion/LightBench";
 import { CartFloat } from "@/components/ui/CartFloat";
@@ -61,21 +64,26 @@ export default function RootLayout({
     <html lang="en" className={cn(display.variable, sans.variable)}>
       <body className="font-sans antialiased">
         <noscript>
-          <style>{`[data-reveal],.clip-reveal,.mask-inner{opacity:1!important;transform:none!important;clip-path:none!important;filter:none!important}`}</style>
+          <style>{`[data-reveal],.clip-reveal,.mask-inner,.mob-panel .mp-cover,.mob-panel .mp-roman,.mob-panel .mp-name,.mob-panel .mp-arrow{opacity:1!important;transform:none!important;clip-path:none!important;filter:none!important}`}</style>
         </noscript>
         <a href="#main" className="skip-link">
           Skip to content
         </a>
-        <SmoothScroll />
-        <ScrollProgress />
-        <LightBench />
-        <Header />
+        <ChromeGate>
+          <SmoothScroll />
+          <Suspense fallback={null}>
+            <ScrollReset />
+          </Suspense>
+          <ScrollProgress />
+          <LightBench />
+          <Header />
+        </ChromeGate>
         <main id="main">{children}</main>
-        <Footer />
-        <CartFloat />
-        <CartPanel />
-        {/* Film grain — cinematic warmth over everything, inert */}
-        <div className="grain" aria-hidden="true" />
+        <ChromeGate>
+          <Footer />
+          <CartFloat />
+          <CartPanel />
+        </ChromeGate>
       </body>
     </html>
   );

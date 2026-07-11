@@ -8,22 +8,24 @@ import { MaskText } from "@/components/motion/MaskText";
 import { Reveal } from "@/components/motion/Reveal";
 import { Eyebrow } from "@/components/ui/Atoms";
 import {
-  SPECIMENS,
-  getSpecimen,
-  getCollection,
-  relatedSpecimens,
-} from "@/lib/data";
+  readCatalog,
+  selectSpecimen,
+  selectCollection,
+  selectRelated,
+} from "@/lib/catalog-store";
 
-export function generateStaticParams() {
-  return SPECIMENS.map((s) => ({ slug: s.slug }));
+export async function generateStaticParams() {
+  const catalog = await readCatalog();
+  return catalog.specimens.map((s) => ({ slug: s.slug }));
 }
 
-export function generateMetadata({
+export async function generateMetadata({
   params,
 }: {
   params: { slug: string };
-}): Metadata {
-  const s = getSpecimen(params.slug);
+}): Promise<Metadata> {
+  const catalog = await readCatalog();
+  const s = selectSpecimen(catalog, params.slug);
   if (!s) return { title: "Piece not found" };
   return {
     title: `${s.name} — ${s.ref}`,
@@ -31,11 +33,12 @@ export function generateMetadata({
   };
 }
 
-export default function SpecimenPage({ params }: { params: { slug: string } }) {
-  const s = getSpecimen(params.slug);
+export default async function SpecimenPage({ params }: { params: { slug: string } }) {
+  const catalog = await readCatalog();
+  const s = selectSpecimen(catalog, params.slug);
   if (!s) notFound();
-  const collection = getCollection(s.collection);
-  const related = relatedSpecimens(s.slug, 3);
+  const collection = selectCollection(catalog, s.collection);
+  const related = selectRelated(catalog, s.slug, 3);
 
   return (
     <>

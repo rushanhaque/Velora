@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useRef, type ReactNode, type MouseEvent } from "react";
 import { cn } from "@/lib/utils";
-import { MagneticWrap } from "@/components/motion/MagneticWrap";
 
 type Variant = "solid" | "brass" | "outline" | "link";
 
@@ -14,7 +13,6 @@ interface Props {
   type?: "button" | "submit";
   variant?: Variant;
   onDark?: boolean;
-  magnetic?: boolean;
   arrow?: boolean;
   className?: string;
   tabIndex?: number;
@@ -43,7 +41,6 @@ export function Button({
   type = "button",
   variant = "solid",
   onDark = false,
-  magnetic = false,
   arrow = false,
   className,
   tabIndex,
@@ -53,22 +50,24 @@ export function Button({
   const base =
     "group relative inline-flex items-center justify-center gap-1 font-sans text-[0.82rem] tracking-wide3 uppercase overflow-hidden active:scale-[0.97] active:translate-y-[1px] transition-all duration-500 ease-silk";
 
+  // Hover is deliberately line-free: a warm colour/fill shift, the specular
+  // burnish sweep, and a soft shadow for feedback — no drawn rim or keyline.
   const shapes: Record<Variant, string> = {
     solid: cn(
-      "burnish btn-gild rounded-full px-7 py-3.5",
+      "burnish rounded-full px-7 py-3.5",
       onDark
-        ? "bg-parchment-pale text-bitumen hover:bg-white hover:shadow-glow-brass"
-        : "bg-bitumen text-parchment-pale hover:bg-bitumen-umber hover:shadow-[0_16px_40px_-12px_rgba(34,26,12,0.45)]",
+        ? "bg-parchment-pale text-bitumen hover:bg-white hover:shadow-[0_14px_34px_-14px_rgba(34,26,12,0.4)]"
+        : "bg-bitumen text-parchment-pale hover:bg-bitumen-umber hover:shadow-[0_16px_38px_-14px_rgba(34,26,12,0.45)]",
     ),
     brass: cn(
-      "burnish btn-gild rounded-full px-7 py-3.5 text-bitumen",
-      "bg-[linear-gradient(96deg,#7b5a26,#c8a765_45%,#dcc089_55%,#a77e36)] shadow-[0_10px_30px_-12px_rgba(167,126,54,0.7)] hover:shadow-[0_18px_40px_-10px_rgba(167,126,54,0.8)]",
+      "burnish rounded-full px-7 py-3.5 text-bitumen",
+      "bg-[linear-gradient(96deg,#7b5a26,#c8a765_45%,#dcc089_55%,#a77e36)] shadow-[0_10px_30px_-12px_rgba(167,126,54,0.7)] hover:shadow-[0_18px_40px_-12px_rgba(167,126,54,0.82)]",
     ),
     outline: cn(
-      "btn-gild rounded-full px-7 py-3.5 border",
+      "rounded-full px-7 py-3.5 border",
       onDark
-        ? "border-brass-leaf/35 text-parchment-pale hover:border-brass-leaf hover:bg-white/5 hover:shadow-[0_0_30px_rgba(201,174,124,0.14)]"
-        : "border-bitumen/25 text-bitumen hover:border-brass hover:bg-brass/[0.04] hover:shadow-[0_0_30px_rgba(176,145,92,0.10)]",
+        ? "border-brass-leaf/35 text-parchment-pale hover:border-brass-leaf hover:bg-white/5"
+        : "border-bitumen/25 text-bitumen hover:border-brass hover:bg-brass/[0.05]",
     ),
     link: cn(
       "link-draw px-0 py-1",
@@ -107,10 +106,6 @@ export function Button({
       {content}
     </button>
   );
-
-  if (magnetic) {
-    return <MagneticWrap>{inner}</MagneticWrap>;
-  }
 
   return inner;
 }

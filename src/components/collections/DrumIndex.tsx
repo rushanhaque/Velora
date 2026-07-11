@@ -2,19 +2,21 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { COLLECTIONS } from "@/lib/data";
+import Image from "next/image";
+import { COLLECTIONS, type Collection } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
 /* ── instrument geometry ─────────────────────────────────────────────────────
-   24° between engravings. Perspective foreshortening scales anything at
-   translateZ(R) by P/(P−R) — with P=1000, R=300 that is ×1.43.              */
-const STEP = 24;
+   27° between engravings — a touch steeper so the off-centre houses lean back
+   more. Perspective foreshortening scales anything at translateZ(R) by
+   P/(P−R) — with P=1000, R=300 that is ×1.43.                                */
+const STEP = 27;
 const RADIUS = 300;
 const PERSPECTIVE = 1000;
-const N = COLLECTIONS.length;
 const REST = 0.85;
 
-const ROMAN = ["I", "II", "III", "IV", "V", "VI"];
+const ROMAN_NUM = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+const roman = (i: number) => ROMAN_NUM[i] ?? String(i + 1);
 
 const detent = (t: number) => {
   const i = Math.floor(t);
@@ -22,7 +24,10 @@ const detent = (t: number) => {
   return i + f - (Math.sin(2 * Math.PI * f) * 0.35) / (2 * Math.PI);
 };
 
-export function DrumIndex() {
+/** The collections landing. Data comes from the CMS-backed catalog (passed by
+ *  the server page); falls back to the compiled seed if rendered bare. */
+export function DrumIndex({ collections = COLLECTIONS }: { collections?: Collection[] }) {
+  const N = collections.length;
   const [active, setActive] = useState(0);
   const [reduce, setReduce] = useState(false);
   const [announced, setAnnounced] = useState("");
@@ -30,9 +35,29 @@ export function DrumIndex() {
   const outerRef = useRef<HTMLDivElement>(null);
   const drumRef = useRef<HTMLDivElement>(null);
   const labelRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const panelRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const activeRef = useRef(0);
   const entranceRef = useRef(true);
   const geom = useRef({ top: 0, scrollable: 1 });
+
+  /* mobile panels — one-shot cinematic reveal as each enters the viewport */
+  useEffect(() => {
+    const els = panelRefs.current.filter(Boolean) as HTMLAnchorElement[];
+    if (!els.length) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            (e.target as HTMLElement).dataset.on = "true";
+            io.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.22 },
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
 
   /* geometry: measured once + on resize */
   useEffect(() => {
@@ -71,7 +96,7 @@ export function DrumIndex() {
       labelRefs.current.forEach((el, i) => {
         if (!el) return;
         const a = Math.abs((i - fd) * STEP);
-        el.style.opacity = String(Math.max(0.04, Math.min(1, 1 - a / 65)).toFixed(3));
+        el.style.opacity = String(Math.max(0.04, Math.min(1, 1 - a / 54)).toFixed(3));
       });
     };
 
@@ -118,15 +143,15 @@ export function DrumIndex() {
       cancelAnimationFrame(raf);
       window.removeEventListener("scroll", onScroll);
     };
-  }, [reduce]);
+  }, [reduce, N]);
 
   useEffect(() => {
     const t = setTimeout(
-      () => setAnnounced(`Collection ${ROMAN[active]} — ${COLLECTIONS[active].name}.`),
+      () => setAnnounced(`Collection ${roman(active)} — ${collections[active]?.name ?? ""}.`),
       600,
     );
     return () => clearTimeout(t);
-  }, [active]);
+  }, [active, collections]);
 
   const goTo = useCallback((i: number) => {
     const { top, scrollable } = geom.current;
@@ -137,41 +162,56 @@ export function DrumIndex() {
     } else {
       window.scrollTo({ top: target, behavior: "smooth" });
     }
-  }, []);
+  }, [N]);
 
   return (
     <>
       {/* ═══ DESKTOP — full-bleed cover + centered drum ═══ */}
       <div ref={outerRef} className="hidden lg:block" style={{ height: `${N * 88}svh` }}>
-        <div className="sticky top-0 h-svh overflow-hidden">
+        <div className="sticky top-0 h-svh overflow-hidden bg-bitumen">
           <span aria-live="polite" className="sr-only">{announced}</span>
 
+          {/* Dark base — sits BEHIND the covers so the crossfade dissolves
+             through darkness (never the light page background) */}
+          <div className="absolute inset-0 bg-bitumen" />
+
           {/* Full-bleed cover images — React-state crossfade */}
-          {COLLECTIONS.map((c, i) =>
+          {collections.map((c, i) =>
             c.cover ? (
               <div
                 key={c.slug}
                 className="absolute inset-0 transition-opacity duration-[800ms] ease-in-out"
                 style={{ opacity: active === i ? 1 : 0 }}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={c.cover}
                   alt=""
                   aria-hidden="true"
-                  className="h-full w-full object-cover"
+                  fill
+                  priority={i === 0}
+                  quality={80}
+                  sizes="100vw"
+                  className="object-cover"
                 />
               </div>
             ) : null
           )}
 
-          {/* Persistent dark overlay */}
-          <div className="absolute inset-0 bg-bitumen/52" />
+          {/* Legibility scrim — deepest at the centre where the drum text sits,
+             easing out toward the edges so the cover photo still reads */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(78% 62% at 50% 50%, rgba(10,9,7,0.72) 0%, rgba(10,9,7,0.54) 52%, rgba(10,9,7,0.40) 100%)",
+            }}
+          />
 
           {/* Warm brass ambient behind active label */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[30vw] w-[50vw] rounded-full blur-[80px]"
+            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[30vw] w-[50vw] rounded-full"
             style={{ background: "radial-gradient(ellipse, rgba(184,145,88,0.18), transparent 70%)" }}
           />
 
@@ -180,7 +220,7 @@ export function DrumIndex() {
             {reduce ? (
               /* reduced-motion: static list */
               <div className="flex flex-col items-center gap-5" aria-hidden="true">
-                {COLLECTIONS.map((c, i) => (
+                {collections.map((c, i) => (
                   <Link
                     key={c.slug}
                     href={`/collections?house=${c.slug}`}
@@ -214,7 +254,7 @@ export function DrumIndex() {
                     className="absolute inset-0"
                     style={{ transformStyle: "preserve-3d", willChange: "transform" }}
                   >
-                    {COLLECTIONS.map((c, i) => (
+                    {collections.map((c, i) => (
                       <div
                         key={c.slug}
                         ref={(el) => { labelRefs.current[i] = el; }}
@@ -227,12 +267,12 @@ export function DrumIndex() {
                         <Link
                           href={`/collections?house=${c.slug}`}
                           tabIndex={active === i ? 0 : -1}
-                          className="font-display text-[clamp(3.2rem,6.2vw,7rem)] uppercase tracking-[0.06em] leading-none text-parchment-pale transition-colors duration-500 hover:text-brass"
+                          className="font-display text-[clamp(3.2rem,6.2vw,7rem)] uppercase tracking-[0.06em] leading-none text-parchment-pale transition-colors duration-500 ease-silk hover:text-brass"
                           style={{
                             textShadow:
                               active === i
-                                ? "0 0 60px rgba(200,165,92,0.5), 0 2px 24px rgba(0,0,0,0.55)"
-                                : "0 2px 16px rgba(0,0,0,0.45)",
+                                ? "0 0 2px rgba(10,9,7,0.65), 0 2px 20px rgba(10,9,7,0.85), 0 0 60px rgba(200,165,92,0.5)"
+                                : "0 0 2px rgba(10,9,7,0.6), 0 2px 20px rgba(10,9,7,0.8)",
                           }}
                         >
                           {c.name}
@@ -246,7 +286,7 @@ export function DrumIndex() {
 
             {/* Dot nav — horizontal row below the drum */}
             <div className="mt-10 flex items-center gap-5">
-              {COLLECTIONS.map((c, i) => (
+              {collections.map((c, i) => (
                 <button
                   key={c.slug}
                   type="button"
@@ -262,7 +302,7 @@ export function DrumIndex() {
                         : "h-1.5 w-1.5 bg-parchment-pale/35 group-hover:bg-parchment-pale/65",
                     )}
                   />
-                  <span className="sr-only">{`Collection ${ROMAN[i]} — ${c.name}`}</span>
+                  <span className="sr-only">{`Collection ${roman(i)} — ${c.name}`}</span>
                 </button>
               ))}
             </div>
@@ -270,38 +310,48 @@ export function DrumIndex() {
         </div>
       </div>
 
-      {/* ═══ MOBILE / TABLET — full-bleed panels stacked ═══ */}
-      <div className="lg:hidden">
-        {COLLECTIONS.map((c, i) => (
+      {/* ═══ MOBILE / TABLET — full-bleed panels, each staging its own
+             reveal as it scrolls in: the cover settles from a gentle zoom,
+             the numeral and name rise, the arrow slides into place. ═══ */}
+      <div className="lg:hidden bg-bitumen">
+        {collections.map((c, i) => (
           <Link
             key={c.slug}
+            ref={(el) => {
+              panelRefs.current[i] = el;
+            }}
             href={`/collections?house=${c.slug}`}
-            className="group relative block overflow-hidden"
+            className="mob-panel group relative block overflow-hidden"
             style={{ height: "58svh" }}
           >
             {c.cover && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 src={c.cover}
                 alt={c.name}
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-silk group-hover:scale-[1.04]"
+                fill
+                priority={i === 0}
+                quality={80}
+                sizes="100vw"
+                className="mp-cover object-cover"
               />
             )}
             {/* gradient — deep at bottom for name */}
             <div className="absolute inset-0 bg-gradient-to-t from-bitumen/85 via-bitumen/30 to-transparent" />
 
             <div className="absolute bottom-0 left-0 right-0 p-7">
-              <span className="block text-[0.58rem] uppercase tracking-wider2 text-parchment-pale/50">
-                {ROMAN[i]}
+              <span className="mp-roman block text-[0.58rem] uppercase tracking-wider2 text-parchment-pale/50">
+                {roman(i)}
               </span>
-              <h2 className="mt-2 font-display text-[clamp(2rem,8vw,3rem)] leading-none text-parchment-pale">
-                {c.name}
-              </h2>
+              <div className="overflow-hidden">
+                <h2 className="mp-name mt-2 font-display text-[clamp(2rem,8vw,3rem)] leading-none text-parchment-pale">
+                  {c.name}
+                </h2>
+              </div>
             </div>
 
             <span
               aria-hidden="true"
-              className="absolute bottom-7 right-7 text-parchment-pale/40 transition-all duration-500 ease-silk group-hover:translate-x-1 group-hover:text-brass"
+              className="mp-arrow absolute bottom-7 right-7 text-parchment-pale/40 transition-all duration-500 ease-silk group-hover:translate-x-1 group-hover:text-brass"
             >
               →
             </span>

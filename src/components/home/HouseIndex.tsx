@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Section, Shell } from "@/components/ui/Section";
 import { Reveal } from "@/components/motion/Reveal";
 import { Eyebrow } from "@/components/ui/Atoms";
 import { Specimen as SpecimenArt } from "@/components/visual/Specimen";
 import { CollectionCard } from "@/components/ui/CollectionCard";
-import { COLLECTIONS, specimensByCollection } from "@/lib/data";
+import { COLLECTIONS, SPECIMENS, type Collection, type Specimen } from "@/lib/data";
 import { cn } from "@/lib/utils";
 
 const GLOW: Record<string, string> = {
@@ -17,11 +18,7 @@ const GLOW: Record<string, string> = {
   bronze: "rgba(156,122,68,0.22)",
 };
 
-const HOUSES = COLLECTIONS.map((c) => ({ ...c, art: specimensByCollection(c.slug)[0] }));
-
-// Scroll breakpoints: cumulative fraction of scrollable height at which each
-// collection hands off to the next. One entry per collection; last is 1.0.
-const SCROLL_BREAKS = [0.18, 0.34, 0.5, 0.66, 0.82, 1.0];
+type House = Collection & { art?: Specimen };
 
 const STACK_OFFSET = 36;
 const STACK_SCALE  = 0.075;
@@ -32,7 +29,7 @@ const C_VW  = 82;                    // card width as % of viewport
 const G_VW  = 3;                     // gap between cards
 const PK_VW = (100 - C_VW) / 2;     // 9vw — peek amount on each side
 
-function DeckCard({ h }: { h: (typeof HOUSES)[number] }) {
+function DeckCard({ h }: { h: House }) {
   return (
     <Link
       href={`/collections?house=${h.slug}`}
@@ -46,11 +43,12 @@ function DeckCard({ h }: { h: (typeof HOUSES)[number] }) {
         }}
       >
         {h.cover ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={h.cover}
             alt={`${h.name} — ${h.material}`}
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-[900ms] ease-silk will-change-transform group-hover:scale-[1.05]"
+            fill
+            sizes="(min-width: 1024px) 48vw, 82vw"
+            className="object-cover transition-transform duration-[900ms] ease-silk group-hover:scale-[1.05]"
           />
         ) : (
           h.art && (
@@ -75,12 +73,30 @@ function DeckCard({ h }: { h: (typeof HOUSES)[number] }) {
   );
 }
 
-export function HouseIndex() {
+export function HouseIndex({
+  collections = COLLECTIONS,
+  specimens = SPECIMENS,
+}: {
+  collections?: Collection[];
+  specimens?: Specimen[];
+}) {
   const [active, setActive] = useState(0);
   const [mCard, setMCard] = useState(0);
   const outerRef = useRef<HTMLDivElement>(null);
   const touchX = useRef(0);
-  const cur = HOUSES[active];
+
+  // Each house + its hero piece (for the SVG-art fallback when no cover photo).
+  const HOUSES = useMemo(
+    () => collections.map((c) => ({ ...c, art: specimens.find((s) => s.collection === c.slug) })),
+    [collections, specimens],
+  );
+  // One scroll breakpoint per house, spread evenly across the scroll space.
+  const SCROLL_BREAKS = useMemo(
+    () => HOUSES.map((_, i) => (i + 1) / HOUSES.length),
+    [HOUSES],
+  );
+  const count = HOUSES.length;
+  const cur = HOUSES[active] ?? HOUSES[0];
 
   useEffect(() => {
     const outer = outerRef.current;
@@ -95,7 +111,7 @@ export function HouseIndex() {
         if (scrollable > 0) {
           const p = Math.max(0, Math.min(1, -rect.top / scrollable));
           const next = SCROLL_BREAKS.findIndex((b) => p < b);
-          setActive(next === -1 ? HOUSES.length - 1 : next);
+          setActive(next === -1 ? count - 1 : next);
         }
         ticking = false;
       });
@@ -103,11 +119,14 @@ export function HouseIndex() {
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [SCROLL_BREAKS, count]);
 
-  const goTo = useCallback((i: number) => {
-    setMCard(Math.max(0, Math.min(COLLECTIONS.length - 1, i)));
-  }, []);
+  const goTo = useCallback(
+    (i: number) => {
+      setMCard(Math.max(0, Math.min(count - 1, i)));
+    },
+    [count],
+  );
 
   return (
     <>
@@ -154,13 +173,13 @@ export function HouseIndex() {
             </div>
           </Shell>
 
-          <div className="absolute right-[clamp(0px,1.4vw,20px)] top-[53%] w-[clamp(463px,47.4vw,662px)] -translate-y-1/2 [perspective:1900px]">
+          <div className="absolute right-[clamp(0px,1.4vw,20px)] top-[57%] w-[clamp(463px,47.4vw,662px)] -translate-y-1/2 [perspective:1900px]">
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 -m-12 rounded-full blur-[80px] transition-all duration-1000"
+              className="pointer-events-none absolute inset-0 -m-12 rounded-full transition-opacity duration-1000"
               style={{ background: `radial-gradient(circle, ${GLOW[cur.tone]}, transparent 70%)`, opacity: 0.5 }}
             />
-            <div className="relative aspect-[7/4.6] w-full">
+            <div className="relative aspect-[7/4.37] w-full">
               {HOUSES.map((h, i) => {
                 const len  = HOUSES.length;
                 const half = Math.floor(len / 2);
@@ -171,7 +190,7 @@ export function HouseIndex() {
                 return (
                   <div
                     key={h.slug}
-                    className="absolute inset-0 will-change-transform"
+                    className="absolute inset-0"
                     style={{
                       zIndex: 50 - a,
                       pointerEvents: rel === 0 ? "auto" : "none",
@@ -220,12 +239,12 @@ export function HouseIndex() {
           {/* Subtle ambient glow that tracks the active card tone */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 left-1/2 -z-10 w-[60vw] -translate-x-1/2 blur-[60px] transition-all duration-700"
-            style={{ background: `radial-gradient(ellipse at center, ${GLOW[COLLECTIONS[mCard]?.tone ?? "brass"]}, transparent 70%)`, opacity: 0.45 }}
+            className="pointer-events-none absolute inset-y-0 left-1/2 -z-10 w-[60vw] -translate-x-1/2 transition-opacity duration-700"
+            style={{ background: `radial-gradient(ellipse at center, ${GLOW[collections[mCard]?.tone ?? "brass"]}, transparent 70%)`, opacity: 0.45 }}
           />
 
           <div
-            className="flex will-change-transform"
+            className="flex"
             style={{
               transform: `translateX(-${mCard * (C_VW + G_VW)}vw)`,
               paddingLeft: `${PK_VW}vw`,
@@ -238,7 +257,7 @@ export function HouseIndex() {
               if (Math.abs(dx) > 50) dx > 0 ? goTo(mCard + 1) : goTo(mCard - 1);
             }}
           >
-            {COLLECTIONS.map((c, i) => {
+            {collections.map((c, i) => {
               const dist = Math.abs(i - mCard);
               return (
                 <div
@@ -251,7 +270,7 @@ export function HouseIndex() {
                     transition: "transform 0.75s cubic-bezier(0.16,1,0.3,1), opacity 0.55s ease",
                   }}
                 >
-                  <CollectionCard c={c} />
+                  <CollectionCard c={c} active={i === mCard} />
                 </div>
               );
             })}
@@ -276,7 +295,7 @@ export function HouseIndex() {
               </button>
               <button
                 onClick={() => goTo(mCard + 1)}
-                disabled={mCard === COLLECTIONS.length - 1}
+                disabled={mCard === collections.length - 1}
                 aria-label="Next collection"
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-stone/20 bg-parchment-pale text-stone/60 transition-all duration-300 hover:border-brass/35 hover:bg-parchment hover:text-bitumen disabled:pointer-events-none disabled:opacity-25"
               >
@@ -288,11 +307,11 @@ export function HouseIndex() {
 
             {/* Pill progress indicators */}
             <div className="flex items-center gap-[5px]">
-              {COLLECTIONS.map((_, i) => (
+              {collections.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => goTo(i)}
-                  aria-label={`View ${COLLECTIONS[i].name}`}
+                  aria-label={`View ${collections[i].name}`}
                   style={{
                     display: "block",
                     width: mCard === i ? 28 : 8,
@@ -311,7 +330,7 @@ export function HouseIndex() {
                 {String(mCard + 1).padStart(2, "0")}
               </span>
               <span className="mx-0.5">/</span>
-              <span>{String(COLLECTIONS.length).padStart(2, "0")}</span>
+              <span>{String(collections.length).padStart(2, "0")}</span>
             </div>
 
           </div>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import type { Specimen, Collection } from "@/lib/data";
 import { FINISHES, hasMedia } from "@/lib/data";
@@ -88,11 +89,12 @@ export function SpecimenDetail({
                 key={i}
                 className="plate relative aspect-square overflow-hidden rounded-card"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={src}
                   alt={`${s.name} — view ${i + 2}`}
-                  className="absolute inset-0 h-full w-full object-cover"
+                  fill
+                  sizes="(max-width: 1024px) 33vw, 16vw"
+                  className="object-cover"
                 />
               </div>
             ))}
@@ -202,7 +204,6 @@ export function SpecimenDetail({
             <Button
               variant={added ? "outline" : "solid"}
               arrow={!added}
-              magnetic
               onClick={() => enquiry.toggle(s.slug)}
             >
               {added ? "Added to cart ✓" : "Add to cart"}

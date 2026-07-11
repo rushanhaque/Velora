@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 /**
@@ -92,7 +93,7 @@ export function SignatureScroll() {
               }}
             >
               {/* slow cinematic push-in while the slide holds the screen */}
-              <div className={cn("h-full w-full", active === i && "slow-drift")}>
+              <div className={cn("relative h-full w-full", active === i && "slow-drift")}>
                 <SlideMedia slide={s} index={i} />
               </div>
             </div>
@@ -172,11 +173,13 @@ export function SignatureScroll() {
 function SlideMedia({ slide, index }: { slide: Slide; index: number }) {
   if (slide.src) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <Image
         src={slide.src}
         alt={slide.name}
-        className="h-full w-full object-cover"
+        fill
+        quality={80}
+        sizes="100vw"
+        className="object-cover"
         draggable={false}
       />
     );

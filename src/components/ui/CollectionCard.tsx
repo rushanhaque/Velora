@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Collection } from "@/lib/data";
 import { specimensByCollection } from "@/lib/data";
 import { Specimen as SpecimenArt } from "@/components/visual/Specimen";
@@ -15,9 +16,13 @@ const GLOW: Record<string, string> = {
 export function CollectionCard({
   c,
   className,
+  active = false,
 }: {
   c: Collection;
   className?: string;
+  /** Centre card of the mobile carousel — phones never hover, so the active
+   *  card carries the hover treatment (glow, light-catch, brighter numeral). */
+  active?: boolean;
 }) {
   const hero = specimensByCollection(c.slug)[0];
 
@@ -30,7 +35,12 @@ export function CollectionCard({
         className="plate depth-card group relative flex h-full flex-col overflow-hidden rounded-xl2"
       >
         {/* index numeral */}
-        <span className="numeral pointer-events-none absolute right-6 top-4 z-10 text-[clamp(3rem,7vw,5.5rem)] text-brass/12 transition-colors duration-700 group-hover:text-brass/25">
+        <span
+          className={cn(
+            "numeral pointer-events-none absolute right-6 top-4 z-10 text-[clamp(3rem,7vw,5.5rem)] transition-colors duration-700 group-hover:text-brass/25",
+            active ? "text-brass/25" : "text-brass/12",
+          )}
+        >
           {c.index}
         </span>
 
@@ -52,16 +62,23 @@ export function CollectionCard({
           {/* underglow blooms beneath the piece as it lifts */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 opacity-0 transition-opacity duration-[800ms] ease-silk group-hover:opacity-100"
+            className={cn(
+              "absolute inset-0 transition-opacity duration-[800ms] ease-silk group-hover:opacity-100",
+              active ? "opacity-100" : "opacity-0",
+            )}
             style={{ background: `radial-gradient(80% 66% at 50% 46%, ${GLOW[c.tone]}, transparent 66%)` }}
           />
           {c.cover ? (
             <div className="absolute inset-0 overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={c.cover}
                 alt={`${c.name} — ${c.material}`}
-                className="absolute inset-0 h-full w-full object-cover transition-[filter] duration-[800ms] ease-silk group-hover:brightness-[1.05]"
+                fill
+                sizes="(max-width: 1024px) 84vw, 33vw"
+                className={cn(
+                  "object-cover transition-[filter,transform] duration-[800ms] ease-silk group-hover:brightness-[1.05]",
+                  active ? "scale-[1.03] brightness-[1.05]" : "scale-100",
+                )}
               />
             </div>
           ) : (
@@ -80,7 +97,10 @@ export function CollectionCard({
           {/* brass light-catch draws along the lower edge */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-x-6 bottom-0 h-px origin-center scale-x-0 transition-transform duration-[700ms] ease-silk group-hover:scale-x-100"
+            className={cn(
+              "pointer-events-none absolute inset-x-6 bottom-0 h-px origin-center transition-transform duration-[700ms] ease-silk group-hover:scale-x-100",
+              active ? "scale-x-100" : "scale-x-0",
+            )}
             style={{ background: "linear-gradient(90deg, transparent, rgba(200,167,101,0.9), transparent)" }}
           />
         </div>

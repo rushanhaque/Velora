@@ -32,7 +32,7 @@ export default function Error({
           collections while we set it right.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-5">
-          <Button onClick={reset} variant="solid" arrow magnetic>
+          <Button onClick={reset} variant="solid" arrow>
             Try again
           </Button>
           <Button href="/" variant="link" arrow>

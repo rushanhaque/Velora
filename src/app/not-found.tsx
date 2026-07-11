@@ -19,7 +19,7 @@ export default function NotFound() {
           to the collections.
         </p>
         <div className="mt-9 flex flex-wrap justify-center gap-5">
-          <Button href="/" variant="solid" arrow magnetic>
+          <Button href="/" variant="solid" arrow>
             Return home
           </Button>
           <Button href="/collections" variant="link" arrow>

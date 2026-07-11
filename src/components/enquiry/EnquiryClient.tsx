@@ -35,7 +35,7 @@ export function EnquiryClient() {
           a single enquiry.
         </p>
         <div className="mt-8 flex justify-center">
-          <Button href="/collections" variant="solid" arrow magnetic>
+          <Button href="/collections" variant="solid" arrow>
             Browse the catalogue
           </Button>
         </div>

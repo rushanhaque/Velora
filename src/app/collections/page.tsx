@@ -3,7 +3,7 @@ import { Section, Shell } from "@/components/ui/Section";
 import { DrumIndex } from "@/components/collections/DrumIndex";
 import { CatalogueClient } from "@/components/collections/CatalogueClient";
 import { MaskText } from "@/components/motion/MaskText";
-import { getCollection, specimensByCollection } from "@/lib/data";
+import { readCatalog, selectCollection, selectByCollection } from "@/lib/catalog-store";
 
 export const metadata: Metadata = {
   title: "The Collections — lighting, decor, tableware & more",
@@ -11,21 +11,22 @@ export const metadata: Metadata = {
     "Browse the Velora catalogue across six collections — lighting, decor, kitchenware, accessories, clocks and wedding. Handcrafted objects in brass, glass, crystal, porcelain and silver.",
 };
 
-export default function CollectionsPage({
+export default async function CollectionsPage({
   searchParams,
 }: {
   searchParams: { house?: string };
 }) {
+  const catalog = await readCatalog();
   const houseParam = searchParams.house;
-  const collection = houseParam ? getCollection(houseParam) : null;
+  const collection = houseParam ? selectCollection(catalog, houseParam) : null;
 
   // ── Category landing — the indexing drum ───────────────────────────────────
   if (!collection) {
-    return <DrumIndex />;
+    return <DrumIndex collections={catalog.collections} />;
   }
 
   // ── House product grid ──────────────────────────────────────────────────────
-  const specimens = specimensByCollection(collection.slug);
+  const specimens = selectByCollection(catalog, collection.slug);
 
   return (
     <Section pad="md" className="pt-[clamp(110px,13vw,160px)]">

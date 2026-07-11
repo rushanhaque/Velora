@@ -26,6 +26,7 @@ export function EnquiryForm({
   submitLabel = "Send enquiry",
   success = "Thank you — our trade desk will be in touch within two working days.",
   dark = false,
+  compact = false,
   className,
   onSubmitted,
 }: {
@@ -34,6 +35,8 @@ export function EnquiryForm({
   submitLabel?: string;
   success?: string;
   dark?: boolean;
+  /** Tighter row gaps + shorter textarea, for fit-to-screen layouts. */
+  compact?: boolean;
   className?: string;
   onSubmitted?: () => void;
 }) {
@@ -61,7 +64,8 @@ export function EnquiryForm({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: SILK }}
             className={cn(
-              "flex min-h-[16rem] flex-col items-start justify-center rounded-card border p-8 outline-none",
+              "flex flex-col items-start justify-center rounded-card border p-8 outline-none",
+              compact ? "min-h-[12rem]" : "min-h-[16rem]",
               dark ? "border-brass-leaf/20 bg-white/[0.02]" : "border-line bg-parchment-pale",
             )}
           >
@@ -100,7 +104,10 @@ export function EnquiryForm({
               setSubmitted(true);
               onSubmitted?.();
             }}
-            className="grid gap-x-8 gap-y-6 sm:grid-cols-2"
+            className={cn(
+              "grid gap-x-8 sm:grid-cols-2",
+              compact ? "gap-y-4" : "gap-y-6",
+            )}
           >
             {choices.map((c) => (
               <div
@@ -166,7 +173,7 @@ export function EnquiryForm({
                     id={f.name}
                     name={f.name}
                     required={f.required}
-                    rows={3}
+                    rows={compact ? 2 : 3}
                     placeholder={f.placeholder}
                     className={cn("field resize-none", dark && "field--dark")}
                   />
@@ -184,7 +191,7 @@ export function EnquiryForm({
             ))}
 
             <div className="sm:col-span-2">
-              <Button type="submit" variant={dark ? "brass" : "solid"} arrow magnetic>
+              <Button type="submit" variant={dark ? "brass" : "solid"} arrow>
                 {submitLabel}
               </Button>
             </div>

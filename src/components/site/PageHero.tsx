@@ -11,6 +11,7 @@ export function PageHero({
   intro,
   aside,
   align = "left",
+  compact = false,
   className,
 }: {
   eyebrow: string;
@@ -18,12 +19,17 @@ export function PageHero({
   intro?: ReactNode;
   aside?: ReactNode;
   align?: "left" | "center";
+  /** Trimmed vertical footprint for fit-to-screen pages (e.g. contact). */
+  compact?: boolean;
   className?: string;
 }) {
   return (
     <header
       className={cn(
-        "relative overflow-hidden pb-[clamp(36px,5vw,64px)] pt-[clamp(100px,12vw,160px)]",
+        "relative overflow-hidden",
+        compact
+          ? "pb-[clamp(16px,2.5vw,32px)] pt-[clamp(84px,9vw,116px)]"
+          : "pb-[clamp(36px,5vw,64px)] pt-[clamp(100px,12vw,160px)]",
         className,
       )}
     >
@@ -69,14 +75,18 @@ export function PageHero({
             </Reveal>
             <MaskText
               as="h1"
-              className="display mt-7 text-[clamp(2.7rem,7vw,6rem)] text-bitumen"
+              className={cn(
+                "display text-bitumen",
+                compact ? "mt-5 text-[clamp(2.3rem,5vw,4rem)]" : "mt-7 text-[clamp(2.7rem,7vw,6rem)]",
+              )}
               lines={titleLines}
             />
             {intro && (
               <Reveal delay={150}>
                 <p
                   className={cn(
-                    "mt-8 max-w-xl text-lg leading-relaxed text-stone",
+                    "max-w-xl leading-relaxed text-stone",
+                    compact ? "mt-5 text-base" : "mt-8 text-lg",
                     align === "center" && "mx-auto",
                   )}
                 >

@@ -16,8 +16,10 @@ import {
   PRESS,
   TICKER,
 } from "@/lib/data";
+import { readCatalog } from "@/lib/catalog-store";
 
-export default function Home() {
+export default async function Home() {
+  const catalog = await readCatalog();
   return (
     <>
       <Hero />
@@ -43,7 +45,7 @@ export default function Home() {
       </div>
 
       {/* ───────────────── Collections ───────────────── */}
-      <HouseIndex />
+      <HouseIndex collections={catalog.collections} specimens={catalog.specimens} />
 
       {/* ───────────────── Signature pieces (scroll photo switcher) ───────────────── */}
       <div className="mt-[clamp(48px,7vw,96px)]">
@@ -69,7 +71,7 @@ export default function Home() {
             </p>
           </Reveal>
           <Reveal delay={220} className="mt-10">
-            <Button href="/about" variant="outline" arrow magnetic>
+            <Button href="/about" variant="outline" arrow>
               About the maison
             </Button>
           </Reveal>
@@ -111,7 +113,7 @@ export default function Home() {
                 </p>
               </Reveal>
               <Reveal delay={220} className="mt-9">
-                <Button href="/about" variant="solid" arrow magnetic>
+                <Button href="/about" variant="solid" arrow>
                   Inside the atelier
                 </Button>
               </Reveal>
@@ -174,7 +176,7 @@ export default function Home() {
                 lines={["Built for", <span key="t" className="serif-italic text-brass-deep">the trade.</span>]}
               />
               <Reveal delay={150} className="mt-8">
-                <Button href="/contact" variant="solid" arrow magnetic>
+                <Button href="/contact" variant="solid" arrow>
                   Get in touch
                 </Button>
               </Reveal>
@@ -213,20 +215,6 @@ export default function Home() {
                   Two hundred pieces in brass, bronze, copper and silver — each made to
                   order, each finished by hand. Trade pricing available on application.
                 </p>
-              </Reveal>
-              <Reveal delay={210}>
-                <div className="mt-9 flex flex-wrap gap-3">
-                  {["MOQ from six pieces", "Lead 6–8 weeks", "Export to 18 countries"].map(
-                    (b) => (
-                      <span
-                        key={b}
-                        className="rounded-full border border-brass-leaf/25 px-4 py-2 text-[0.62rem] uppercase tracking-wider2 text-stone transition-colors duration-500 hover:border-brass-leaf/50 hover:text-brass-deep"
-                      >
-                        {b}
-                      </span>
-                    ),
-                  )}
-                </div>
               </Reveal>
             </div>
 

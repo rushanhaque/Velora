@@ -17,33 +17,59 @@ const NAV_RIGHT = NAV.slice(2);
 export function Header() {
   const pathname = usePathname();
   const isHome = pathname === "/";
-  const [scrolled, setScrolled] = useState(false);
   const [dockP, setDockP] = useState(0);
   const [open, setOpen] = useState(false);
+  // Lite mode — phones and low-core machines skip the backdrop blur (one of
+  // the most expensive per-frame effects) in favour of a more opaque fill.
+  const [lite, setLite] = useState(false);
   const cartCount = useEnquiry().length;
 
   useEffect(() => {
-    const onScroll = () => {
-      const y = window.scrollY;
-      const s = y > 28;
-      setScrolled(s);
+    setLite(
+      window.matchMedia("(pointer: coarse)").matches ||
+        (navigator.hardwareConcurrency ?? 8) <= 4,
+    );
+  }, []);
+
+  useEffect(() => {
+    // Fixed, compact bar — the header height never changes on scroll.
+    document.documentElement.style.setProperty("--header-h", "62px");
+    // The docking fade only exists on the homepage; every other page renders
+    // the bar fully solid, so they get NO scroll listener at all.
+    if (!isHome) return;
+
+    let raf = 0;
+    let ticking = false;
+    let last = -1;
+    const update = () => {
+      ticking = false;
       const vh =
         window.innerHeight ||
         document.documentElement.clientHeight ||
-        document.querySelector("section")?.getBoundingClientRect().height ||
         800;
       const dock = Math.max(vh * 0.85, 500);
-      setDockP(Math.min(1, Math.max(0, y / dock)));
-      document.documentElement.style.setProperty("--header-h", s ? "62px" : "80px");
+      const p = Math.min(1, Math.max(0, window.scrollY / dock));
+      // Re-render only on meaningful change — not every scrolled pixel.
+      if (Math.abs(p - last) > 0.02 || (p !== last && (p === 0 || p === 1))) {
+        last = p;
+        setDockP(p);
+      }
     };
-    onScroll();
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        raf = requestAnimationFrame(update);
+      }
+    };
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     return () => {
+      cancelAnimationFrame(raf);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, []);
+  }, [isHome]);
 
   useEffect(() => {
     setOpen(false);
@@ -64,7 +90,10 @@ export function Header() {
   }, [open]);
 
   const chrome = isHome ? dockP : 1;
-  const solid = isHome ? dockP : scrolled ? 1 : 0;
+  // Homepage: the bar fades in as the hero wordmark docks on scroll.
+  // Every other page: the header bar stays solid from the top — it never
+  // "disappears" into the page the way the homepage hero intentionally does.
+  const solid = isHome ? dockP : 1;
   const sideStyle = (o: number) => ({
     opacity: o,
     pointerEvents: o < 0.05 ? ("none" as const) : ("auto" as const),
@@ -92,31 +121,22 @@ export function Header() {
     <header className="fixed inset-x-0 top-0 z-50">
       {/* v3.0 — glass pill that separates from edge on scroll */}
       <div
-        className={cn(
-          "transition-all duration-700 ease-silk",
-          scrolled ? "mx-3 mt-2 rounded-full sm:mx-4" : "",
-        )}
+        className="mx-3 mt-2 rounded-full transition-all duration-700 ease-silk sm:mx-4"
         style={{
-          backgroundColor: `rgba(247,244,238,${(0.75 * solid).toFixed(3)})`,
-          // Consistent longhand border props (no border/borderBottom shorthand mix):
-          // all four sides when floating as a pill, bottom-only when docked to the edge.
+          backgroundColor: `rgba(247,244,238,${((lite ? 0.92 : 0.75) * solid).toFixed(3)})`,
+          // Always a floating oval pill — the intensity of the fill, border and
+          // shadow rides on `solid`, so the homepage hero stays transparent at
+          // the very top while the shape never changes.
           borderStyle: "solid",
-          borderColor: scrolled
-            ? `rgba(227,220,205,${(solid * 0.6).toFixed(3)})`
-            : `rgba(227,220,205,${solid.toFixed(3)})`,
-          borderWidth: scrolled ? "1px" : "0 0 1px",
-          backdropFilter: solid > 0.04 ? `blur(20px) saturate(1.8)` : "none",
-          WebkitBackdropFilter: solid > 0.04 ? `blur(20px) saturate(1.8)` : "none",
-          boxShadow: scrolled
-            ? `0 8px 32px rgba(34,26,12,${(0.08 * solid).toFixed(3)}), 0 0 0 0.5px rgba(227,220,205,${(0.3 * solid).toFixed(3)})`
-            : "none",
+          borderWidth: "1px",
+          borderColor: `rgba(227,220,205,${(solid * 0.6).toFixed(3)})`,
+          backdropFilter: !lite && solid > 0.04 ? "blur(12px)" : "none",
+          WebkitBackdropFilter: !lite && solid > 0.04 ? "blur(12px)" : "none",
+          boxShadow: `0 8px 32px rgba(34,26,12,${(0.08 * solid).toFixed(3)}), 0 0 0 0.5px rgba(227,220,205,${(0.3 * solid).toFixed(3)})`,
         }}
       >
         <div
-          className={cn(
-            "shell grid grid-cols-[1fr_auto_1fr] items-center transition-[padding] duration-500 ease-silk",
-            scrolled ? "py-3" : "py-5",
-          )}
+          className="shell grid grid-cols-[1fr_auto_1fr] items-center py-3"
         >
           {/* Left — mobile menu button + desktop nav */}
           <div className="flex items-center" style={sideStyle(chrome)}>
@@ -191,7 +211,7 @@ export function Header() {
             {/* Ambient warm glow, top-right */}
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute right-[-10%] top-[-6%] h-[320px] w-[320px] rounded-full opacity-25 blur-[90px]"
+              className="pointer-events-none absolute right-[-10%] top-[-6%] h-[320px] w-[320px] rounded-full opacity-25"
               style={{ background: "radial-gradient(circle, rgba(200,167,101,0.42), transparent 70%)" }}
             />
 

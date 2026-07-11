@@ -28,29 +28,30 @@ export default function ContactPage() {
   return (
     <>
       <PageHero
+        compact
         eyebrow="Contact"
         titleLines={[<span key="l">Let&apos;s <span className="text-leaf">connect.</span></span>]}
-        intro="Designers, retailers, galleries and hospitality groups are welcome. Send us a note and our desk replies within two working days — with pricing, samples and a dedicated contact."
+        intro="Designers, retailers, galleries and hospitality groups are welcome. Send us a note and our desk replies within two working days."
       />
 
       {/* The desk & the note — two sheets of equal weight */}
       <SectionReveal>
-        <Section pad="md" className="pt-0">
+        <Section pad="sm" className="pt-0">
           <Shell>
-            <div className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-stretch">
+            <div className="grid gap-6 lg:grid-cols-[0.92fr_1.08fr] lg:items-stretch">
               {/* ── The trade desk — a dark sheet, like the ledger on the bench ── */}
               <Reveal className="h-full">
-                <div className="plate plate--dark vignette relative flex h-full flex-col overflow-hidden rounded-xl2 p-8 sm:p-10">
+                <div className="plate plate--dark vignette relative flex h-full flex-col overflow-hidden rounded-xl2 p-6 sm:p-7">
                   {/* warm lamplight, top corner */}
                   <div
                     aria-hidden="true"
-                    className="pointer-events-none absolute -right-16 -top-20 h-[280px] w-[280px] rounded-full opacity-25 blur-[90px]"
+                    className="pointer-events-none absolute -right-16 -top-20 h-[280px] w-[280px] rounded-full opacity-25"
                     style={{ background: "radial-gradient(circle, rgba(200,167,101,0.5), transparent 70%)" }}
                   />
 
                   <p className="eyebrow relative text-brass-leaf">The trade desk</p>
 
-                  <div className="relative mt-6">
+                  <div className="relative mt-4">
                     {DESK_ROWS.map(({ k, v, href }) => {
                       const inner = (
                         <>
@@ -78,12 +79,12 @@ export default function ContactPage() {
                           href={href}
                           target={href.startsWith("http") ? "_blank" : undefined}
                           rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-                          className="group/row block border-b border-brass-leaf/12 py-4 transition-colors duration-500 hover:border-brass-leaf/35"
+                          className="group/row block border-b border-brass-leaf/12 py-3 transition-colors duration-500 hover:border-brass-leaf/35"
                         >
                           {inner}
                         </a>
                       ) : (
-                        <div key={k} className="border-b border-brass-leaf/12 py-4">
+                        <div key={k} className="border-b border-brass-leaf/12 py-3">
                           {inner}
                         </div>
                       );
@@ -91,12 +92,12 @@ export default function ContactPage() {
                   </div>
 
                   {/* The map — set into the desk, toned to the room */}
-                  <div className="relative mt-auto pt-8">
+                  <div className="relative mt-auto pt-5">
                     <div className="overflow-hidden rounded-xl border border-brass-leaf/15">
                       <iframe
                         title="Velora International — Moradabad, Uttar Pradesh, India"
                         src={MAPS_EMBED}
-                        className="block h-[200px] w-full border-0"
+                        className="block h-[140px] w-full border-0"
                         style={{ filter: "grayscale(0.3) sepia(0.45) saturate(1.15) brightness(0.96) contrast(1.03)" }}
                         loading="lazy"
                         referrerPolicy="no-referrer-when-downgrade"
@@ -128,13 +129,14 @@ export default function ContactPage() {
 
               {/* ── The note — the enquiry form on a lit sheet ── */}
               <Reveal delay={120} className="h-full">
-                <div data-lit className="plate flex h-full flex-col rounded-xl2 p-8 sm:p-10">
+                <div data-lit className="plate flex h-full flex-col rounded-xl2 p-6 sm:p-7">
                   <p className="eyebrow text-brass-deep">Write to us</p>
-                  <h2 className="mt-4 font-display text-[clamp(1.5rem,2.4vw,2rem)] leading-tight text-bitumen">
+                  <h2 className="mt-3 font-display text-[clamp(1.4rem,2.2vw,1.85rem)] leading-tight text-bitumen">
                     Tell us about your project.
                   </h2>
-                  <div className="mt-8">
+                  <div className="mt-5">
                     <EnquiryForm
+                      compact
                       submitLabel="Send enquiry"
                       success="Thank you — our desk has your note and will reply within two working days."
                       fields={[

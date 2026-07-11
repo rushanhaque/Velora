@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
-import { SPECIMENS } from "@/lib/data";
+import { readCatalog } from "@/lib/catalog-store";
 
 const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://velora.example";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
+  const { specimens } = await readCatalog();
 
   const staticRoutes = [
     "",
@@ -20,7 +21,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: path === "" ? 1 : 0.8,
   }));
 
-  const specimenRoutes = SPECIMENS.map((s) => ({
+  const specimenRoutes = specimens.map((s) => ({
     url: `${BASE}/collections/${s.slug}`,
     lastModified: now,
     changeFrequency: "monthly" as const,

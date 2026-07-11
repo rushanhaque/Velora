@@ -1,9 +1,11 @@
 "use client";
 
-import { type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-/** Seamless infinite ticker. Two copies; the track shifts -50%. */
+/** Seamless infinite ticker. Two copies; the track shifts -50%.
+ *  The animation only runs while the marquee is actually on screen —
+ *  offscreen tickers otherwise composite every frame for nothing. */
 export function Marquee({
   items,
   className,
@@ -22,13 +24,30 @@ export function Marquee({
   /** When set, the marquee content carries real meaning — expose one copy to AT. */
   label?: string;
 }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [onScreen, setOnScreen] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([e]) => setOnScreen(e.isIntersecting),
+      { rootMargin: "120px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   const Row = (hidden: boolean) => (
     <div
       className={cn(
         "flex shrink-0 items-center",
         reverse ? "animate-marqueeRev" : "animate-marquee",
       )}
-      style={{ ["--marquee-dur" as string]: `${duration}s` }}
+      style={{
+        ["--marquee-dur" as string]: `${duration}s`,
+        animationPlayState: onScreen ? "running" : "paused",
+      }}
       aria-hidden={hidden ? "true" : undefined}
     >
       {items.map((it, i) => (
@@ -42,6 +61,7 @@ export function Marquee({
 
   return (
     <div
+      ref={ref}
       className={cn("marquee-mask flex w-full overflow-hidden", className)}
       role={label ? "group" : undefined}
       aria-label={label}
