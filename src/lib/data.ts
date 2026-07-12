@@ -1,6 +1,6 @@
 /* ============================================================
    VELORA INTERNATIONAL — demo content
-   A trade atelier of hand-raised metalware. Moradabad, since 1972.
+   A trade atelier of hand-raised metalware. Moradabad, since 2021.
    All content is illustrative.
    ============================================================ */
 
@@ -8,12 +8,12 @@ export const BRAND = {
   name: "Velora International",
   shortName: "Velora",
   descriptor: "Métaux d'Art",
-  founded: 1972,
+  founded: 2021,
   city: "Moradabad",
   region: "Uttar Pradesh, India",
   tagline: "Heirloom objects in brass, bronze & silver.",
-  email: "trade@velora.example",
-  phone: "+91 (000) 000 0000",
+  email: "hammadwarsi250@gmail.com",
+  phone: "+91 91197 37735",
   hours: "Mon–Sat · 9:30–18:30 IST",
   address: "Civil Lines, Moradabad, Uttar Pradesh 244001, India",
 };
@@ -1242,10 +1242,10 @@ export const PROCESS: Step[] = [
 ];
 
 export const STATS = [
-  { value: 54, suffix: "", label: "Years of the maison", sub: "Est. 1972" },
-  { value: 120, suffix: "", label: "Master artisans", sub: "Many, second-generation" },
+  { value: 5, suffix: "", label: "Years of the atelier", sub: "Est. 2021" },
+  { value: 50, suffix: "", label: "Skilled makers", sub: "Hands under one roof" },
   { value: 18, suffix: "", label: "Countries served", sub: "Quietly, often unbranded" },
-  { value: 2400, suffix: "", label: "Pieces made each year", sub: "Each, by a single hand" },
+  { value: 2400, suffix: "", label: "Pieces made each year", sub: "Each finished by hand" },
 ];
 
 export const PRINCIPLES = [
@@ -1307,7 +1307,7 @@ export const ATELIERS = [
   {
     name: "The Raising Hall",
     place: "Civil Lines, Moradabad",
-    note: "Where sheet becomes vessel — the oldest room in the workshop, and the loudest.",
+    note: "Where sheet becomes vessel — the beating heart of the workshop, and the loudest.",
   },
   {
     name: "The Finishing Room",
@@ -1408,7 +1408,7 @@ export const JOURNAL: Article[] = [
     slug: "made-under-another-name",
     title: "Made under another name",
     excerpt:
-      "For three generations we have made objects that carry someone else's mark. A note on private label, confidentiality, and quiet pride.",
+      "Much of what leaves our workshop carries someone else's mark. A note on private label, confidentiality, and quiet pride.",
     category: "Trade",
     date: "2026-02-20",
     dateLabel: "February 2026",

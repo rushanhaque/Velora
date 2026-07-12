@@ -26,7 +26,7 @@ export function EnquiryToggle({
         enquiry.toggle(slug);
       }}
       className={cn(
-        "grid h-9 w-9 place-items-center rounded-full border backdrop-blur transition-all duration-500 ease-silk",
+        "grid h-10 w-10 place-items-center rounded-full border backdrop-blur transition-all duration-500 ease-silk sm:h-9 sm:w-9",
         inList
           ? "border-brass bg-brass text-bitumen"
           : "border-line bg-parchment-pale/70 text-stone hover:border-brass hover:text-bitumen",

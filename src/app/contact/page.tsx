@@ -58,8 +58,8 @@ export default function ContactPage() {
                           <span className="text-[0.58rem] uppercase tracking-wider2 text-haze/80">
                             {k}
                           </span>
-                          <span className="mt-1.5 flex items-baseline justify-between gap-4">
-                            <span className="font-display text-[clamp(1.05rem,1.6vw,1.35rem)] leading-snug text-parchment-pale transition-colors duration-500 group-hover/row:text-brass-gilt">
+                          <span className="mt-1.5 flex min-w-0 items-baseline justify-between gap-4">
+                            <span className="break-words font-display text-[clamp(1.05rem,1.6vw,1.35rem)] leading-snug text-parchment-pale transition-colors duration-500 group-hover/row:text-brass-gilt">
                               {v}
                             </span>
                             {href && (

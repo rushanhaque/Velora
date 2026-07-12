@@ -49,7 +49,7 @@ export function SpecimenDetail({
           className="plate group/stage group overflow-hidden rounded-xl2 transition-shadow duration-700 hover:shadow-glow-warm"
         >
           <div
-            className={cn("relative transition-transform duration-[1.2s] ease-silk group-hover/stage:scale-[1.04]", hasMedia(s) && "aspect-[4/5] lg:aspect-auto lg:h-[min(80svh,760px)]")}
+            className={cn("relative transition-transform duration-[1.2s] ease-silk group-hover/stage:scale-[1.04]", hasMedia(s) && "aspect-[4/5]")}
             style={{
               background:
                 "radial-gradient(110% 80% at 50% 16%, #fcfbf7, #efeae0)",
@@ -106,7 +106,7 @@ export function SpecimenDetail({
       {/* Details */}
       <div>
         <Reveal>
-          <nav className="flex items-center gap-2 text-[0.62rem] uppercase tracking-wider2 text-ash">
+          <nav className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.62rem] uppercase tracking-wider2 text-ash">
             <Link href="/collections" className="link-draw hover:text-bitumen">
               Collections
             </Link>
@@ -148,7 +148,7 @@ export function SpecimenDetail({
                   onClick={() => setFinish(f.name)}
                   data-cursor="link"
                   className={cn(
-                    "group flex items-center gap-2.5 rounded-full border py-1.5 pl-1.5 pr-4 transition-all duration-500 ease-silk",
+                    "group flex items-center gap-2.5 rounded-full border py-2 pl-1.5 pr-4 transition-all duration-500 ease-silk",
                     finish === f.name
                       ? "border-brass"
                       : "border-line hover:border-brass/50",

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { prefersLite } from "@/lib/perf";
 
 /**
  * Vertical parallax tied to the element's travel through the viewport.
@@ -21,7 +22,7 @@ export function Parallax({
   const inner = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (prefersLite()) return;
     const w = wrap.current;
     const el = inner.current;
     if (!w || !el) return;
@@ -71,6 +72,7 @@ export function ScrollProgress() {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    if (prefersLite()) return; // decorative progress bar — skip on low-end
     let raf = 0;
     let ticking = false;
     const update = () => {

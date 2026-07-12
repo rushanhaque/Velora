@@ -53,7 +53,7 @@ export default async function Home() {
       </div>
 
       {/* ───────────────── The maison line ───────────────── */}
-      <Section pad="xl" className="text-center py-[clamp(40px,5vw,72px)]">
+      <Section pad="md" className="text-center">
         <Shell>
           <Reveal variant="blur">
             <Eyebrow className="justify-center">The Velora Maison</Eyebrow>
@@ -65,9 +65,9 @@ export default async function Home() {
           />
           <Reveal delay={150}>
             <p className="mx-auto mt-8 max-w-xl text-lg leading-relaxed text-stone">
-              A century of metal craft, carried from the workshops of Moradabad to the
-              world&apos;s most considered rooms. For three generations our makers have
-              turned fire, hammer and patience into objects that outlive their owners.
+              Founded in 2021, Velora gathers fifty of Moradabad&apos;s most skilled
+              metalworkers under one roof — hands trained across generations, turning
+              fire, hammer and patience into objects that outlive their owners.
             </p>
           </Reveal>
           <Reveal delay={220} className="mt-10">
@@ -147,7 +147,7 @@ export default async function Home() {
             {STATS.map((st, i) => (
               <Reveal key={st.label} delay={i * 80} variant="scale">
                 <div data-lit className="group plate rounded-xl2 border-t-2 border-t-brass/40 p-6 text-center transition-all duration-700 hover:border-t-brass hover:shadow-glow-brass sm:p-8">
-                  <p className="font-display text-[clamp(2.6rem,5vw,4.2rem)] leading-none text-leaf">
+                  <p className="font-display text-[clamp(2rem,5vw,4.2rem)] leading-none text-leaf">
                     <Counter value={st.value} suffix={st.suffix} />
                   </p>
                   <div className="mx-auto my-4 h-px w-12 bg-gradient-to-r from-transparent via-brass/40 to-transparent" />

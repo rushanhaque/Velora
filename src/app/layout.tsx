@@ -17,11 +17,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://velora.example"),
   title: {
-    default: "Velora International — Métaux d'Art · Hand-raised metalware since 1972",
+    default: "Velora International — Métaux d'Art · Hand-raised metalware since 2021",
     template: "%s — Velora International",
   },
   description:
-    "Velora International is a trade atelier in Moradabad, India, raising heirloom objects in brass, bronze, copper and silver entirely by hand since 1972. Made to order for the world's finest interiors.",
+    "Velora International is a trade atelier in Moradabad, India, raising heirloom objects in brass, bronze, copper and silver entirely by hand since 2021. Made to order for the world's finest interiors.",
   keywords: [
     "metal handicraft",
     "brass",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Velora International — Métaux d'Art",
     description:
-      "Heirloom objects in brass, bronze & silver — hand-raised in Moradabad since 1972.",
+      "Heirloom objects in brass, bronze & silver — hand-raised in Moradabad since 2021.",
     type: "website",
     locale: "en_GB",
     siteName: BRAND.name,
@@ -63,8 +63,18 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn(display.variable, sans.variable)}>
       <body className="font-sans antialiased">
+        {/* Low-end detection — runs during parse (before the content below it
+            paints), so the .lite class is set with no flash. Strips decorative
+            animation/blur on weak CPUs, low memory, Save-Data, or slow links so
+            the site stays fast on any device. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{var n=navigator,c=n.connection||n.mozConnection||n.webkitConnection,lite=(n.hardwareConcurrency&&n.hardwareConcurrency<=4)||(n.deviceMemory&&n.deviceMemory<=4)||(c&&(c.saveData||/(^|-)(2g|slow)/.test(c.effectiveType||'')));if(lite)document.documentElement.classList.add('lite');}catch(e){}})();",
+          }}
+        />
         <noscript>
-          <style>{`[data-reveal],.clip-reveal,.mask-inner,.mob-panel .mp-cover,.mob-panel .mp-roman,.mob-panel .mp-name,.mob-panel .mp-arrow{opacity:1!important;transform:none!important;clip-path:none!important;filter:none!important}`}</style>
+          <style>{`[data-reveal],.clip-reveal,.mask-inner,.mob-panel .mp-cover,.mob-panel .mp-roman,.mob-panel .mp-name,.mob-panel .mp-arrow,.sig-panel .sig-media,.sig-panel .sig-name{opacity:1!important;transform:none!important;clip-path:none!important;filter:none!important}`}</style>
         </noscript>
         <a href="#main" className="skip-link">
           Skip to content

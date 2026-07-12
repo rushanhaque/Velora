@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { prefersLite } from "@/lib/perf";
 
 type RevealVariant = "rise" | "blur" | "scale" | "slide-left" | "slide-right";
 
@@ -37,6 +38,11 @@ export function Reveal({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    // Low-end / reduced-motion: skip the observer and just show the content.
+    if (prefersLite()) {
+      el.classList.add("is-in");
+      return;
+    }
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {

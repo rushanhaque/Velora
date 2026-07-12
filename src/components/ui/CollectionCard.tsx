@@ -51,7 +51,7 @@ export function CollectionCard({
           </svg>
         </div>
 
-        <div className="burnish relative aspect-[16/8] overflow-hidden">
+        <div className="burnish relative aspect-[16/10] overflow-hidden">
           {/* base ground */}
           <div
             className="absolute inset-0"
@@ -105,10 +105,10 @@ export function CollectionCard({
           />
         </div>
 
-        <div className="flex flex-1 flex-col px-7 py-7">
+        <div className="flex flex-1 flex-col px-5 py-6 sm:px-7 sm:py-7">
           <div className="flex items-baseline justify-between gap-4">
-            <h3 className="font-display text-[2rem] leading-none text-bitumen">{c.name}</h3>
-            <span className="ref text-ash">{c.count} pcs</span>
+            <h3 className="min-w-0 font-display text-[clamp(1.5rem,6vw,2rem)] leading-none text-bitumen">{c.name}</h3>
+            <span className="ref shrink-0 text-ash">{c.count} pcs</span>
           </div>
           <p className="mt-1 text-[0.7rem] uppercase tracking-wider2 text-brass-deep">
             {c.material} · {c.tagline}

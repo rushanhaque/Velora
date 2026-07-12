@@ -87,23 +87,9 @@ export function Hero() {
           style={glow}
         >
           <span className="h-px w-7 bg-current opacity-40 sm:w-10" aria-hidden="true" />
-          Métaux d&apos;Art · Est. 1972
+          Métaux d&apos;Art · Est. 2021
           <span className="h-px w-7 bg-current opacity-40 sm:w-10" aria-hidden="true" />
         </span>
-      </div>
-
-      {/* Tagline + CTA — below the mark, all viewports. */}
-      <div
-        className="absolute inset-x-0 top-[63svh] flex flex-col items-center px-6 text-center"
-        style={fade}
-      >
-        <p
-          className="max-w-[17rem] font-display text-[clamp(1.5rem,6.2vw,2.15rem)] font-medium leading-[1.12] text-bitumen sm:max-w-sm"
-          style={glow}
-        >
-          Hand-raised metalware for the{" "}
-          <span className="serif-italic text-brass-deep">world&apos;s finest interiors.</span>
-        </p>
       </div>
 
     </section>

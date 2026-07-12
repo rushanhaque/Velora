@@ -339,10 +339,10 @@ export function DrumIndex({ collections = COLLECTIONS }: { collections?: Collect
             <div className="absolute inset-0 bg-gradient-to-t from-bitumen/85 via-bitumen/30 to-transparent" />
 
             <div className="absolute bottom-0 left-0 right-0 p-7">
-              <span className="mp-roman block text-[0.58rem] uppercase tracking-wider2 text-parchment-pale/50">
+              <span className="mp-roman block text-[0.65rem] uppercase tracking-wider2 text-parchment-pale/50">
                 {roman(i)}
               </span>
-              <div className="overflow-hidden">
+              <div className="overflow-hidden pb-[0.16em]">
                 <h2 className="mp-name mt-2 font-display text-[clamp(2rem,8vw,3rem)] leading-none text-parchment-pale">
                   {c.name}
                 </h2>

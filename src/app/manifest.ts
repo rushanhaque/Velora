@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Velora International — Métaux d'Art",
     short_name: "Velora",
     description:
-      "A trade atelier of hand-raised heirloom metalware — brass, bronze & silver, Moradabad since 1972.",
+      "A trade atelier of hand-raised heirloom metalware — brass, bronze & silver, Moradabad since 2021.",
     start_url: "/",
     display: "standalone",
     background_color: "#F0EBE1",

@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import type { Specimen } from "@/lib/data";
 import { SpecimenCard } from "@/components/ui/SpecimenCard";
 import { SILK } from "@/lib/motion";
+import { prefersLite } from "@/lib/perf";
 import { cn } from "@/lib/utils";
 
 const SORTS = ["Featured", "A–Z"] as const;
@@ -22,13 +23,17 @@ export function CatalogueClient({
   // Phones get a lighter reveal: a clean rise + fade instead of the 3D hinge —
   // cheaper on weak GPUs and calmer at single-column width.
   const [mobile, setMobile] = useState(false);
+  const [lite, setLite] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 640px)");
     const set = () => setMobile(mq.matches);
     set();
+    setLite(prefersLite());
     mq.addEventListener("change", set);
     return () => mq.removeEventListener("change", set);
   }, []);
+  // Low-end / reduced-motion → the plainest fade (no 3D transforms at all).
+  const still = reduce || lite;
 
   // Only surface filter groups that actually have pieces in this collection.
   const groups = useMemo(
@@ -58,7 +63,7 @@ export function CatalogueClient({
                 onClick={() => setCat(g)}
                 data-cursor="link"
                 className={cn(
-                  "rounded-full border px-4 py-2 text-[0.68rem] uppercase tracking-wider2 transition-all duration-500 ease-silk",
+                  "rounded-full border px-4 py-2.5 text-[0.68rem] uppercase tracking-wider2 transition-all duration-500 ease-silk sm:py-2",
                   on
                     ? "border-brass bg-brass/10 text-brass-deep"
                     : "border-line text-ash hover:border-brass/50 hover:text-bitumen",
@@ -80,7 +85,7 @@ export function CatalogueClient({
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as (typeof SORTS)[number])}
-            className="cursor-pointer rounded-full border border-line bg-parchment-pale px-3 py-1.5 text-[0.7rem] tracking-wide text-bitumen transition-colors hover:border-brass focus:border-brass focus:outline-none"
+            className="cursor-pointer rounded-full border border-line bg-parchment-pale px-3 py-2 text-[0.7rem] tracking-wide text-bitumen transition-colors hover:border-brass focus:border-brass focus:outline-none sm:py-1.5"
           >
             {SORTS.map((o) => (
               <option key={o} value={o}>
@@ -95,7 +100,7 @@ export function CatalogueClient({
          scrolls into view — a scroll-triggered 3D reveal, staggered by column.
          Layout/reflow lives on the outer node; the 3D transform lives on the
          inner node so framer's layout engine and the reveal never fight. */}
-      <motion.div layout className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <motion.div layout className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
         <AnimatePresence mode="popLayout">
           {filtered.map((s, i) => (
             <motion.div
@@ -106,14 +111,14 @@ export function CatalogueClient({
             >
               <motion.div
                 initial={
-                  reduce
+                  still
                     ? { opacity: 0 }
                     : mobile
                       ? { opacity: 0, y: 34 }
                       : { opacity: 0, y: 76, rotateX: 26, scale: 0.94 }
                 }
                 whileInView={
-                  reduce
+                  still
                     ? { opacity: 1 }
                     : mobile
                       ? { opacity: 1, y: 0 }

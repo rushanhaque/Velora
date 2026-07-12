@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type ElementType, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { prefersLite } from "@/lib/perf";
 
 /**
  * The maison's signature heading reveal — each line rises out of a
@@ -30,6 +31,10 @@ export function MaskText({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    if (prefersLite()) {
+      el.classList.add("is-in");
+      return;
+    }
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {

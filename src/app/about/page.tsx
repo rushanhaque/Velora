@@ -72,14 +72,14 @@ export default function CraftPage() {
                 </p>
               </Reveal>
               <Reveal delay={200}>
-                <div className="mt-8 grid grid-cols-3 gap-6 border-t border-line pt-7">
+                <div className="mt-8 grid grid-cols-3 gap-4 border-t border-line pt-7 sm:gap-6">
                   {[
                     ["5", "Specialist stages"],
                     ["1000s", "Hammer blows, each piece"],
                     ["0", "Two pieces alike"],
                   ].map(([v, k]) => (
                     <div key={k}>
-                      <p className="font-display text-3xl text-bitumen">{v}</p>
+                      <p className="font-display text-2xl text-bitumen sm:text-3xl">{v}</p>
                       <p className="mt-1 text-[0.6rem] uppercase tracking-wider2 text-ash">{k}</p>
                     </div>
                   ))}

@@ -496,7 +496,7 @@ export function AdminClient() {
                     key={s.slug}
                     className="group flex flex-col overflow-hidden rounded-xl border border-line bg-white transition-shadow hover:shadow-[0_14px_30px_-20px_rgba(34,26,12,0.35)]"
                   >
-                    <div className="relative aspect-[4/3] overflow-hidden bg-parchment-pale">
+                    <div className="relative aspect-[4/5] overflow-hidden bg-parchment-pale">
                       {imgFor("spec", s.slug, s.image) ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={imgFor("spec", s.slug, s.image)} alt="" className="absolute inset-0 h-full w-full object-cover" />

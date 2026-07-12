@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Mark } from "@/components/brand/Logo";
 import { Reveal } from "@/components/motion/Reveal";
-import { MaskText } from "@/components/motion/MaskText";
 import { ContactDeveloper } from "@/components/site/ContactDeveloper";
 import { BRAND } from "@/lib/data";
 
@@ -30,8 +29,10 @@ export function Footer() {
         style={{ background: "radial-gradient(circle, rgba(200,167,101,0.32), transparent 70%)" }}
       />
 
+      {/* Full footer — tablet & desktop only */}
+      <div className="hidden sm:block">
       <div className="shell relative pt-[clamp(60px,9vw,120px)] pb-[clamp(16px,2.5vw,32px)]">
-        <div className="relative grid gap-14 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
+        <div className="relative grid gap-14 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
           {/* Brand */}
           <Reveal>
             <div className="flex items-center gap-3">
@@ -82,11 +83,9 @@ export function Footer() {
           {/* Trade desk */}
           <Reveal delay={200}>
             <p className="eyebrow text-brass-leaf">The Trade Desk</p>
-            <MaskText
-              as="p"
-              lines={[BRAND.email]}
-              className="mt-5 font-display text-2xl text-parchment-pale"
-            />
+            <p className="mt-5 break-all font-display text-xl text-parchment-pale sm:text-2xl">
+              {BRAND.email}
+            </p>
             <p className="mt-2 text-sm">{BRAND.phone}</p>
             <p className="mt-1 text-sm">{BRAND.hours}</p>
             <div className="mt-6">
@@ -110,6 +109,33 @@ export function Footer() {
             <span className="vel-fill" aria-hidden="true">VELORA</span>
           </span>
         </Reveal>
+      </div>
+      </div>
+
+      {/* Compact footer — phones */}
+      <div className="shell py-10 sm:hidden">
+        <div className="flex items-center gap-2.5">
+          <Mark className="h-6 w-6" />
+          <span className="font-display text-xl tracking-[0.3em] text-parchment-pale">VELORA</span>
+        </div>
+        <nav className="mt-6 flex flex-wrap gap-x-5 gap-y-2.5 text-[0.72rem] uppercase tracking-wider2 text-haze">
+          {PAGE_LINKS.map((l) => (
+            <Link key={l.href} href={l.href} className="transition-colors hover:text-parchment-pale">
+              {l.label}
+            </Link>
+          ))}
+        </nav>
+        <div className="mt-6 space-y-1">
+          <a href={`mailto:${BRAND.email}`} className="block break-all text-sm text-parchment-pale">
+            {BRAND.email}
+          </a>
+          <a href={`tel:${BRAND.phone.replace(/\s/g, "")}`} className="block text-sm text-haze">
+            {BRAND.phone}
+          </a>
+        </div>
+        <p className="mt-6 text-[0.58rem] uppercase tracking-wider2 text-ash">
+          © Velora International · {BRAND.city}
+        </p>
       </div>
 
       {/* Bottom-right developer credit */}

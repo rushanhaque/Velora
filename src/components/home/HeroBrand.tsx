@@ -39,8 +39,8 @@ export function HeroBrand() {
       // Header pill (mt-2 + py-3) + logo incl. "INTERNATIONAL" subtitle ≈ 37px centre
       // h0 only measures the VELORA line; account for subtitle height (~15px) below it
       const headerCenter = 37 - (15 * docked) / 2;
-      const fit = (vw * (vw < 640 ? 0.86 : 0.78)) / w0;
-      big = Math.max(1.25, Math.min(vw < 640 ? 4 : 6, fit));
+      const fit = (vw * (vw < 640 ? 0.94 : 0.86)) / w0;
+      big = Math.max(1.25, Math.min(vw < 640 ? 4.8 : 7.2, fit));
       y1 = headerCenter - (h0 * docked) / 2;
       y0 = vh * 0.5 - (h0 * big) / 2;
       dock = Math.max(vh * 0.85, 500);

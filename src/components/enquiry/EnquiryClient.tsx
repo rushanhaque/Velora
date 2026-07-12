@@ -54,7 +54,7 @@ export function EnquiryClient() {
   )}&body=${encodeURIComponent(message)}`;
 
   return (
-    <div className="grid gap-14 lg:grid-cols-[1.05fr_0.95fr]">
+    <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
       {/* The list */}
       <div>
         <div className="flex items-center justify-between">

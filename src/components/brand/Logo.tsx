@@ -72,7 +72,7 @@ export function Logo({
     <span className={cn("relative inline-grid justify-items-center leading-none", className)}>
       {/* Negative end-margin cancels the trailing letter-spacing so VELORA centres true. */}
       {animated ? (
-        <span className="vel-hero relative inline-grid font-display text-[1.6rem] font-semibold leading-none tracking-[0.34em] text-bitumen [margin-inline-end:-0.34em]">
+        <span className="vel-hero relative inline-grid font-display text-[1.6rem] font-bold leading-none tracking-[0.34em] text-bitumen [margin-inline-end:-0.34em]">
           <span>VELORA</span>
           <span className="vel-hero-sheen" aria-hidden="true">
             VELORA

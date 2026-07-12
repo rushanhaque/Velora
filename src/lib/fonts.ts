@@ -7,7 +7,9 @@ import { Cormorant_Garamond, Jost } from "next/font/google";
 export const display = Cormorant_Garamond({
   subsets: ["latin"],
   display: "swap",
-  weight: ["300", "400", "500", "600", "700"],
+  // Trimmed to the weights actually used (dropped unused 300) — fewer font
+  // files to download on slow connections.
+  weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
   variable: "--font-display",
 });

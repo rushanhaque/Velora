@@ -61,7 +61,7 @@ export function CartPanel() {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ duration: 0.5, ease: SILK }}
-            className="fixed inset-y-0 right-0 z-[200] flex w-[34vw] min-w-[280px] flex-col bg-bitumen"
+            className="fixed inset-y-0 right-0 z-[200] flex w-[86vw] max-w-[380px] flex-col bg-bitumen sm:w-[34vw] sm:min-w-[300px] sm:max-w-none"
             style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}
           >
             {/* Close button — absolute top-right */}

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { SILK } from "@/lib/motion";
+import { BRAND } from "@/lib/data";
 
 export interface FieldDef {
   name: string;
@@ -41,6 +42,7 @@ export function EnquiryForm({
   onSubmitted?: () => void;
 }) {
   const [submitted, setSubmitted] = useState(false);
+  const [links, setLinks] = useState<{ wa: string; mail: string } | null>(null);
   const [picked, setPicked] = useState<Record<string, string>>(
     () => Object.fromEntries(choices.map((c) => [c.name, c.options[0]])),
   );
@@ -83,8 +85,37 @@ export function EnquiryForm({
             >
               {success}
             </p>
+            {links && (
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <a
+                  href={links.wa}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-2.5 text-[0.68rem] uppercase tracking-wide3 text-white transition-opacity hover:opacity-90"
+                >
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
+                    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.115 1.523 5.845L.057 23.273a.75.75 0 0 0 .937.938l5.488-1.461A11.942 11.942 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.882 0-3.64-.518-5.143-1.418l-.368-.22-3.806 1.013 1.018-3.727-.237-.383A9.944 9.944 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+                  </svg>
+                  Send on WhatsApp
+                </a>
+                <a
+                  href={links.mail}
+                  className={cn(
+                    "inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-[0.68rem] uppercase tracking-wide3 transition-colors",
+                    dark
+                      ? "border-brass-leaf/30 text-parchment-pale hover:border-brass-leaf"
+                      : "border-line text-bitumen hover:border-brass",
+                  )}
+                >
+                  Email instead
+                </a>
+              </div>
+            )}
             <button
-              onClick={() => setSubmitted(false)}
+              onClick={() => {
+                setSubmitted(false);
+                setLinks(null);
+              }}
               className={cn(
                 "mt-6 link-draw text-[0.72rem] uppercase tracking-wide3",
                 dark ? "text-haze" : "text-stone",
@@ -101,6 +132,26 @@ export function EnquiryForm({
             exit={{ opacity: 0 }}
             onSubmit={(e) => {
               e.preventDefault();
+              // Compose the enquiry from the form values and route it to the
+              // trade desk. WhatsApp opens straight away (the owner's primary
+              // channel); the success screen also offers email with the same
+              // pre-filled message.
+              const fd = new FormData(e.currentTarget);
+              const parts: string[] = [];
+              choices.forEach((c) => parts.push(`${c.label}: ${picked[c.name] ?? ""}`));
+              fields.forEach((f) => {
+                const v = String(fd.get(f.name) ?? "").trim();
+                if (v) parts.push(`${f.label}: ${v}`);
+              });
+              const message = `New enquiry — ${BRAND.name}\n\n${parts.join("\n")}`;
+              const wa = `https://wa.me/${BRAND.phone.replace(/\D/g, "")}?text=${encodeURIComponent(message)}`;
+              const mail = `mailto:${BRAND.email}?subject=${encodeURIComponent(
+                `Enquiry — ${BRAND.name}`,
+              )}&body=${encodeURIComponent(message)}`;
+              setLinks({ wa, mail });
+              if (typeof window !== "undefined") {
+                window.open(wa, "_blank", "noopener,noreferrer");
+              }
               setSubmitted(true);
               onSubmitted?.();
             }}

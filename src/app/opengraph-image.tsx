@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "Velora International — Métaux d'Art · Hand-raised metalware since 1972";
+export const alt = "Velora International — Métaux d'Art · Hand-raised metalware since 2021";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -58,7 +58,7 @@ export default function OpengraphImage() {
         {/* headline */}
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div style={{ fontSize: 26, letterSpacing: 8, color: "#D4B986", marginBottom: 24 }}>
-            MÉTAUX D&apos;ART · MORADABAD, SINCE 1972
+            MÉTAUX D&apos;ART · MORADABAD, SINCE 2021
           </div>
           <div style={{ display: "flex", fontSize: 88, lineHeight: 1.04, color: "#F0EBE1" }}>
             Heirloom objects in

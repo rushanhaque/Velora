@@ -312,15 +312,19 @@ export function HouseIndex({
                   key={i}
                   onClick={() => goTo(i)}
                   aria-label={`View ${collections[i].name}`}
-                  style={{
-                    display: "block",
-                    width: mCard === i ? 28 : 8,
-                    height: 2,
-                    borderRadius: 1,
-                    background: mCard === i ? "var(--brass-leaf)" : "rgba(176,145,92,0.3)",
-                    transition: "width 0.5s cubic-bezier(0.16,1,0.3,1), background 0.35s ease",
-                  }}
-                />
+                  className="flex h-8 items-center"
+                >
+                  <span
+                    style={{
+                      display: "block",
+                      width: mCard === i ? 28 : 8,
+                      height: 2,
+                      borderRadius: 1,
+                      background: mCard === i ? "var(--brass-leaf)" : "rgba(176,145,92,0.3)",
+                      transition: "width 0.5s cubic-bezier(0.16,1,0.3,1), background 0.35s ease",
+                    }}
+                  />
+                </button>
               ))}
             </div>
 

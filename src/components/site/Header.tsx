@@ -136,7 +136,7 @@ export function Header() {
         }}
       >
         <div
-          className="shell grid grid-cols-[1fr_auto_1fr] items-center py-3"
+          className="shell relative flex items-center justify-between py-3"
         >
           {/* Left — mobile menu button + desktop nav */}
           <div className="flex items-center" style={sideStyle(chrome)}>
@@ -163,13 +163,14 @@ export function Header() {
             <nav className="hidden items-center gap-8 lg:flex">{NAV_LEFT.map(navLink)}</nav>
           </div>
 
-          {/* Center — the designed logo */}
+          {/* Center — the designed logo, absolutely centred in the bar so it is
+             perfectly centred regardless of the left/right content widths */}
           <Link
             href="/"
             aria-label="Velora International — home"
             data-header-logo
             className={cn(
-              "justify-self-center transition-opacity duration-500",
+              "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-opacity duration-500",
               isHome && "pointer-events-none opacity-0",
             )}
           >
@@ -206,7 +207,7 @@ export function Header() {
             animate={{ clipPath: "inset(0 0 0% 0)" }}
             exit={{ clipPath: "inset(0 0 100% 0)" }}
             transition={{ duration: 0.7, ease: SILK }}
-            className="vignette fixed inset-0 z-40 flex flex-col overflow-y-auto bg-bitumen px-7 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(5.5rem,calc(env(safe-area-inset-top)+5rem))] lg:hidden"
+            className="vignette fixed inset-0 z-40 flex flex-col overflow-x-hidden overflow-y-auto bg-bitumen px-7 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(5.5rem,calc(env(safe-area-inset-top)+5rem))] lg:hidden"
           >
             {/* Ambient warm glow, top-right */}
             <div
@@ -293,7 +294,7 @@ export function Header() {
                 <p className="eyebrow text-brass-leaf">The trade desk</p>
                 <a
                   href={`mailto:${BRAND.email}`}
-                  className="mt-3 block font-display text-2xl text-parchment-pale"
+                  className="mt-3 block break-all font-display text-2xl text-parchment-pale"
                 >
                   {BRAND.email}
                 </a>

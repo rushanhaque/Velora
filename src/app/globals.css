@@ -378,11 +378,15 @@ body {
   will-change: auto;
 }
 
-/* Mask-up heading reveal (driven by IntersectionObserver via MaskText) */
+/* Mask-up heading reveal (driven by IntersectionObserver via MaskText).
+   The overflow clip must sit BELOW the descenders (g, j, p, q, y) or tight
+   display leading crops them — so pad the clip window and pull the following
+   flow back up by the same amount, leaving layout unchanged. */
 .mask-line {
   display: block;
   overflow: hidden;
-  padding-bottom: 0.06em;
+  padding-bottom: 0.24em;
+  margin-bottom: -0.18em;
 }
 .mask-inner {
   display: block;
@@ -470,6 +474,13 @@ body {
     border-color 0.4s var(--ease-silk),
     box-shadow 0.4s var(--ease-silk);
   position: relative;
+}
+/* iOS Safari auto-zooms when a focused input is under 16px and never zooms
+   back — force 16px on phones (desktop keeps the finer 0.95rem). */
+@media (max-width: 640px) {
+  .field {
+    font-size: 16px;
+  }
 }
 .field::placeholder {
   color: var(--haze);
@@ -1122,6 +1133,99 @@ h3 {
   transition: opacity 0.5s var(--ease-silk), transform 0.5s var(--ease-silk);
 }
 
+/* Signature pieces — mobile stacked slides: each stages a scroll-triggered
+   reveal (cover settles from a slow zoom, the name rises through a mask).
+   data-on is set by an IntersectionObserver in SignatureScroll. */
+.sig-panel .sig-media {
+  transform: scale(1.12);
+  transition: transform 1.4s var(--ease-silk);
+  will-change: transform;
+}
+.sig-panel[data-on="true"] .sig-media {
+  transform: scale(1);
+}
+.sig-panel .sig-name {
+  opacity: 0;
+  transform: translateY(115%);
+  transition:
+    opacity 0.7s var(--ease-silk) 0.15s,
+    transform 0.7s var(--ease-silk) 0.15s;
+}
+.sig-panel[data-on="true"] .sig-name {
+  opacity: 1;
+  transform: none;
+}
+
+/* ============================================================
+   TOUCH POLISH — phones have no :hover, so the desktop hover
+   language (lift, glint, light-catch) never fires. Give touch
+   devices their own tactile vocabulary: a crisp press-in on any
+   card or button, and momentum-friendly scrolling. Keeps mobile
+   feeling as considered as the desktop.
+   ============================================================ */
+@media (hover: none) {
+  a.plate,
+  a.depth-card,
+  .tap {
+    transition:
+      transform 0.45s var(--ease-silk),
+      box-shadow 0.45s var(--ease-silk);
+  }
+  a.plate:active,
+  a.depth-card:active,
+  .tap:active {
+    transform: scale(0.975);
+  }
+  /* The specimen frame breathes in slightly on press */
+  a.depth-card:active .burnish img,
+  a.depth-card:active .burnish svg {
+    transform: scale(1.03);
+    transition: transform 0.5s var(--ease-silk);
+  }
+}
+
+/* ============================================================
+   LITE MODE — set on <html> for low-end devices (≤4 cores,
+   ≤4GB RAM, Save-Data, or 2G/slow links). Strips the purely
+   decorative, GPU/CPU-heavy work so the site loads and scrolls
+   fast on old and low-end phones, without changing the layout.
+   ============================================================ */
+html.lite [data-reveal],
+html.lite [data-section-reveal],
+html.lite .clip-reveal,
+html.lite .mask-inner,
+html.lite .mob-panel .mp-cover,
+html.lite .mob-panel .mp-roman,
+html.lite .mob-panel .mp-name,
+html.lite .mob-panel .mp-arrow,
+html.lite .sig-panel .sig-media,
+html.lite .sig-panel .sig-name {
+  opacity: 1 !important;
+  transform: none !important;
+  clip-path: none !important;
+  filter: none !important;
+  transition: none !important;
+}
+/* Kill infinite animations (marquee, glow pulses, sparkle) and expensive
+   backdrop blur — the biggest per-frame costs. */
+html.lite *,
+html.lite *::before,
+html.lite *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+/* Drop the hover-only decorative layers entirely (no hover on these devices). */
+html.lite .burnish::after,
+html.lite [data-lit]::before,
+html.lite [data-lit]::after,
+html.lite .hairline-live::after,
+html.lite .ornamental-mark,
+html.lite .grain {
+  display: none !important;
+}
+
 /* ============================================================
    REDUCED MOTION — honour the visitor
    ============================================================ */
@@ -1141,7 +1245,9 @@ h3 {
   .mob-panel .mp-cover,
   .mob-panel .mp-roman,
   .mob-panel .mp-name,
-  .mob-panel .mp-arrow {
+  .mob-panel .mp-arrow,
+  .sig-panel .sig-media,
+  .sig-panel .sig-name {
     opacity: 1 !important;
     transform: none !important;
     clip-path: none !important;

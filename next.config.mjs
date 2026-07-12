@@ -11,6 +11,12 @@ const nextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
     ],
+    // Serve modern formats; smaller payloads on every device.
+    formats: ["image/avif", "image/webp"],
+  },
+  experimental: {
+    // Tree-shake heavy libs so only the used pieces ship to the client.
+    optimizePackageImports: ["framer-motion"],
   },
 };
 

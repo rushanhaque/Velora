@@ -34,7 +34,7 @@ export function SpecimenCard({
         className="plate depth-card group flex h-full flex-col overflow-hidden rounded-card"
       >
         {/* Studio frame */}
-        <div className="burnish relative aspect-[8/9] overflow-hidden">
+        <div className="burnish relative aspect-[4/5] overflow-hidden">
           <div
             className="absolute inset-0"
             style={{
@@ -47,7 +47,7 @@ export function SpecimenCard({
           <div className="absolute inset-0">
             <SpecimenMedia
               s={s}
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
             />
           </div>
 
@@ -66,11 +66,11 @@ export function SpecimenCard({
         </div>
 
         {showCaption && (
-          <div className="flex flex-1 flex-col px-4 pb-4 pt-3.5 sm:px-5 sm:pb-5">
-            <h3 className="font-display text-[1.15rem] leading-tight text-bitumen sm:text-xl">
+          <div className="flex flex-1 flex-col px-3 pb-3.5 pt-3 sm:px-5 sm:pb-5 sm:pt-3.5">
+            <h3 className="font-display text-[0.98rem] leading-tight text-bitumen sm:text-xl">
               {s.name}
             </h3>
-            <p className="mt-1 text-[0.62rem] uppercase tracking-wider2 text-ash">
+            <p className="mt-1 text-[0.6rem] uppercase tracking-wider2 text-ash sm:text-[0.62rem]">
               {s.material}
             </p>
           </div>

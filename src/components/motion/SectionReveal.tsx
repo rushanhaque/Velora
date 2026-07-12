@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
+import { prefersLite } from "@/lib/perf";
 
 type SectionRevealVariant = "rise" | "slide-left" | "slide-right" | "fade" | "scale";
 
@@ -16,6 +17,10 @@ export function SectionReveal({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    if (prefersLite()) {
+      el.classList.add("is-in");
+      return;
+    }
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {

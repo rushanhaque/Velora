@@ -27,6 +27,7 @@ export function SignatureScroll() {
   const [active, setActive] = useState(0);
   const outerRef = useRef<HTMLDivElement>(null);
   const nameRef  = useRef<HTMLHeadingElement>(null);
+  const mobRefs  = useRef<(HTMLDivElement | null)[]>([]);
 
   // Scroll-driven switching: tall outer block, sticky full-screen inner panel.
   useEffect(() => {
@@ -69,6 +70,26 @@ export function SignatureScroll() {
       });
     });
   }, [active]);
+
+  // Mobile: one-shot scroll-triggered reveal as each stacked slide enters view
+  // (the desktop version switches on scroll; mobile stages each slide instead).
+  useEffect(() => {
+    const els = mobRefs.current.filter(Boolean) as HTMLDivElement[];
+    if (!els.length) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            (e.target as HTMLElement).dataset.on = "true";
+            io.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.25 },
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
 
   const cur = SLIDES[active];
 
@@ -153,14 +174,24 @@ export function SignatureScroll() {
             Signature pieces
           </span>
         </div>
-        <div className="mt-7 flex flex-col">
+        <div className="mt-7 flex flex-col gap-3">
           {SLIDES.map((s, i) => (
-            <div key={i} className="relative h-[78svh] w-full overflow-hidden">
-              <SlideMedia slide={s} index={i} />
+            <div
+              key={i}
+              ref={(el) => {
+                mobRefs.current[i] = el;
+              }}
+              className="sig-panel relative h-[78svh] w-full overflow-hidden"
+            >
+              <div className="sig-media absolute inset-0">
+                <SlideMedia slide={s} index={i} />
+              </div>
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-black/55 to-transparent" />
-              <h2 className="absolute bottom-7 left-6 font-display text-[clamp(2rem,9vw,3rem)] leading-[0.95] text-parchment-pale">
-                {s.name}
-              </h2>
+              <div className="absolute inset-x-6 bottom-7 overflow-hidden">
+                <h2 className="sig-name font-display text-[clamp(2rem,9vw,3rem)] leading-[0.95] text-parchment-pale">
+                  {s.name}
+                </h2>
+              </div>
             </div>
           ))}
         </div>
