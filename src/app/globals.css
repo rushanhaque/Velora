@@ -1133,29 +1133,6 @@ h3 {
   transition: opacity 0.5s var(--ease-silk), transform 0.5s var(--ease-silk);
 }
 
-/* Signature pieces — mobile stacked slides: each stages a scroll-triggered
-   reveal (cover settles from a slow zoom, the name rises through a mask).
-   data-on is set by an IntersectionObserver in SignatureScroll. */
-.sig-panel .sig-media {
-  transform: scale(1.12);
-  transition: transform 1.4s var(--ease-silk);
-  will-change: transform;
-}
-.sig-panel[data-on="true"] .sig-media {
-  transform: scale(1);
-}
-.sig-panel .sig-name {
-  opacity: 0;
-  transform: translateY(115%);
-  transition:
-    opacity 0.7s var(--ease-silk) 0.15s,
-    transform 0.7s var(--ease-silk) 0.15s;
-}
-.sig-panel[data-on="true"] .sig-name {
-  opacity: 1;
-  transform: none;
-}
-
 /* ============================================================
    TOUCH POLISH — phones have no :hover, so the desktop hover
    language (lift, glint, light-catch) never fires. Give touch
@@ -1245,9 +1222,7 @@ html.lite .grain {
   .mob-panel .mp-cover,
   .mob-panel .mp-roman,
   .mob-panel .mp-name,
-  .mob-panel .mp-arrow,
-  .sig-panel .sig-media,
-  .sig-panel .sig-name {
+  .mob-panel .mp-arrow {
     opacity: 1 !important;
     transform: none !important;
     clip-path: none !important;

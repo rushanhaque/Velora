@@ -164,13 +164,15 @@ export function Header() {
           </div>
 
           {/* Center — the designed logo, absolutely centred in the bar so it is
-             perfectly centred regardless of the left/right content widths */}
+             perfectly centred regardless of the left/right content widths. The
+             +5px nudge optically centres the VELORA line itself (the lockup's
+             INTERNATIONAL subtitle below would otherwise push VELORA up). */}
           <Link
             href="/"
             aria-label="Velora International — home"
             data-header-logo
             className={cn(
-              "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-opacity duration-500",
+              "absolute left-1/2 top-1/2 -translate-x-1/2 translate-y-[calc(-50%+5px)] transition-opacity duration-500",
               isHome && "pointer-events-none opacity-0",
             )}
           >

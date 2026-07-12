@@ -23,11 +23,13 @@ const SLIDES: Slide[] = [
 
 const EASE_CSS = "cubic-bezier(0.4,0,0.2,1)";
 
-export function SignatureScroll() {
+export function SignatureScroll({ slides }: { slides?: Slide[] }) {
   const [active, setActive] = useState(0);
   const outerRef = useRef<HTMLDivElement>(null);
   const nameRef  = useRef<HTMLHeadingElement>(null);
-  const mobRefs  = useRef<(HTMLDivElement | null)[]>([]);
+  // Use real pieces (with photos) when the page provides them, so images
+  // actually switch; otherwise fall back to the curated placeholder names.
+  const view = slides && slides.length ? slides : SLIDES;
 
   // Scroll-driven switching: tall outer block, sticky full-screen inner panel.
   useEffect(() => {
@@ -45,7 +47,7 @@ export function SignatureScroll() {
           // Count progress only once the panel is pinned (rect.top reaches 0),
           // so the first piece stays put until the screen actually locks.
           const p = Math.max(0, Math.min(1, -rect.top / scrollable));
-          setActive(Math.min(SLIDES.length - 1, Math.floor(p * SLIDES.length)));
+          setActive(Math.min(view.length - 1, Math.floor(p * view.length)));
         }
         ticking = false;
       });
@@ -71,39 +73,20 @@ export function SignatureScroll() {
     });
   }, [active]);
 
-  // Mobile: one-shot scroll-triggered reveal as each stacked slide enters view
-  // (the desktop version switches on scroll; mobile stages each slide instead).
-  useEffect(() => {
-    const els = mobRefs.current.filter(Boolean) as HTMLDivElement[];
-    if (!els.length) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
-            (e.target as HTMLElement).dataset.on = "true";
-            io.unobserve(e.target);
-          }
-        });
-      },
-      { threshold: 0.25 },
-    );
-    els.forEach((el) => io.observe(el));
-    return () => io.disconnect();
-  }, []);
-
-  const cur = SLIDES[active];
+  const cur = view[active];
 
   return (
     <>
-      {/* ── DESKTOP: full-screen scroll switcher ── */}
+      {/* ── Full-screen scroll switcher (all widths) — images crossfade as
+             you scroll through the tall pinned section, on mobile and desktop ── */}
       <div
         ref={outerRef}
-        className="hidden lg:block"
-        style={{ height: `calc(${SLIDES.length} * 92svh)` }}
+        className="block"
+        style={{ height: `calc(${view.length} * 92svh)` }}
       >
         <div className="sticky top-0 h-svh w-full overflow-hidden">
           {/* full-bleed image stack */}
-          {SLIDES.map((s, i) => (
+          {view.map((s, i) => (
             <div
               key={i}
               className="absolute inset-0"
@@ -146,10 +129,10 @@ export function SignatureScroll() {
               <div className="hidden shrink-0 items-center gap-4 sm:flex">
                 <span className="numeral text-[0.95rem] text-parchment-pale/80">
                   {String(active + 1).padStart(2, "0")}
-                  <span className="text-parchment-pale/40"> / {String(SLIDES.length).padStart(2, "0")}</span>
+                  <span className="text-parchment-pale/40"> / {String(view.length).padStart(2, "0")}</span>
                 </span>
                 <div className="flex flex-col gap-1.5">
-                  {SLIDES.map((_, i) => (
+                  {view.map((_, i) => (
                     <span
                       key={i}
                       className="h-[3px] rounded-full transition-all duration-500"
@@ -166,36 +149,6 @@ export function SignatureScroll() {
         </div>
       </div>
 
-      {/* ── MOBILE / TABLET: stacked full-width images ── */}
-      <div className="lg:hidden">
-        <div className="px-[clamp(20px,6vw,40px)] pt-[clamp(40px,12vw,80px)]">
-          <span className="inline-flex items-center gap-3 text-[0.68rem] uppercase tracking-wide3 text-brass-deep">
-            <span className="h-px w-7 bg-current opacity-60" />
-            Signature pieces
-          </span>
-        </div>
-        <div className="mt-7 flex flex-col gap-3">
-          {SLIDES.map((s, i) => (
-            <div
-              key={i}
-              ref={(el) => {
-                mobRefs.current[i] = el;
-              }}
-              className="sig-panel relative h-[78svh] w-full overflow-hidden"
-            >
-              <div className="sig-media absolute inset-0">
-                <SlideMedia slide={s} index={i} />
-              </div>
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-black/55 to-transparent" />
-              <div className="absolute inset-x-6 bottom-7 overflow-hidden">
-                <h2 className="sig-name font-display text-[clamp(2rem,9vw,3rem)] leading-[0.95] text-parchment-pale">
-                  {s.name}
-                </h2>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
     </>
   );
 }

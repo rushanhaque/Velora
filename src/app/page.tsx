@@ -20,6 +20,15 @@ import { readCatalog } from "@/lib/catalog-store";
 
 export default async function Home() {
   const catalog = await readCatalog();
+
+  // Signature pieces = up to 4 featured products (with photos) so the scroll
+  // switcher shows real imagery; falls back to placeholders if none qualify.
+  const withImage = catalog.specimens.filter((s) => s.image);
+  const featured = withImage.filter((s) => s.featured);
+  const signatureSlides = (featured.length >= 3 ? featured : withImage)
+    .slice(0, 4)
+    .map((s) => ({ src: s.image as string, name: s.name }));
+
   return (
     <>
       <Hero />
@@ -49,7 +58,7 @@ export default async function Home() {
 
       {/* ───────────────── Signature pieces (scroll photo switcher) ───────────────── */}
       <div className="mt-[clamp(48px,7vw,96px)]">
-        <SignatureScroll />
+        <SignatureScroll slides={signatureSlides} />
       </div>
 
       {/* ───────────────── The maison line ───────────────── */}

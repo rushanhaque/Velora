@@ -46,10 +46,10 @@ export function SpecimenDetail({
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
           transition={{ duration: 1.2, ease: SILK }}
           data-lit
-          className="plate group/stage group overflow-hidden rounded-xl2 transition-shadow duration-700 hover:shadow-glow-warm"
+          className="plate group/stage group overflow-hidden rounded-xl2 transition-shadow duration-700 hover:shadow-glow-warm lg:mx-auto lg:w-fit"
         >
           <div
-            className={cn("relative transition-transform duration-[1.2s] ease-silk group-hover/stage:scale-[1.04]", hasMedia(s) && "aspect-[4/5]")}
+            className={cn("relative transition-transform duration-[1.2s] ease-silk group-hover/stage:scale-[1.04]", hasMedia(s) && "aspect-[4/5] lg:h-[min(72svh,600px)] lg:w-auto")}
             style={{
               background:
                 "radial-gradient(110% 80% at 50% 16%, #fcfbf7, #efeae0)",
@@ -87,7 +87,7 @@ export function SpecimenDetail({
             {s.gallery.slice(0, 3).map((src, i) => (
               <div
                 key={i}
-                className="plate relative aspect-square overflow-hidden rounded-card"
+                className="plate relative aspect-[4/5] overflow-hidden rounded-card"
               >
                 <Image
                   src={src}

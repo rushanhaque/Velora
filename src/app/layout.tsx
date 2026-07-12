@@ -74,7 +74,7 @@ export default function RootLayout({
           }}
         />
         <noscript>
-          <style>{`[data-reveal],.clip-reveal,.mask-inner,.mob-panel .mp-cover,.mob-panel .mp-roman,.mob-panel .mp-name,.mob-panel .mp-arrow,.sig-panel .sig-media,.sig-panel .sig-name{opacity:1!important;transform:none!important;clip-path:none!important;filter:none!important}`}</style>
+          <style>{`[data-reveal],.clip-reveal,.mask-inner,.mob-panel .mp-cover,.mob-panel .mp-roman,.mob-panel .mp-name,.mob-panel .mp-arrow{opacity:1!important;transform:none!important;clip-path:none!important;filter:none!important}`}</style>
         </noscript>
         <a href="#main" className="skip-link">
           Skip to content
