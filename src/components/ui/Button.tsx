@@ -97,11 +97,11 @@ export function Button({
   const cls = cn(base, shapes[variant], className);
 
   const inner = href ? (
-    <Link href={href} className={cls} tabIndex={tabIndex} onClick={(e) => { spawnRipple(e); onClick?.(); }} data-cursor="link">
+    <Link href={href} className={cls} tabIndex={tabIndex} onClick={(e) => { spawnRipple(e); onClick?.(); }} data-cursor="link" data-ripple-self>
       {content}
     </Link>
   ) : (
-    <button type={type} onClick={(e) => { spawnRipple(e); onClick?.(); }} className={cls} tabIndex={tabIndex} data-cursor="link">
+    <button type={type} onClick={(e) => { spawnRipple(e); onClick?.(); }} className={cls} tabIndex={tabIndex} data-cursor="link" data-ripple-self>
       <span ref={rippleRef} />
       {content}
     </button>

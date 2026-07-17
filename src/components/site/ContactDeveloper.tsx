@@ -31,7 +31,7 @@ export function ContactDeveloper() {
   }, [open]);
 
   return (
-    <div ref={ref} className="absolute bottom-5 left-5 z-30 sm:bottom-6 sm:left-6">
+    <div ref={ref} className="absolute bottom-5 right-5 z-30 sm:bottom-6 sm:right-6">
       <AnimatePresence>
         {open && (
           <motion.div
@@ -41,7 +41,7 @@ export function ContactDeveloper() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.96 }}
             transition={{ duration: 0.35, ease: SILK }}
-            className="absolute bottom-full left-0 mb-3 w-[min(82vw,296px)] origin-bottom-left overflow-hidden rounded-xl2 border border-brass/20 bg-bitumen-ink/95 p-5 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.85)] backdrop-blur"
+            className="absolute bottom-full right-0 mb-3 w-[min(82vw,296px)] origin-bottom-right overflow-hidden rounded-xl2 border border-brass/20 bg-bitumen-ink/95 p-5 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.85)] backdrop-blur"
           >
             {/* warm corner glow */}
             <div

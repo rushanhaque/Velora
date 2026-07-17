@@ -85,7 +85,10 @@ export function Logo({
       <span
         style={subtitleStyle}
         className={cn(
-          "mt-[3px] flex w-full justify-between font-sans text-[0.5rem] font-medium",
+          // Absolute (out of flow) so the lockup's box is the VELORA line alone.
+          // That lets the header centre VELORA itself — identical to the docked
+          // hero — instead of the taller VELORA+subtitle block.
+          "absolute left-0 right-0 top-full mt-[3px] flex w-full justify-between font-sans text-[0.5rem] font-medium",
           variant === "light" ? "text-haze" : "text-ash",
         )}
       >

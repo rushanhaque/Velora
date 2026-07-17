@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { prefersLite } from "@/lib/perf";
 
 /**
  * Signature pieces — full-screen, scroll-triggered photo switcher.
@@ -27,35 +28,72 @@ export function SignatureScroll({ slides }: { slides?: Slide[] }) {
   const [active, setActive] = useState(0);
   const outerRef = useRef<HTMLDivElement>(null);
   const nameRef  = useRef<HTMLHeadingElement>(null);
+  const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const dividerRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const activeRef = useRef(0);
   // Use real pieces (with photos) when the page provides them, so images
   // actually switch; otherwise fall back to the curated placeholder names.
   const view = slides && slides.length ? slides : SLIDES;
+  const count = view.length;
 
-  // Scroll-driven switching: tall outer block, sticky full-screen inner panel.
+  // Scroll-driven reveal: as you scroll through the tall pinned section each
+  // piece is uncovered RIGHT→LEFT, with a lit brass divider that slides along
+  // the reveal edge. Driven directly by scroll position (no timed transition),
+  // so it tracks your scroll exactly and reverses when you scroll back up.
   useEffect(() => {
     const outer = outerRef.current;
     if (!outer) return;
-
+    // Low-end / reduced-motion: skip the per-frame clip-path reveal entirely.
+    // Collapse the tall scroll-space to a single screen and leave the first
+    // piece shown (its initial state) — cheap and calm where it matters most.
+    if (prefersLite()) {
+      outer.style.height = "100svh";
+      return;
+    }
     let ticking = false;
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        const rect = outer.getBoundingClientRect();
-        const scrollable = rect.height - window.innerHeight;
-        if (scrollable > 0) {
-          // Count progress only once the panel is pinned (rect.top reaches 0),
-          // so the first piece stays put until the screen actually locks.
-          const p = Math.max(0, Math.min(1, -rect.top / scrollable));
-          setActive(Math.min(view.length - 1, Math.floor(p * view.length)));
+    const paint = () => {
+      ticking = false;
+      const rect = outer.getBoundingClientRect();
+      const scrollable = rect.height - window.innerHeight;
+      if (scrollable <= 0) return;
+      const p = Math.max(0, Math.min(1, -rect.top / scrollable));
+      const fp = p * Math.max(1, count - 1); // 0 .. count-1
+      for (let i = 0; i < count; i++) {
+        // slide 0 is the base; slide i is revealed across scroll segment [i-1, i]
+        const frac = i === 0 ? 1 : Math.max(0, Math.min(1, fp - (i - 1)));
+        // reveal edge: 100% (hidden on the right) → 0% (fully shown)
+        const edge = ((1 - frac) * 100).toFixed(2);
+        const clip = slideRefs.current[i];
+        if (clip) {
+          clip.style.clipPath = `inset(0 0 0 ${edge}%)`;
+          (clip.style as unknown as { webkitClipPath: string }).webkitClipPath = `inset(0 0 0 ${edge}%)`;
         }
-        ticking = false;
-      });
+        const div = dividerRefs.current[i];
+        if (div) {
+          div.style.left = `${edge}%`;
+          div.style.opacity = i > 0 && frac > 0.003 && frac < 0.997 ? "1" : "0";
+        }
+      }
+      const na = Math.min(count - 1, Math.max(0, Math.round(fp)));
+      if (na !== activeRef.current) {
+        activeRef.current = na;
+        setActive(na);
+      }
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(paint);
+      }
     };
     window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    window.addEventListener("resize", paint);
+    paint();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", paint);
+    };
+  }, [count]);
 
   // Rise-in animation on piece name change
   useEffect(() => {
@@ -87,19 +125,38 @@ export function SignatureScroll({ slides }: { slides?: Slide[] }) {
         <div className="sticky top-0 h-svh w-full overflow-hidden">
           {/* full-bleed image stack */}
           {view.map((s, i) => (
-            <div
-              key={i}
-              className="absolute inset-0"
-              style={{
-                opacity: active === i ? 1 : 0,
-                transform: `scale(${active === i ? 1 : 1.04})`,
-                transition: `opacity 1s ${EASE_CSS}, transform 1s ${EASE_CSS}`,
-              }}
-            >
-              {/* slow cinematic push-in while the slide holds the screen */}
-              <div className={cn("relative h-full w-full", active === i && "slow-drift")}>
-                <SlideMedia slide={s} index={i} />
+            <div key={i} className="absolute inset-0" style={{ zIndex: i + 1 }}>
+              {/* the piece is uncovered RIGHT→LEFT — clip is driven by scroll */}
+              <div
+                ref={(el) => {
+                  slideRefs.current[i] = el;
+                }}
+                className="absolute inset-0"
+                style={{
+                  clipPath: i === 0 ? "inset(0 0 0 0)" : "inset(0 0 0 100%)",
+                  WebkitClipPath: i === 0 ? "inset(0 0 0 0)" : "inset(0 0 0 100%)",
+                }}
+              >
+                {/* slow cinematic push-in while the slide holds the screen */}
+                <div className={cn("relative h-full w-full", active === i && "slow-drift")}>
+                  <SlideMedia slide={s} index={i} priority={i === 0} />
+                </div>
               </div>
+
+              {/* sliding divider — a lit brass rule that travels right→left along the
+                  reveal edge; its position is driven by scroll, not a timed animation */}
+              <div
+                ref={(el) => {
+                  dividerRefs.current[i] = el;
+                }}
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-y-0 w-[2px] -translate-x-1/2 bg-gradient-to-b from-transparent via-brass-leaf to-transparent"
+                style={{
+                  left: i === 0 ? "0%" : "100%",
+                  opacity: 0,
+                  boxShadow: "0 0 20px rgba(212,185,134,0.85), 0 0 46px rgba(200,167,101,0.45)",
+                }}
+              />
             </div>
           ))}
 
@@ -154,16 +211,28 @@ export function SignatureScroll({ slides }: { slides?: Slide[] }) {
 }
 
 /** Full-bleed photo when `src` is set, otherwise a placeholder fill. */
-function SlideMedia({ slide, index }: { slide: Slide; index: number }) {
+function SlideMedia({
+  slide,
+  index,
+  priority = false,
+}: {
+  slide: Slide;
+  index: number;
+  /** The first slide is preloaded so it's ready the moment the section is reached. */
+  priority?: boolean;
+}) {
   if (slide.src) {
     return (
       <Image
         src={slide.src}
         alt={slide.name}
         fill
-        quality={80}
+        quality={72}
+        priority={priority}
         sizes="100vw"
         className="object-cover"
+        // A dark base shows instantly while the photo streams in — no blank flash.
+        style={{ backgroundColor: "#0b1928" }}
         draggable={false}
       />
     );

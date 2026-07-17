@@ -50,7 +50,6 @@ export default function CraftPage() {
                   height={640}
                   className="h-auto w-full object-cover"
                   sizes="(max-width: 1024px) 90vw, 40vw"
-                  priority
                 />
               </div>
             </Parallax>
@@ -154,9 +153,14 @@ export default function CraftPage() {
             className="display mt-6 max-w-2xl text-[clamp(2rem,4.4vw,3.4rem)] text-bitumen"
             lines={["Five metals, one discipline."]}
           />
-          <div className="mt-12 grid gap-7 sm:grid-cols-2 lg:grid-cols-5">
+          {/* Mobile: a swipeable carousel, one metal at a time. sm+: static grid. */}
+          <div className="mt-12 flex snap-x snap-mandatory gap-5 overflow-x-auto pb-4 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-2 sm:gap-7 sm:overflow-visible sm:pb-0 lg:grid-cols-5">
             {METALS.map((m, i) => (
-              <Reveal key={m.name} delay={i * 70} className="h-full">
+              <Reveal
+                key={m.name}
+                delay={i * 70}
+                className="h-full w-[80vw] max-w-[340px] shrink-0 snap-start sm:w-auto sm:max-w-none"
+              >
                 <div className="plate group h-full overflow-hidden rounded-card">
                   <div className="aspect-[4/3] overflow-hidden">
                     <Image

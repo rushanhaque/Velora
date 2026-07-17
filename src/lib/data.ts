@@ -1242,10 +1242,10 @@ export const PROCESS: Step[] = [
 ];
 
 export const STATS = [
-  { value: 5, suffix: "", label: "Years of the atelier", sub: "Est. 2021" },
-  { value: 50, suffix: "", label: "Skilled makers", sub: "Hands under one roof" },
-  { value: 18, suffix: "", label: "Countries served", sub: "Quietly, often unbranded" },
-  { value: 2400, suffix: "", label: "Pieces made each year", sub: "Each finished by hand" },
+  { value: 5, suffix: "+", label: "Years of the atelier", sub: "Est. 2021" },
+  { value: 50, suffix: "+", label: "Skilled makers", sub: "Hands under one roof" },
+  { value: 5, suffix: "+", label: "Countries served", sub: "Quietly, often unbranded" },
+  { value: 24000, suffix: "+", label: "Pieces made each year", sub: "Each finished by hand" },
 ];
 
 export const PRINCIPLES = [
@@ -1333,7 +1333,7 @@ export const TRADE_POINTS = [
     body: "Your designs, your mark. We produce to specification under full confidentiality.",
   },
   {
-    title: "Export to 18 countries",
+    title: "Export to 5+ countries",
     body: "Documentation, crating and freight handled end to end from Moradabad.",
   },
   {
@@ -1474,7 +1474,7 @@ export const FAQ: FaqGroup[] = [
   {
     title: "Shipping & customs",
     items: [
-      { q: "Where do you ship?", a: "We export to eighteen countries and counting. Documentation, crating and freight are handled end to end from Moradabad." },
+      { q: "Where do you ship?", a: "We export to five-plus countries and counting. Documentation, crating and freight are handled end to end from Moradabad." },
       { q: "Who handles duties and customs?", a: "We prepare full export documentation and can ship on common Incoterms. Import duties and local taxes are typically the buyer's responsibility; our trade desk will advise per destination." },
       { q: "How are pieces packed?", a: "Each piece is wrapped, braced and crated for the metal it is — solid objects, packed to survive freight and arrive as they left the bench." },
     ],

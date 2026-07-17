@@ -5,12 +5,12 @@ import { cn } from "@/lib/utils";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
+import { TactileClicks } from "@/components/motion/TactileClicks";
 import { ScrollReset } from "@/components/motion/ScrollReset";
 import { ChromeGate } from "@/components/site/ChromeGate";
 import { ScrollProgress } from "@/components/motion/Parallax";
 import { LightBench } from "@/components/motion/LightBench";
-import { CartFloat } from "@/components/ui/CartFloat";
-import { CartPanel } from "@/components/ui/CartPanel";
+import { CartPanelMount } from "@/components/ui/CartPanelMount";
 import { BRAND } from "@/lib/data";
 import "./globals.css";
 
@@ -61,7 +61,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={cn(display.variable, sans.variable)}>
+    // suppressHydrationWarning: the inline lite-detection script (below) adds the
+    // `lite` class to <html> before hydration — an intentional server/client diff.
+    <html lang="en" className={cn(display.variable, sans.variable)} suppressHydrationWarning>
       <body className="font-sans antialiased">
         {/* Low-end detection — runs during parse (before the content below it
             paints), so the .lite class is set with no flash. Strips decorative
@@ -70,7 +72,7 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "(function(){try{var n=navigator,c=n.connection||n.mozConnection||n.webkitConnection,lite=(n.hardwareConcurrency&&n.hardwareConcurrency<=4)||(n.deviceMemory&&n.deviceMemory<=4)||(c&&(c.saveData||/(^|-)(2g|slow)/.test(c.effectiveType||'')));if(lite)document.documentElement.classList.add('lite');}catch(e){}})();",
+              "(function(){try{var n=navigator,c=n.connection||n.mozConnection||n.webkitConnection,lite=(n.hardwareConcurrency&&n.hardwareConcurrency<=2)||(n.deviceMemory&&n.deviceMemory<=1)||(c&&(c.saveData||/(^|-)(2g|slow)/.test(c.effectiveType||'')));if(lite)document.documentElement.classList.add('lite');}catch(e){}})();",
           }}
         />
         <noscript>
@@ -81,6 +83,7 @@ export default function RootLayout({
         </a>
         <ChromeGate>
           <SmoothScroll />
+          <TactileClicks />
           <Suspense fallback={null}>
             <ScrollReset />
           </Suspense>
@@ -91,8 +94,7 @@ export default function RootLayout({
         <main id="main">{children}</main>
         <ChromeGate>
           <Footer />
-          <CartFloat />
-          <CartPanel />
+          <CartPanelMount />
         </ChromeGate>
       </body>
     </html>

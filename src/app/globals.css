@@ -400,6 +400,7 @@ body {
 .mask-text.is-in .mask-inner {
   transform: none;
   filter: blur(0);
+  will-change: auto; /* release the GPU layer once the reveal has played */
 }
 
 /* Clip-reveal for images */
@@ -597,6 +598,16 @@ html[data-menu="open"] [data-header-logo] {
 /* ============================================================
    HERO WORDMARK — v3.0 with glow halo
    ============================================================ */
+.vel-hero {
+  /* Lift the wordmark off the photograph — a warm champagne/brass bloom (not a
+     white glow) for presence. Scales with the wordmark's own transform, so it's
+     grand on the hero and subtle once docked. */
+  text-shadow:
+    0 1px 2px rgba(255, 250, 236, 0.42),
+    0 2px 20px rgba(234, 222, 179, 0.5),
+    0 0 40px rgba(200, 167, 101, 0.42);
+  transition: text-shadow 0.6s var(--ease-silk);
+}
 .vel-hero > * {
   grid-area: 1 / 1;
 }
@@ -616,9 +627,15 @@ html[data-menu="open"] [data-header-logo] {
   opacity: 0;
   transition: opacity 0.5s var(--ease-silk);
 }
+/* Hover — a warm ignite of the brass bloom (no whitish sheen sweep). */
+.vel-hero:hover {
+  text-shadow:
+    0 1px 2px rgba(255, 250, 236, 0.4),
+    0 2px 24px rgba(234, 222, 179, 0.72),
+    0 0 56px rgba(200, 167, 101, 0.6);
+}
 .vel-hero:hover .vel-hero-sheen {
-  opacity: 1;
-  animation: velHeroSheen 1.4s var(--ease-silk);
+  opacity: 0;
 }
 @keyframes velHeroSheen {
   0% {
@@ -708,6 +725,256 @@ html[data-menu="open"] [data-header-logo] {
 }
 
 /* ============================================================
+   Site-wide tactile CLICK feedback (micro-interaction)
+   A soft brass bloom springs from the pointer on any interactive
+   control. The node is fixed & pointer-events:none, so it never
+   touches layout; it animates transform + opacity only (GPU), and
+   is skipped entirely under reduced-motion / lite mode — so it can
+   never cost performance. Buttons keep their own contained ripple.
+   ============================================================ */
+.click-ripple {
+  position: fixed;
+  z-index: 9999;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle,
+    rgba(200, 167, 101, 0.5) 0%,
+    rgba(176, 145, 92, 0.26) 45%,
+    transparent 72%
+  );
+  pointer-events: none;
+  will-change: transform, opacity;
+  animation: click-ripple 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes click-ripple {
+  from {
+    transform: scale(0.5);
+    opacity: 0.7;
+  }
+  to {
+    transform: scale(8);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .click-ripple {
+    display: none;
+  }
+}
+
+/* A hair of tactile give when a card/tile is clicked (mouse only — touch has
+   its own press under the hover:none block). Pure CSS, zero runtime cost. */
+@media (hover: hover) {
+  a.depth-card:active,
+  a.plate:active,
+  [data-tap]:active {
+    transform: scale(0.988);
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+/* ============================================================
+   THE CABINET ROW — desktop collections (lg+). Pure-CSS hover.
+   A folded metal screen of lit collection plates. Each plate is
+   dominated by its name in big uppercase Jost, set VERTICAL at rest
+   (a bold spine covering the closed card). Hover/focus a plate: the
+   name spins smoothly to horizontal about the card CENTRE as the plate
+   widens, dollies forward and rounds its corners, while the others
+   soften into a light blur. Fixed stage height => horizontal-only
+   reflow. Per-card perspective() (no preserve-3d) so filter + depth
+   stay clean. The active rule carries TWO pseudo-classes, so it
+   outranks the sibling rule by specificity — order is not load-bearing.
+   ============================================================ */
+.crow {
+  height: clamp(468px, 42vw, 600px);
+}
+/* the flex widen itself — the silky, horizontal-only reflow */
+.chouse {
+  position: relative;
+  transition: flex-grow 0.75s var(--ease-silk);
+}
+
+/* inlaid brass seam divider (rests between plates) */
+.chouse-seam {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 6;
+  width: 1px;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(200, 167, 101, 0.42) 22%,
+    rgba(200, 167, 101, 0.42) 78%,
+    transparent
+  );
+  transition: opacity 0.55s var(--ease-silk);
+}
+
+/* the plate body — dollies forward in 3D and rounds its corners on engage */
+.chouse-lift {
+  border-radius: 0;
+  transform: perspective(1700px) translateZ(0) scale(1);
+  box-shadow: 0 18px 40px -26px rgba(34, 26, 12, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: transform 1s cubic-bezier(0.22, 1, 0.36, 1), filter 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.9s cubic-bezier(0.22, 1, 0.36, 1), border-radius 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* cover photo — dimmed at rest so the name reads, gentle zoom on engage */
+.chouse-cover {
+  transform: scale(1);
+  filter: brightness(0.72) saturate(0.92);
+  transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1), filter 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* legibility scrim — soft centre vignette (behind the name) + bottom lift */
+.chouse-scrim {
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(
+      116% 82% at 50% 50%,
+      rgba(10, 9, 7, 0.36),
+      rgba(10, 9, 7, 0.1) 58%,
+      transparent 82%
+    ),
+    linear-gradient(0deg, rgba(10, 9, 7, 0.46) 0%, transparent 46%);
+}
+
+/* THE NAME — big uppercase Jost. VERTICAL at rest (covers the closed
+   card); spins to horizontal about the card CENTRE on engage, so one
+   size fits both the tall closed card and the wide open one. */
+.chouse-name {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  margin: 0;
+  transform-origin: center;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  white-space: nowrap;
+  font-family: var(--font-display), "Cormorant Garamond", "Georgia", serif;
+  font-weight: 400;
+  font-style: normal;
+  text-transform: uppercase;
+  font-size: clamp(2rem, 4.2vw, 3.4rem);
+  line-height: 1;
+  letter-spacing: 0.14em;
+  color: var(--parchment-pale);
+  text-shadow: 0 2px 30px rgba(10, 9, 7, 0.66), 0 0 6px rgba(10, 9, 7, 0.5),
+    0 1px 3px rgba(10, 9, 7, 0.62);
+  transition: transform 1s cubic-bezier(0.22, 1, 0.36, 1), color 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    letter-spacing 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+/* ---- ENGAGED ROW: every plate softens & recedes (specificity 0,3,0) ---- */
+.crow:hover .chouse-seam,
+.crow:focus-within .chouse-seam {
+  opacity: 0.3;
+}
+.crow:hover .chouse,
+.crow:focus-within .chouse {
+  flex-grow: 0.72;
+}
+.crow:hover .chouse-lift,
+.crow:focus-within .chouse-lift {
+  filter: blur(0.8px) brightness(0.68) saturate(0.85);
+  transform: perspective(1700px) translateZ(-42px) scale(0.96);
+  will-change: transform, filter;
+}
+.crow:hover .chouse-name,
+.crow:focus-within .chouse-name {
+  color: rgba(248, 246, 240, 0.5);
+}
+
+/* ---- ACTIVE PLATE: two pseudo-classes => wins on specificity (0,4,0) ---- */
+.crow:hover .chouse:hover,
+.crow:focus-within .chouse:focus-visible {
+  flex-grow: 2.4;
+  z-index: 4;
+}
+.crow:hover .chouse:hover .chouse-lift,
+.crow:focus-within .chouse:focus-visible .chouse-lift {
+  filter: none;
+  opacity: 1;
+  border-radius: 16px;
+  transform: perspective(1700px) translateZ(90px) scale(1.04);
+  box-shadow: 0 52px 100px -38px rgba(34, 26, 12, 0.55),
+    0 0 52px rgba(176, 145, 92, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+.crow:hover .chouse:hover .chouse-cover,
+.crow:focus-within .chouse:focus-visible .chouse-cover {
+  transform: scale(1.22);
+  filter: brightness(0.92) saturate(1.05);
+}
+.crow:hover .chouse:hover .chouse-name,
+.crow:focus-within .chouse:focus-visible .chouse-name {
+  transform: translate(-50%, -50%) rotate(0deg);
+  color: var(--parchment-pale);
+  letter-spacing: 0.22em;
+}
+
+/* ---- REDUCED MOTION: keep the affordance, no animated motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .chouse,
+  .chouse-lift,
+  .chouse-cover,
+  .chouse-name {
+    transition: none !important;
+  }
+  .crow:hover .chouse-lift,
+  .crow:focus-within .chouse-lift {
+    filter: none;
+    transform: none;
+    opacity: 0.82;
+  }
+  .crow:hover .chouse:hover .chouse-lift,
+  .crow:focus-within .chouse:focus-visible .chouse-lift {
+    filter: none;
+    transform: none;
+  }
+  .crow:hover .chouse:hover,
+  .crow:focus-within .chouse:focus-visible {
+    flex-grow: 1.8;
+  }
+  .chouse-cover {
+    filter: brightness(0.9) saturate(0.95);
+  }
+}
+
+/* ---- LITE MODE: cheap on low-end GPUs — dim, no blur, no 3D ---- */
+html.lite .chouse {
+  transition: flex-grow 0.3s linear;
+}
+html.lite .chouse-lift {
+  transition: filter 0.3s linear !important;
+  transform: none !important;
+}
+html.lite .crow:hover .chouse-lift,
+html.lite .crow:focus-within .chouse-lift {
+  filter: brightness(0.78) !important;
+  transform: none !important;
+  opacity: 1;
+}
+html.lite .crow:hover .chouse:hover,
+html.lite .crow:focus-within .chouse:focus-visible {
+  flex-grow: 1.5;
+}
+html.lite .crow:hover .chouse:hover .chouse-lift,
+html.lite .crow:focus-within .chouse:focus-visible .chouse-lift {
+  filter: none !important;
+}
+html.lite .chouse-name {
+  transition: transform 0.35s linear, color 0.35s linear;
+}
+
+/* ============================================================
    v3.0 — SECTION DIVIDER
    ============================================================ */
 .section-divider {
@@ -788,18 +1055,8 @@ html[data-menu="open"] [data-header-logo] {
   to { transform: rotate(360deg); }
 }
 
-/* ============================================================
-   v3.0 — GLASS CARD (glassmorphism panel)
-   ============================================================ */
-.glass {
-  background: rgba(245, 249, 253, 0.62);
-  backdrop-filter: blur(20px) saturate(1.8);
-  -webkit-backdrop-filter: blur(20px) saturate(1.8);
-  border: 1px solid rgba(227, 220, 205, 0.7);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.5) inset,
-    0 4px 20px rgba(34, 26, 12, 0.08);
-}
+/* (Removed the unused .glass glassmorphism rule — its blur(20px) + saturate
+   was the most expensive paint recipe on the site and had zero references.) */
 
 /* ============================================================
    v3.0 — NAV ACTIVE INDICATOR
@@ -918,7 +1175,6 @@ html[data-menu="open"] [data-header-logo] {
   transition:
     opacity 0.4s var(--ease-silk),
     transform 0.45s cubic-bezier(0.2, 1.5, 0.4, 1);
-  will-change: transform;
 }
 .group:hover .hallmark,
 [data-lit]:hover .hallmark {
@@ -1192,6 +1448,13 @@ html.lite *::after {
   animation-iteration-count: 1 !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+}
+/* …except the ticker marquees, which must keep scrolling (a frozen ticker
+   looks broken). More specific than the rule above, so it wins. */
+html.lite .animate-marquee,
+html.lite .animate-marqueeRev {
+  animation-duration: var(--marquee-dur, 42s) !important;
+  animation-iteration-count: infinite !important;
 }
 /* Drop the hover-only decorative layers entirely (no hover on these devices). */
 html.lite .burnish::after,

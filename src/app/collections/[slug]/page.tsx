@@ -38,7 +38,7 @@ export default async function SpecimenPage({ params }: { params: { slug: string 
   const s = selectSpecimen(catalog, params.slug);
   if (!s) notFound();
   const collection = selectCollection(catalog, s.collection);
-  const related = selectRelated(catalog, s.slug, 3);
+  const related = selectRelated(catalog, s.slug, 4);
 
   return (
     <>
@@ -72,9 +72,14 @@ export default async function SpecimenPage({ params }: { params: { slug: string 
             </Reveal>
           </div>
 
-          <div className="mt-14 grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Mobile: one row of small cards, swipe sideways. sm+: static grid. */}
+          <div className="mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-3 sm:gap-5 sm:overflow-visible sm:pb-0 lg:grid-cols-4">
             {related.map((r, i) => (
-              <Reveal key={r.slug} delay={i * 70} className="h-full">
+              <Reveal
+                key={r.slug}
+                delay={i * 70}
+                className="h-full w-[42vw] max-w-[190px] shrink-0 snap-start sm:w-auto sm:max-w-none"
+              >
                 <SpecimenCard s={r} index={i} showCaption />
               </Reveal>
             ))}

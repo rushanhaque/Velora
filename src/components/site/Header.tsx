@@ -136,7 +136,7 @@ export function Header() {
         }}
       >
         <div
-          className="shell relative flex items-center justify-between py-3"
+          className="shell relative flex items-center justify-between py-2 sm:py-3"
         >
           {/* Left — mobile menu button + desktop nav */}
           <div className="flex items-center" style={sideStyle(chrome)}>
@@ -163,16 +163,17 @@ export function Header() {
             <nav className="hidden items-center gap-8 lg:flex">{NAV_LEFT.map(navLink)}</nav>
           </div>
 
-          {/* Center — the designed logo, absolutely centred in the bar so it is
-             perfectly centred regardless of the left/right content widths. The
-             +5px nudge optically centres the VELORA line itself (the lockup's
-             INTERNATIONAL subtitle below would otherwise push VELORA up). */}
+          {/* Center — the designed logo. VELORA is pinned to a FIXED 28px centre
+             from the top of the viewport — the exact spot the homepage hero docks
+             to — so the wordmark sits identically on every page and viewport,
+             independent of the bar's height. Its INTERNATIONAL subtitle is
+             absolute (see Logo), so it never drags the centring downward. */}
           <Link
             href="/"
             aria-label="Velora International — home"
             data-header-logo
             className={cn(
-              "absolute left-1/2 top-1/2 -translate-x-1/2 translate-y-[calc(-50%+5px)] transition-opacity duration-500",
+              "absolute left-1/2 top-[19px] -translate-x-1/2 -translate-y-1/2 transition-opacity duration-500",
               isHome && "pointer-events-none opacity-0",
             )}
           >

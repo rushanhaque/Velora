@@ -50,7 +50,6 @@ export function ProcessScroller({ steps }: { steps: Step[] }) {
                 alt={`${s.title} — step ${s.n} of the metalworking process`}
                 fill
                 sizes="(max-width: 1024px) 90vw, 36vw"
-                priority={i === 0}
                 className={cn(
                   "object-cover transition-opacity duration-700 ease-silk",
                   active === i ? "opacity-100" : "opacity-0",

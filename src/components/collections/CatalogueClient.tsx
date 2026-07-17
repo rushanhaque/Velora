@@ -20,19 +20,13 @@ export function CatalogueClient({
   const [sort, setSort] = useState<(typeof SORTS)[number]>("Featured");
   const [cat, setCat] = useState<string>("All");
   const reduce = useReducedMotion();
-  // Phones get a lighter reveal: a clean rise + fade instead of the 3D hinge —
-  // cheaper on weak GPUs and calmer at single-column width.
-  const [mobile, setMobile] = useState(false);
+  // One clean rise + fade on every device — no 3D hinge/tilt. (The old hinge
+  // read the viewport in an effect, so phones captured the desktop `rotateX`
+  // at first paint and the mobile target never reset it — cards sat leaned.)
   const [lite, setLite] = useState(false);
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 640px)");
-    const set = () => setMobile(mq.matches);
-    set();
     setLite(prefersLite());
-    mq.addEventListener("change", set);
-    return () => mq.removeEventListener("change", set);
   }, []);
-  // Low-end / reduced-motion → the plainest fade (no 3D transforms at all).
   const still = reduce || lite;
 
   // Only surface filter groups that actually have pieces in this collection.
@@ -96,10 +90,8 @@ export function CatalogueClient({
         </label>
       </div>
 
-      {/* 4-up grid. Each card hinges up from the table on a bottom axis as it
-         scrolls into view — a scroll-triggered 3D reveal, staggered by column.
-         Layout/reflow lives on the outer node; the 3D transform lives on the
-         inner node so framer's layout engine and the reveal never fight. */}
+      {/* 4-up grid. Cards rise + fade cleanly as they enter view — a flat,
+         uniform reveal on every device, no 3D tilt. */}
       <motion.div layout className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
         <AnimatePresence mode="popLayout">
           {filtered.map((s, i) => (
@@ -107,29 +99,13 @@ export function CatalogueClient({
               key={s.slug}
               layout
               exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.3, ease: SILK } }}
-              className="h-full [perspective:1000px]"
+              className="h-full"
             >
               <motion.div
-                initial={
-                  still
-                    ? { opacity: 0 }
-                    : mobile
-                      ? { opacity: 0, y: 34 }
-                      : { opacity: 0, y: 76, rotateX: 26, scale: 0.94 }
-                }
-                whileInView={
-                  still
-                    ? { opacity: 1 }
-                    : mobile
-                      ? { opacity: 1, y: 0 }
-                      : { opacity: 1, y: 0, rotateX: 0, scale: 1 }
-                }
+                initial={still ? { opacity: 0 } : { opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.2, margin: "0px 0px -8% 0px" }}
-                transition={{
-                  duration: mobile ? 0.6 : 0.85,
-                  ease: SILK,
-                }}
-                style={{ transformOrigin: "center bottom" }}
+                transition={{ duration: 0.55, ease: SILK }}
                 className="h-full"
               >
                 <SpecimenCard s={s} index={i} showCaption />

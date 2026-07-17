@@ -14,7 +14,7 @@ import { Reveal } from "@/components/motion/Reveal";
 import { MaskText } from "@/components/motion/MaskText";
 import { SILK } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-import { enquiry, useInEnquiry } from "@/lib/enquiry";
+import { enquiry, useInEnquiry, cartPanel } from "@/lib/enquiry";
 
 const TONE_GLOW: Record<string, string> = {
   brass: "rgba(200,167,101,0.24)",
@@ -209,7 +209,7 @@ export function SpecimenDetail({
               {added ? "Added to cart ✓" : "Add to cart"}
             </Button>
             {added && (
-              <Button href="/cart" variant="link" arrow>
+              <Button variant="link" arrow onClick={() => cartPanel.open()}>
                 View cart
               </Button>
             )}

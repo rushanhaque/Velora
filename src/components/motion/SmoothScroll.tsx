@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import Lenis from "lenis";
 
 /**
  * Buttery momentum scroll — desktop, capable machines only.
@@ -13,6 +12,10 @@ import Lenis from "lenis";
  *   · low-core machines (≤ 4 threads) and low-memory devices
  *   · reduced-motion visitors
  * Everyone else gets native scrolling — instant and cheap.
+ *
+ * The library itself is imported DYNAMICALLY, and only after the gate passes,
+ * so the touch / low-core majority (who bail out) never download or parse it —
+ * it stays out of the initial bundle.
  */
 export function SmoothScroll() {
   useEffect(() => {
@@ -22,42 +25,53 @@ export function SmoothScroll() {
     if ((nav.hardwareConcurrency ?? 8) <= 4) return;
     if (nav.deviceMemory !== undefined && nav.deviceMemory <= 4) return;
 
-    const lenis = new Lenis({
-      duration: 1.15,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 1.5,
-    });
-
+    let cancelled = false;
     let raf = 0;
-    const loop = (time: number) => {
-      lenis.raf(time);
-      raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
-    (window as any).__lenis = lenis;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let lenis: any = null;
+    let onClick: ((e: MouseEvent) => void) | null = null;
 
-    // Let in-page anchor links use Lenis
-    const onClick = (e: MouseEvent) => {
-      const a = (e.target as HTMLElement)?.closest?.('a[href^="#"]') as
-        | HTMLAnchorElement
-        | null;
-      if (!a) return;
-      const id = a.getAttribute("href");
-      if (!id || id === "#") return;
-      const el = document.querySelector(id);
-      if (el) {
-        e.preventDefault();
-        lenis.scrollTo(el as HTMLElement, { offset: -90 });
-      }
-    };
-    document.addEventListener("click", onClick);
+    (async () => {
+      const Lenis = (await import("lenis")).default;
+      if (cancelled) return; // unmounted before the chunk resolved
+
+      lenis = new Lenis({
+        duration: 1.15,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+        wheelMultiplier: 1,
+        touchMultiplier: 1.5,
+      });
+
+      const loop = (time: number) => {
+        lenis.raf(time);
+        raf = requestAnimationFrame(loop);
+      };
+      raf = requestAnimationFrame(loop);
+      (window as any).__lenis = lenis;
+
+      // Let in-page anchor links use Lenis
+      onClick = (e: MouseEvent) => {
+        const a = (e.target as HTMLElement)?.closest?.('a[href^="#"]') as
+          | HTMLAnchorElement
+          | null;
+        if (!a) return;
+        const id = a.getAttribute("href");
+        if (!id || id === "#") return;
+        const el = document.querySelector(id);
+        if (el) {
+          e.preventDefault();
+          lenis.scrollTo(el as HTMLElement, { offset: -90 });
+        }
+      };
+      document.addEventListener("click", onClick);
+    })();
 
     return () => {
+      cancelled = true;
       cancelAnimationFrame(raf);
-      document.removeEventListener("click", onClick);
-      lenis.destroy();
+      if (onClick) document.removeEventListener("click", onClick);
+      lenis?.destroy();
       (window as any).__lenis = undefined;
     };
   }, []);

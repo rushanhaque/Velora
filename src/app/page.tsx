@@ -156,7 +156,7 @@ export default async function Home() {
             {STATS.map((st, i) => (
               <Reveal key={st.label} delay={i * 80} variant="scale">
                 <div data-lit className="group plate rounded-xl2 border-t-2 border-t-brass/40 p-6 text-center transition-all duration-700 hover:border-t-brass hover:shadow-glow-brass sm:p-8">
-                  <p className="font-display text-[clamp(2rem,5vw,4.2rem)] leading-none text-leaf">
+                  <p className="font-display text-[clamp(2rem,5vw,4.2rem)] leading-tight text-leaf">
                     <Counter value={st.value} suffix={st.suffix} />
                   </p>
                   <div className="mx-auto my-4 h-px w-12 bg-gradient-to-r from-transparent via-brass/40 to-transparent" />

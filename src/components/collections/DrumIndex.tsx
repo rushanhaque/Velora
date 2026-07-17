@@ -168,55 +168,70 @@ export function DrumIndex({ collections = COLLECTIONS }: { collections?: Collect
     <>
       {/* ═══ DESKTOP — full-bleed cover + centered drum ═══ */}
       <div ref={outerRef} className="hidden lg:block" style={{ height: `${N * 88}svh` }}>
-        <div className="sticky top-0 h-svh overflow-hidden bg-bitumen">
+        <div className="sticky top-0 h-svh overflow-hidden">
           <span aria-live="polite" className="sr-only">{announced}</span>
 
-          {/* Dark base — sits BEHIND the covers so the crossfade dissolves
-             through darkness (never the light page background) */}
-          <div className="absolute inset-0 bg-bitumen" />
-
-          {/* Full-bleed cover images — React-state crossfade */}
-          {collections.map((c, i) =>
-            c.cover ? (
-              <div
-                key={c.slug}
-                className="absolute inset-0 transition-opacity duration-[800ms] ease-in-out"
-                style={{ opacity: active === i ? 1 : 0 }}
-              >
-                <Image
-                  src={c.cover}
-                  alt=""
-                  aria-hidden="true"
-                  fill
-                  priority={i === 0}
-                  quality={80}
-                  sizes="100vw"
-                  className="object-cover"
-                />
-              </div>
-            ) : null
-          )}
-
-          {/* Legibility scrim — deepest at the centre where the drum text sits,
-             easing out toward the edges so the cover photo still reads */}
+          {/* ── Inset rounded card ─────────────────────────────────
+               The card sits below the header (62px + 12px gap = 74px top)
+               with 12px inset on sides and bottom, creating a viewport-filling
+               rounded container for the cover imagery. ── */}
           <div
-            aria-hidden="true"
-            className="absolute inset-0"
+            className="absolute overflow-hidden rounded-[1.5rem]"
             style={{
-              background:
-                "radial-gradient(78% 62% at 50% 50%, rgba(10,9,7,0.72) 0%, rgba(10,9,7,0.54) 52%, rgba(10,9,7,0.40) 100%)",
+              top: "74px",
+              left: "12px",
+              right: "12px",
+              bottom: "12px",
+              boxShadow: "0 4px 60px rgba(10,9,7,0.45), inset 0 0 0 1px rgba(255,255,255,0.06)",
             }}
-          />
+          >
+            {/* Dark base — sits BEHIND the covers so the crossfade dissolves
+               through darkness (never the light page background) */}
+            <div className="absolute inset-0 bg-bitumen" />
 
-          {/* Warm brass ambient behind active label */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[30vw] w-[50vw] rounded-full"
-            style={{ background: "radial-gradient(ellipse, rgba(184,145,88,0.18), transparent 70%)" }}
-          />
+            {/* Full-bleed cover images — React-state crossfade */}
+            {collections.map((c, i) =>
+              c.cover ? (
+                <div
+                  key={c.slug}
+                  className="absolute inset-0 transition-opacity duration-[800ms] ease-in-out"
+                  style={{ opacity: active === i ? 1 : 0 }}
+                >
+                  <Image
+                    src={c.cover}
+                    alt=""
+                    aria-hidden="true"
+                    fill
+                    priority={i === 0}
+                    quality={80}
+                    sizes="(min-width:1024px) calc(100vw - 24px), 100vw"
+                    className="object-cover"
+                  />
+                </div>
+              ) : null
+            )}
 
-          {/* Centred drum */}
-          <div className="relative z-10 flex h-full flex-col items-center justify-center">
+            {/* Legibility scrim — deepest at the centre where the drum text sits,
+               easing out toward the edges so the cover photo still reads */}
+            <div
+              aria-hidden="true"
+              className="absolute inset-0"
+              style={{
+                background:
+                  "radial-gradient(78% 62% at 50% 50%, rgba(10,9,7,0.72) 0%, rgba(10,9,7,0.54) 52%, rgba(10,9,7,0.40) 100%)",
+              }}
+            />
+
+            {/* Warm brass ambient behind active label */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[30vw] w-[50vw] rounded-full"
+              style={{ background: "radial-gradient(ellipse, rgba(184,145,88,0.18), transparent 70%)" }}
+            />
+          </div>
+
+          {/* Centred drum — floats over the card at viewport center */}
+          <div className="relative z-10 flex h-full flex-col items-center justify-center" style={{ paddingTop: "74px" }}>
             {reduce ? (
               /* reduced-motion: static list */
               <div className="flex flex-col items-center gap-5" aria-hidden="true">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useState, useRef, useCallback, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Section, Shell } from "@/components/ui/Section";
@@ -9,7 +9,6 @@ import { Eyebrow } from "@/components/ui/Atoms";
 import { Specimen as SpecimenArt } from "@/components/visual/Specimen";
 import { CollectionCard } from "@/components/ui/CollectionCard";
 import { COLLECTIONS, SPECIMENS, type Collection, type Specimen } from "@/lib/data";
-import { cn } from "@/lib/utils";
 
 const GLOW: Record<string, string> = {
   brass: "rgba(200,167,101,0.24)",
@@ -18,60 +17,14 @@ const GLOW: Record<string, string> = {
   bronze: "rgba(156,122,68,0.22)",
 };
 
+const NUM_WORD: Record<number, string> = { 4: "Four", 5: "Five", 6: "Six", 7: "Seven" };
+
 type House = Collection & { art?: Specimen };
 
-const STACK_OFFSET = 36;
-const STACK_SCALE  = 0.075;
-const STACK_TILT   = 4;
-
 // Mobile carousel geometry (all in vw)
-const C_VW  = 82;                    // card width as % of viewport
-const G_VW  = 3;                     // gap between cards
-const PK_VW = (100 - C_VW) / 2;     // 9vw — peek amount on each side
-
-function DeckCard({ h }: { h: House }) {
-  return (
-    <Link
-      href={`/collections?house=${h.slug}`}
-      data-lit
-      className="group flex h-full w-full flex-col rounded-2xl bg-white p-3 shadow-[0_34px_64px_-26px_rgba(34,26,12,0.42),0_12px_26px_-18px_rgba(34,26,12,0.34)]"
-    >
-      <div
-        className="relative flex-1 overflow-hidden rounded-xl"
-        style={{
-          background: `radial-gradient(120% 95% at 50% 10%, ${GLOW[h.tone]}, transparent 62%), linear-gradient(180deg,#fcfbf7,#efeae0)`,
-        }}
-      >
-        {h.cover ? (
-          <Image
-            src={h.cover}
-            alt={`${h.name} — ${h.material}`}
-            fill
-            sizes="(min-width: 1024px) 48vw, 82vw"
-            className="object-cover transition-transform duration-[900ms] ease-silk group-hover:scale-[1.05]"
-          />
-        ) : (
-          h.art && (
-            <div className="absolute inset-0 grid place-items-center p-[9%] transition-transform duration-[850ms] ease-silk will-change-transform group-hover:-translate-y-[10px]">
-              <SpecimenArt
-                shape={h.art.shape}
-                tone={h.art.tone}
-                seed={`deck-${h.slug}`}
-                className="h-full w-full drop-shadow-[0_22px_30px_rgba(34,26,12,0.22)] transition-[filter] duration-[850ms] ease-silk group-hover:drop-shadow-[0_44px_54px_rgba(34,26,12,0.36)]"
-              />
-            </div>
-          )
-        )}
-        {/* brass light-catch draws along the lower edge on hover */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-6 bottom-0 h-px origin-center scale-x-0 transition-transform duration-[700ms] ease-silk group-hover:scale-x-100"
-          style={{ background: "linear-gradient(90deg, transparent, rgba(200,167,101,0.9), transparent)" }}
-        />
-      </div>
-    </Link>
-  );
-}
+const C_VW = 82; // card width as % of viewport
+const G_VW = 3; // gap between cards
+const PK_VW = (100 - C_VW) / 2; // 9vw — peek amount on each side
 
 export function HouseIndex({
   collections = COLLECTIONS,
@@ -80,46 +33,15 @@ export function HouseIndex({
   collections?: Collection[];
   specimens?: Specimen[];
 }) {
-  const [active, setActive] = useState(0);
   const [mCard, setMCard] = useState(0);
-  const outerRef = useRef<HTMLDivElement>(null);
   const touchX = useRef(0);
 
   // Each house + its hero piece (for the SVG-art fallback when no cover photo).
-  const HOUSES = useMemo(
+  const HOUSES: House[] = useMemo(
     () => collections.map((c) => ({ ...c, art: specimens.find((s) => s.collection === c.slug) })),
     [collections, specimens],
   );
-  // One scroll breakpoint per house, spread evenly across the scroll space.
-  const SCROLL_BREAKS = useMemo(
-    () => HOUSES.map((_, i) => (i + 1) / HOUSES.length),
-    [HOUSES],
-  );
   const count = HOUSES.length;
-  const cur = HOUSES[active] ?? HOUSES[0];
-
-  useEffect(() => {
-    const outer = outerRef.current;
-    if (!outer) return;
-    let ticking = false;
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        const rect = outer.getBoundingClientRect();
-        const scrollable = rect.height - window.innerHeight;
-        if (scrollable > 0) {
-          const p = Math.max(0, Math.min(1, -rect.top / scrollable));
-          const next = SCROLL_BREAKS.findIndex((b) => p < b);
-          setActive(next === -1 ? count - 1 : next);
-        }
-        ticking = false;
-      });
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [SCROLL_BREAKS, count]);
 
   const goTo = useCallback(
     (i: number) => {
@@ -130,83 +52,79 @@ export function HouseIndex({
 
   return (
     <>
-      {/* ── DESKTOP: tall scroll-space + sticky panel ── */}
-      <div
-        ref={outerRef}
-        className="hidden lg:block mt-[clamp(24px,4vw,56px)]"
-        style={{ height: `calc(${HOUSES.length} * 100svh)` }}
-      >
-        <div className="sticky top-0 relative flex h-[100svh] items-center overflow-hidden py-[clamp(40px,5vh,80px)]">
-          <Shell>
-            <div className="max-w-[clamp(300px,40vw,500px)] mt-10">
+      {/* ── DESKTOP (lg+): THE CABINET ROW ─────────────────────────────
+             A folded metal screen of lit collection plates joined by inlaid
+             brass seams. Hover / keyboard-focus a plate and it widens and steps
+             forward in real 3D while the other plates cool, blur and recede —
+             pure CSS, no scroll-jacking, no JS per-frame work. ── */}
+      <div className="hidden lg:block mt-[clamp(28px,4vw,60px)]">
+        <Shell>
+          <div className="flex items-end justify-between gap-6">
+            <div>
               <Reveal>
-                <Eyebrow className="mb-5">The collections</Eyebrow>
+                <Eyebrow>The collections</Eyebrow>
               </Reveal>
-              <ul className="flex flex-col">
-                {HOUSES.map((h, i) => {
-                  const on = active === i;
-                  return (
-                    <li key={h.slug}>
-                      <Link
-                        href={`/collections?house=${h.slug}`}
-                        data-active={on}
-                        className="house-row group/row block py-3"
-                      >
-                        <div className="flex items-baseline gap-4">
-                          <span className={cn("numeral w-6 shrink-0 text-[0.82rem] transition-colors duration-500", on ? "text-brass-deep" : "text-haze")}>
-                            {h.index}
-                          </span>
-                          <h3 className={cn("font-display text-[clamp(1.76rem,3.2vw,2.88rem)] leading-[1] transition-all duration-500 ease-silk", on ? "translate-x-2 text-bitumen" : "text-stone/50 group-hover/row:translate-x-1 group-hover/row:text-bitumen/80")}>
-                            {h.name}
-                          </h3>
-                        </div>
-                        {/* engraved rule — draws in beneath the active house */}
-                        <span
-                          aria-hidden="true"
-                          className="house-rule ml-10 mt-2.5 block h-px w-[min(280px,60%)] bg-gradient-to-r from-brass via-brass/40 to-transparent"
-                        />
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
+              <Reveal delay={80}>
+                <h2 className="display mt-4 text-[clamp(2.3rem,3.6vw,3.4rem)] leading-[0.98] text-bitumen">
+                  {NUM_WORD[count] ?? count} houses,{" "}
+                  <span className="text-leaf">one maison.</span>
+                </h2>
+              </Reveal>
             </div>
-          </Shell>
-
-          <div className="absolute right-[clamp(0px,1.4vw,20px)] top-[57%] w-[clamp(463px,47.4vw,662px)] -translate-y-1/2 [perspective:1900px]">
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 -m-12 rounded-full transition-opacity duration-1000"
-              style={{ background: `radial-gradient(circle, ${GLOW[cur.tone]}, transparent 70%)`, opacity: 0.5 }}
-            />
-            <div className="relative aspect-[7/4.37] w-full">
-              {HOUSES.map((h, i) => {
-                const len  = HOUSES.length;
-                const half = Math.floor(len / 2);
-                let rel = i - active;
-                if (rel >  half) rel -= len;
-                if (rel < -half) rel += len;
-                const a = Math.abs(rel);
-                return (
-                  <div
-                    key={h.slug}
-                    className="absolute inset-0"
-                    style={{
-                      zIndex: 50 - a,
-                      pointerEvents: rel === 0 ? "auto" : "none",
-                      opacity: a === 0 ? 1 : a === 1 ? 0.96 : 0.55,
-                      filter: `brightness(${1 - a * 0.08})`,
-                      transform: `translateY(${-rel * STACK_OFFSET}px) rotate(${rel * STACK_TILT}deg) scale(${1 - a * STACK_SCALE})`,
-                      transition: "transform 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.4s ease, filter 0.4s ease",
-                    }}
-                  >
-                    <DeckCard h={h} />
-                  </div>
-                );
-              })}
-            </div>
+            <Reveal delay={140}>
+              <Link
+                href="/collections"
+                className="link-draw pb-1 text-[0.68rem] uppercase tracking-wide3 text-bitumen"
+              >
+                All collections →
+              </Link>
+            </Reveal>
           </div>
-        </div>
+
+          <div className="crow mt-[clamp(26px,3vw,44px)] flex overflow-hidden rounded-[1.5rem] shadow-[0_1px_0_rgba(255,255,255,0.5)_inset,0_30px_66px_-34px_rgba(34,26,12,0.42)]">
+            {HOUSES.map((h, i) => (
+              <Link
+                key={h.slug}
+                href={`/collections?house=${h.slug}`}
+                data-lit
+                aria-label={`${h.name} — ${h.material}, ${h.count} pieces`}
+                className="chouse relative block min-w-0 flex-1"
+              >
+                {/* inlaid brass seam — every plate but the last */}
+                {i < count - 1 && <span aria-hidden className="chouse-seam" />}
+
+                <div className="chouse-lift burnish relative h-full overflow-hidden">
+                  {h.cover ? (
+                    <Image
+                      src={h.cover}
+                      alt={`${h.name} — ${h.material}`}
+                      fill
+                      sizes="(min-width:1024px) 46vw, 20vw"
+                      className="chouse-cover object-cover"
+                    />
+                  ) : (
+                    h.art && (
+                      <div aria-hidden className="absolute inset-0 grid place-items-center p-[14%]">
+                        <SpecimenArt
+                          shape={h.art.shape}
+                          tone={h.art.tone}
+                          seed={`cab-${h.slug}`}
+                          className="chouse-cover h-full w-full opacity-90 drop-shadow-[0_20px_30px_rgba(34,26,12,0.32)]"
+                        />
+                      </div>
+                    )
+                  )}
+
+                  {/* scrim keeps the name legible over any photo */}
+                  <span aria-hidden className="chouse-scrim absolute inset-0" />
+
+                  {/* the ONLY label — big uppercase, vertical at rest, swings horizontal on hover */}
+                  <h3 className="chouse-name">{h.name}</h3>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </Shell>
       </div>
 
       {/* ── MOBILE / TABLET: premium horizontal carousel ── */}

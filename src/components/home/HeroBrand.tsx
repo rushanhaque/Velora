@@ -72,14 +72,26 @@ export function HeroBrand() {
       });
     };
 
+    // measure() does a write-then-read (forced reflow); route resize through
+    // rAF so bursts (mobile URL-bar show/hide, orientation) don't thrash layout.
+    let rTicking = false;
+    const onResize = () => {
+      if (rTicking) return;
+      rTicking = true;
+      requestAnimationFrame(() => {
+        measure();
+        rTicking = false;
+      });
+    };
+
     measure();
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", measure);
+    window.addEventListener("resize", onResize);
     if (document.fonts?.ready) document.fonts.ready.then(measure).catch(() => {});
 
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", measure);
+      window.removeEventListener("resize", onResize);
       document.documentElement.style.removeProperty("--brand-dock");
       document.documentElement.style.removeProperty("--scroll-cue-o");
     };
