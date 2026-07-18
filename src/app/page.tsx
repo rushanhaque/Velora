@@ -152,10 +152,13 @@ export default async function Home() {
       {/* ───────────────── Stats (dark) — v3.0 museum placards ───────────────── */}
       <Section tint pad="xl">
         <Shell>
-          <div className="grid grid-cols-2 gap-6 sm:gap-8 lg:grid-cols-4">
+          {/* auto-rows-fr equalises the two mobile rows; h-full lets each card
+              fill its cell, so all four placards match regardless of how many
+              lines their label/sub wraps to. */}
+          <div className="grid auto-rows-fr grid-cols-2 gap-6 sm:gap-8 lg:grid-cols-4">
             {STATS.map((st, i) => (
-              <Reveal key={st.label} delay={i * 80} variant="scale">
-                <div data-lit className="group plate rounded-xl2 border-t-2 border-t-brass/40 p-6 text-center transition-all duration-700 hover:border-t-brass hover:shadow-glow-brass sm:p-8">
+              <Reveal key={st.label} delay={i * 80} variant="scale" className="h-full">
+                <div data-lit className="group plate flex h-full flex-col justify-center rounded-xl2 border-t-2 border-t-brass/40 p-6 text-center transition-all duration-700 hover:border-t-brass hover:shadow-glow-brass sm:p-8">
                   <p className="font-display text-[clamp(2rem,5vw,4.2rem)] leading-tight text-leaf">
                     <Counter value={st.value} suffix={st.suffix} />
                   </p>

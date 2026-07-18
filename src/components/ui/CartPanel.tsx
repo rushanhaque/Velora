@@ -64,19 +64,22 @@ export function CartPanel() {
             className="fixed inset-y-0 right-0 z-[200] flex w-[86vw] max-w-[380px] flex-col bg-bitumen sm:w-[34vw] sm:min-w-[300px] sm:max-w-none"
             style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}
           >
-            {/* Close button — absolute top-right */}
+            {/* Close button — absolute top-right. Deliberately high-contrast and
+                a full 44px touch target on phones: at low opacity it read as
+                "no way to close the panel". */}
             <button
               onClick={() => cartPanel.close()}
               aria-label="Close cart"
-              className="absolute right-5 top-5 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-parchment/15 text-parchment/50 transition-colors hover:border-parchment/35 hover:text-parchment-pale"
+              className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-parchment/30 bg-parchment/10 text-parchment-pale transition-colors hover:border-parchment/55 hover:bg-parchment/20 active:bg-parchment/25 sm:right-5 sm:top-5 sm:h-10 sm:w-10"
             >
-              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+              <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true">
                 <path d="M6 6l12 12M18 6L6 18" />
               </svg>
             </button>
 
-            {/* Panel header — Your selection at top-left */}
-            <div className="border-b border-parchment/10 px-5 pb-4 pt-3">
+            {/* Panel header — Your selection at top-left. pr-16 keeps the title
+                clear of the close button. */}
+            <div className="border-b border-parchment/10 pb-4 pl-5 pr-16 pt-3">
               <p className="text-[0.6rem] uppercase tracking-wider2 text-brass-leaf">Your selection</p>
               <h2 className="mt-1 font-display text-xl text-parchment-pale">
                 {items.length === 0 ? "Cart empty" : `${items.length} ${items.length === 1 ? "piece" : "pieces"}`}

@@ -112,8 +112,10 @@ export function Footer() {
       </div>
       </div>
 
-      {/* Compact footer — phones */}
-      <div className="shell py-10 sm:hidden">
+      {/* Compact footer — phones. The extra bottom padding reserves the band
+          the absolutely-positioned "Contact developer" chip sits in (bottom-5,
+          ~30px tall), so it never overlaps the address / © line. */}
+      <div className="shell pt-10 pb-[72px] sm:hidden">
         <div className="flex items-center gap-2.5">
           <Mark className="h-6 w-6" />
           <span className="font-display text-xl tracking-[0.3em] text-parchment-pale">VELORA</span>
