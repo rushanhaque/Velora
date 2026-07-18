@@ -1322,7 +1322,7 @@ details[open] .faq-a {
     transform: scale(1);
   }
   to {
-    transform: scale(1.055);
+    transform: scale(1.03);
   }
 }
 

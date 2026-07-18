@@ -1248,6 +1248,19 @@ export const STATS = [
   { value: 24000, suffix: "+", label: "Pieces made each year", sub: "Each finished by hand" },
 ];
 
+/* ── Signature pieces ─────────────────────────────────────────────
+   The full-bleed scroll showcase on the homepage. These are dedicated,
+   art-directed photographs living in /public/media/signature — curated
+   and ordered by hand rather than derived from the catalogue, so the
+   sequence stays deliberate even as products come and go.
+   To swap one: drop a new photo in that folder and change the `src`.  */
+export const SIGNATURE_PIECES: { src: string; name: string }[] = [
+  { src: "/media/signature/shikar-cheetah-table-lamp.jpg", name: "Shikar Cheetah Table Lamp" },
+  { src: "/media/signature/shikar-domed-cake-stand.jpg", name: "Shikar Domed Cake Stand" },
+  { src: "/media/signature/noor-mercury-votive-set.jpg", name: "Noor Mercury Votive Set" },
+  { src: "/media/signature/ginkgo-gilt-serving-tray.jpg", name: "Ginkgo Gilt Serving Tray" },
+];
+
 export const PRINCIPLES = [
   {
     n: "01",

@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FINISHES, type Collection, type Specimen } from "@/lib/data";
+import { type Collection, type Specimen } from "@/lib/data";
 import { cn } from "@/lib/utils";
-import { Field, TextInput, TextArea, SelectInput, Toggle, Chips, ImagePicker } from "./AdminInputs";
+import { Field, TextInput, TextArea, SelectInput, Chips, ImagePicker } from "./AdminInputs";
 
 interface Catalog {
   collections: Collection[];
@@ -11,8 +11,6 @@ interface Catalog {
 }
 
 const TONES = ["brass", "copper", "bronze", "silver"] as const;
-const SHAPES = ["bowl", "vase", "ewer", "urn", "platter", "lamp", "box", "goblet", "candelabra", "tray"] as const;
-const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
 
 const opt = (v: string) => ({ value: v, label: v[0].toUpperCase() + v.slice(1) });
 
@@ -25,12 +23,25 @@ function uniqueSlug(base: string, taken: Set<string>): string {
   while (taken.has(s)) s = `${base}-${i++}`;
   return s;
 }
-function nextRef(specimens: Specimen[]): string {
+/** Reference codes are assigned automatically: V + the collection's initial +
+ *  a per-collection sequence (VL-07 lighting, VK-15 kitchenware, VW-22 wedding).
+ *  An existing code is kept as long as it still matches its collection, so only
+ *  a genuine move between collections renumbers a piece. */
+function nextRef(
+  collections: Collection[],
+  specimens: Specimen[],
+  collectionSlug: string,
+  currentRef?: string,
+): string {
+  const name = collections.find((c) => c.slug === collectionSlug)?.name?.trim() ?? "";
+  const prefix = `V${(name[0] ?? "X").toUpperCase()}`;
+  const pattern = new RegExp(`^${prefix}-(\\d+)$`);
+  if (currentRef && pattern.test(currentRef)) return currentRef;
   const nums = specimens
-    .map((s) => Number(/VL-(\d+)/.exec(s.ref || "")?.[1]))
+    .map((s) => Number(pattern.exec(s.ref || "")?.[1]))
     .filter((n) => !Number.isNaN(n));
   const max = nums.length ? Math.max(...nums) : 0;
-  return `VL-${String(max + 1).padStart(2, "0")}`;
+  return `${prefix}-${String(max + 1).padStart(2, "0")}`;
 }
 const clone = <T,>(v: T): T => JSON.parse(JSON.stringify(v));
 
@@ -211,7 +222,7 @@ export function AdminClient() {
     setEditSpec({
       originalSlug: null,
       spec: {
-        ref: nextRef(draft.specimens),
+        ref: nextRef(draft.collections, draft.specimens, col?.slug ?? ""),
         slug: "",
         name: "",
         collection: col?.slug ?? "",
@@ -230,7 +241,7 @@ export function AdminClient() {
     const slug = uniqueSlug(`${s.slug}-copy`, taken);
     setDraft((d) => ({
       ...d,
-      specimens: [{ ...clone(s), slug, name: `${s.name} (copy)`, ref: nextRef(d.specimens) }, ...d.specimens],
+      specimens: [{ ...clone(s), slug, name: `${s.name} (copy)`, ref: nextRef(d.collections, d.specimens, s.collection) }, ...d.specimens],
     }));
     setToast({ kind: "ok", msg: "Duplicated — remember to Save." });
   };
@@ -268,23 +279,10 @@ export function AdminClient() {
     setEditSpec(null);
   };
 
-  /* ── collection ops ── */
-  const openNewCol = () => {
-    setEditCol({
-      originalSlug: null,
-      col: {
-        slug: "",
-        name: "",
-        material: "",
-        count: 0,
-        tagline: "",
-        blurb: "",
-        tone: "brass",
-        index: ROMAN[draft.collections.length] ?? String(draft.collections.length + 1),
-        subcategories: undefined,
-      },
-    });
-  };
+  /* ── collection ops ──
+     Note: creating collections is intentionally NOT offered. The collection set
+     is fixed (the storefront's homepage row and nav are designed around it);
+     existing collections can still be edited and deleted. */
   const deleteCol = (c: Collection) => {
     const n = draft.specimens.filter((s) => s.collection === c.slug).length;
     if (n > 0) {
@@ -537,14 +535,11 @@ export function AdminClient() {
           </>
         ) : (
           <>
-            <div className="mb-5 flex items-center justify-between">
-              <p className="text-sm text-stone">Manage collections & their subcategories.</p>
-              <button
-                onClick={openNewCol}
-                className="rounded-full bg-brass px-4 py-2.5 text-[0.62rem] uppercase tracking-wider2 text-bitumen transition-colors hover:bg-brass-leaf"
-              >
-                + Add collection
-              </button>
+            <div className="mb-5">
+              <p className="text-sm text-stone">
+                Edit your collections &amp; their subcategories. The set of collections is
+                fixed — add new pieces from the Products tab.
+              </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {draft.collections.map((c) => {
@@ -590,6 +585,7 @@ export function AdminClient() {
           initial={editSpec.spec}
           originalSlug={editSpec.originalSlug}
           collections={draft.collections}
+          specimens={draft.specimens}
           existingSlugs={draft.specimens.map((s) => s.slug)}
           initialImage={imgFor("spec", editSpec.spec.slug, editSpec.spec.image)}
           onCancel={() => setEditSpec(null)}
@@ -651,20 +647,12 @@ function Drawer({ title, onCancel, children, footer }: { title: string; onCancel
   );
 }
 
-/* Small labelled divider that groups fields inside an editor drawer. */
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="border-t border-line/70 pt-4 text-[0.58rem] font-semibold uppercase tracking-[0.2em] text-brass-deep first:border-0 first:pt-0">
-      {children}
-    </p>
-  );
-}
-
 /* ══════════════ Product editor ══════════════ */
 function SpecEditor({
   initial,
   originalSlug,
   collections,
+  specimens,
   existingSlugs,
   initialImage,
   onCancel,
@@ -673,29 +661,32 @@ function SpecEditor({
   initial: Specimen;
   originalSlug: string | null;
   collections: Collection[];
+  specimens: Specimen[];
   existingSlugs: string[];
   initialImage: string;
   onCancel: () => void;
   onApply: (spec: Specimen, originalSlug: string | null, file: { file: File; url: string } | null) => void;
 }) {
   const [f, setF] = useState<Specimen>(initial);
-  const [slugTouched, setSlugTouched] = useState(Boolean(originalSlug));
   const [file, setFile] = useState<{ file: File; url: string } | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const set = <K extends keyof Specimen>(k: K, v: Specimen[K]) => setF((p) => ({ ...p, [k]: v }));
 
   const activeCol = collections.find((c) => c.slug === f.collection);
-  const slug = slugTouched ? f.slug : slugify(f.name);
+  // An existing piece keeps its web address; a new one derives it from the name.
+  const slug = originalSlug ? f.slug : slugify(f.name);
+  // Reference is derived from the collection — never typed by hand.
+  const ref = nextRef(collections, specimens, f.collection, originalSlug ? initial.ref : undefined);
   const preview = file?.url ?? initialImage;
 
   const submit = () => {
     const finalSlug = slugify(slug);
     if (!f.name.trim()) return setErr("Name is required.");
-    if (!finalSlug) return setErr("A URL slug is required.");
     if (!f.collection) return setErr("Choose a collection.");
+    if (!finalSlug) return setErr("Could not build a web address from that name — add some letters or numbers.");
     const clash = existingSlugs.filter((s) => s !== originalSlug).includes(finalSlug);
-    if (clash) return setErr("That slug is already used by another product.");
-    onApply({ ...f, slug: finalSlug, tags: f.tags ?? [] }, originalSlug, file);
+    if (clash) return setErr("Another product already uses that name.");
+    onApply({ ...f, slug: finalSlug, ref, tags: f.tags ?? [] }, originalSlug, file);
   };
 
   return (
@@ -714,9 +705,11 @@ function SpecEditor({
         </>
       }
     >
+      {/* Deliberately just seven fields. Everything else a piece carries
+          (tone, shape, finish, story, tags…) keeps whatever it already had —
+          it simply isn't editable here. */}
       <div className="space-y-4">
-        <SectionLabel>Photograph</SectionLabel>
-        <Field label="Product image">
+        <Field label="Photograph">
           <ImagePicker
             url={preview}
             onFile={(file) => setFile({ file, url: URL.createObjectURL(file) })}
@@ -724,24 +717,10 @@ function SpecEditor({
           />
         </Field>
 
-        <SectionLabel>Basic info</SectionLabel>
-        <Field label="Product name" required>
+        <Field label="Name" required>
           <TextInput value={f.name} onChange={(e) => set("name", e.target.value)} placeholder="Shikar Cheetah Table Lamp" />
         </Field>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="URL slug" required hint="in the address bar">
-            <TextInput
-              value={slug}
-              onChange={(e) => { setSlugTouched(true); set("slug", e.target.value); }}
-              placeholder="auto from name"
-            />
-          </Field>
-          <Field label="Reference code">
-            <TextInput value={f.ref} onChange={(e) => set("ref", e.target.value)} placeholder="VL-01" />
-          </Field>
-        </div>
 
-        <SectionLabel>Category</SectionLabel>
         <Field label="Collection" required>
           <SelectInput
             value={f.collection}
@@ -750,7 +729,11 @@ function SpecEditor({
             options={collections.map((c) => ({ value: c.slug, label: c.name }))}
           />
         </Field>
-        <Field label="Subcategory" hint={activeCol?.subcategories?.length ? "" : "none set on this collection"}>
+
+        <Field
+          label="Category"
+          hint={activeCol?.subcategories?.length ? "the filter on the collection page" : "this collection has no filters"}
+        >
           <SelectInput
             value={f.subcategory ?? ""}
             onChange={(v) => set("subcategory", v || undefined)}
@@ -759,40 +742,19 @@ function SpecEditor({
           />
         </Field>
 
-        <SectionLabel>Craft details</SectionLabel>
+        <Field label="Description" hint="sits under the title">
+          <TextArea rows={3} value={f.desc} onChange={(e) => set("desc", e.target.value)} placeholder="One line that sits under the title." />
+        </Field>
+
         <Field label="Material" hint="doubles as the card caption">
           <TextInput value={f.material} onChange={(e) => set("material", e.target.value)} placeholder="Cast brass & amber glass" />
         </Field>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Tone / metal">
-            <SelectInput value={f.tone} onChange={(v) => set("tone", v as Specimen["tone"])} options={TONES.map(opt)} />
-          </Field>
-          <Field label="Shape" hint="for the SVG fallback">
-            <SelectInput value={f.shape} onChange={(v) => set("shape", v as Specimen["shape"])} options={SHAPES.map(opt)} />
-          </Field>
-        </div>
-        <Field label="Finish" hint="optional">
-          <SelectInput
-            value={f.finish ?? ""}
-            onChange={(v) => set("finish", v || undefined)}
-            placeholder="—"
-            options={FINISHES.map((x) => ({ value: x.name, label: x.name }))}
-          />
-        </Field>
 
-        <SectionLabel>Description</SectionLabel>
-        <Field label="Short description" hint="sits under the title">
-          <TextArea rows={2} value={f.desc} onChange={(e) => set("desc", e.target.value)} placeholder="One line that sits under the title." />
+        <Field label="Reference" hint="assigned automatically">
+          <div className="rounded-xl border border-line bg-parchment-pale/60 px-3.5 py-2.5 text-[0.82rem] tracking-wide text-ash">
+            {ref || "—"}
+          </div>
         </Field>
-        <Field label="Story" hint="the longer detail-page copy">
-          <TextArea rows={4} value={f.story} onChange={(e) => set("story", e.target.value)} />
-        </Field>
-        <Field label="Tags">
-          <Chips values={f.tags ?? []} onChange={(v) => set("tags", v)} placeholder="Statement, Bedside…" />
-        </Field>
-
-        <SectionLabel>Visibility</SectionLabel>
-        <Toggle checked={Boolean(f.featured)} onChange={(v) => set("featured", v || undefined)} label="Feature this piece" />
       </div>
     </Drawer>
   );

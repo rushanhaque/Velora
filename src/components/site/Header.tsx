@@ -180,9 +180,35 @@ export function Header() {
             <Logo />
           </Link>
 
-          {/* Right — desktop nav + cart + mobile balancer */}
+          {/* Right — desktop nav + cart, and on phones a cart icon that appears
+             as soon as the cart has something in it (the desktop cart button is
+             lg-only, so without this the cart was only reachable via the menu).
+             Same 40x40 footprint as the balancer it replaces, so the bar stays
+             balanced either way. */}
           <div className="flex items-center justify-end gap-6" style={sideStyle(chrome)}>
-            <div className="h-10 w-10 shrink-0 lg:hidden" aria-hidden="true" />
+            {cartCount > 0 ? (
+              <button
+                type="button"
+                onClick={() => cartPanel.open()}
+                aria-label={`Open cart — ${cartCount} ${cartCount === 1 ? "piece" : "pieces"}`}
+                className="relative flex h-10 w-10 shrink-0 items-center justify-center text-bitumen transition-colors duration-300 active:text-brass-deep lg:hidden"
+              >
+                <svg viewBox="0 0 24 24" className="h-[22px] w-[22px]" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <path d="M16 10a4 4 0 0 1-8 0" />
+                </svg>
+                {/* key remount pops the badge whenever the count changes */}
+                <span
+                  key={cartCount}
+                  className="animate-scale-in absolute right-0 top-0.5 grid h-[17px] min-w-[17px] place-items-center rounded-full bg-brass px-1 text-[0.55rem] font-semibold leading-none text-parchment-pale"
+                >
+                  {cartCount}
+                </span>
+              </button>
+            ) : (
+              <div className="h-10 w-10 shrink-0 lg:hidden" aria-hidden="true" />
+            )}
             <nav className="hidden items-center gap-8 lg:flex">{NAV_RIGHT.map(navLink)}</nav>
             <button
               type="button"

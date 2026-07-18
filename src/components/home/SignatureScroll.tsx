@@ -122,8 +122,10 @@ export function SignatureScroll({ slides }: { slides?: Slide[] }) {
         className="block"
         style={{ height: `calc(${view.length} * 92svh)` }}
       >
-        <div className="sticky top-0 h-svh w-full overflow-hidden">
-          {/* full-bleed image stack */}
+        {/* Full-bleed, edge to edge — the fixed header floats over it by design.
+            bg-bitumen backs the letterboxing left by fitting the whole photo. */}
+        <div className="sticky top-0 h-svh w-full overflow-hidden bg-bitumen">
+          {/* image stack */}
           {view.map((s, i) => (
             <div key={i} className="absolute inset-0" style={{ zIndex: i + 1 }}>
               {/* the piece is uncovered RIGHT→LEFT — clip is driven by scroll */}
@@ -177,7 +179,9 @@ export function SignatureScroll({ slides }: { slides?: Slide[] }) {
               <div className="overflow-hidden">
                 <h2
                   ref={nameRef}
-                  className="font-display text-[clamp(2.6rem,7vw,6rem)] leading-[0.95] text-parchment-pale"
+                  /* pb gives the descenders (p, y, g) room inside the
+                     overflow-hidden reveal mask, which was clipping them */
+                  className="font-display text-[clamp(2.6rem,7vw,6rem)] leading-[0.95] text-parchment-pale pb-[0.18em]"
                 >
                   {cur.name}
                 </h2>
@@ -230,9 +234,12 @@ function SlideMedia({
         quality={72}
         priority={priority}
         sizes="100vw"
-        className="object-cover"
-        // A dark base shows instantly while the photo streams in — no blank flash.
-        style={{ backgroundColor: "#0b1928" }}
+        // `contain` everywhere: the whole piece is always visible rather than
+        // cropped to fill (a 3:2 photo cropped to a tall screen showed a sliver).
+        className="object-contain"
+        // Backs the letterboxing, and shows instantly while the photo streams
+        // in — no blank flash.
+        style={{ backgroundColor: "#0A0907" }}
         draggable={false}
       />
     );
