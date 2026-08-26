@@ -51,6 +51,10 @@ const config: Config = {
       },
       fontFamily: {
         display: ["var(--font-display)", "Cormorant Garamond", "serif"],
+        // Cormorant's real italic cut lives under its own generated family
+        // name — see src/lib/fonts.ts. Use `font-display-italic` (or the
+        // .serif-italic class) rather than `font-display italic`.
+        "display-italic": ["var(--font-display-italic)", "Cormorant Garamond", "serif"],
         sans: ["var(--font-sans)", "Jost", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },

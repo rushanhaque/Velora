@@ -27,7 +27,7 @@ export function Hero() {
          Left vivid: no flat wash — legibility is handled locally on the text. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-20">
         <Image
-          src="/media/landing-bg.jpg"
+          src="/media/landing-bg.webp"
           alt=""
           fill
           priority

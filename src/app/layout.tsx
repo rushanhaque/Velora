@@ -11,6 +11,7 @@ import { ChromeGate } from "@/components/site/ChromeGate";
 import { ScrollProgress } from "@/components/motion/Parallax";
 import { LightBench } from "@/components/motion/LightBench";
 import { CartPanelMount } from "@/components/ui/CartPanelMount";
+import { VersionWatch } from "@/components/site/VersionWatch";
 import { BRAND } from "@/lib/data";
 import "./globals.css";
 
@@ -96,6 +97,8 @@ export default function RootLayout({
           <Footer />
           <CartPanelMount />
         </ChromeGate>
+        {/* Reloads this document once if the deploy moved on beneath it. */}
+        <VersionWatch />
       </body>
     </html>
   );

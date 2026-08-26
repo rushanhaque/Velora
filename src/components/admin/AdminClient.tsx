@@ -4,11 +4,20 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type Collection, type Specimen } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import { Field, TextInput, TextArea, SelectInput, Chips, ImagePicker } from "./AdminInputs";
+import { uploadPhoto } from "@/lib/upload-photo";
+import { ADMIN_DIRTY_KEY } from "@/lib/build-id";
 
 interface Catalog {
   collections: Collection[];
   specimens: Specimen[];
+  /** Server-stamped. Used to detect a publish from another device. */
+  updatedAt?: string;
 }
+
+/** Where an in-progress draft is parked so a crash or a closed tab is survivable. */
+const DRAFT_KEY = "velora:admin-draft";
+/** How often to ask the live endpoint whether someone else published. */
+const DRIFT_POLL_MS = 30_000;
 
 const TONES = ["brass", "copper", "bronze", "silver"] as const;
 
@@ -60,6 +69,14 @@ export function AdminClient() {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<Toast>(null);
   const [error, setError] = useState<string | null>(null);
+  /** Photo staging progress, shown during publish. */
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+  /** Set when the live catalogue has moved on since this session loaded it. */
+  const [drift, setDrift] = useState<string | null>(null);
+  /** Surfaced verbatim — a failed local save must never be swallowed. */
+  const [storageError, setStorageError] = useState<string | null>(null);
+  /** The `updatedAt` this session started from; sent back to detect conflicts. */
+  const baseUpdatedAt = useRef<string | null>(null);
 
   /* ── auth gate ── */
   const [authChecked, setAuthChecked] = useState(false);
@@ -106,16 +123,66 @@ export function AdminClient() {
   };
 
   /* ── load (only once authed) ── */
+  /**
+   * Always start from the live catalogue, never from whatever this browser
+   * happened to have last. A locally-parked draft is only re-applied when it
+   * was taken from the *same* published version — otherwise it is a stale
+   * snapshot, and restoring it would quietly resurrect old products on top of
+   * someone else's newer publish.
+   */
   useEffect(() => {
     if (!authed) return;
-    fetch("/api/catalog")
+    fetch("/api/catalog", { cache: "no-store" })
       .then((r) => r.json())
       .then((data: Catalog) => {
+        baseUpdatedAt.current = data.updatedAt ?? null;
         setLoaded(data);
-        setDraft(clone(data));
+
+        let restored: Catalog | null = null;
+        try {
+          const raw = window.localStorage.getItem(DRAFT_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw) as { basedOn: string | null; draft: Catalog };
+            if (parsed.basedOn === (data.updatedAt ?? null)) restored = parsed.draft;
+            else window.localStorage.removeItem(DRAFT_KEY);
+          }
+        } catch {
+          // Unreadable draft is not worth failing over — start from live.
+        }
+
+        setDraft(clone(restored ?? data));
+        if (restored) {
+          setToast({ kind: "ok", msg: "Restored your unpublished changes from this device." });
+        }
       })
       .catch(() => setError("Could not load the catalog."));
   }, [authed]);
+
+  /* ── has someone published from another device? ── */
+  useEffect(() => {
+    if (!authed || !loaded) return;
+    let cancelled = false;
+    const poll = async () => {
+      if (saving || document.visibilityState === "hidden") return;
+      try {
+        const res = await fetch("/api/catalog", { cache: "no-store" });
+        if (!res.ok) return;
+        const live = (await res.json()) as Catalog;
+        if (cancelled) return;
+        const base = baseUpdatedAt.current;
+        setDrift(live.updatedAt && base !== null && live.updatedAt !== base ? live.updatedAt : null);
+      } catch {
+        // Offline — the banner simply stays as it is.
+      }
+    };
+    const t = window.setInterval(poll, DRIFT_POLL_MS);
+    window.addEventListener("focus", poll);
+    return () => {
+      cancelled = true;
+      window.clearInterval(t);
+      window.removeEventListener("focus", poll);
+    };
+  }, [authed, loaded, saving]);
 
   /* ── dirty tracking ── */
   const dirty = useMemo(
@@ -155,6 +222,62 @@ export function AdminClient() {
     return () => window.removeEventListener("beforeunload", h);
   }, [dirty]);
 
+  /* ── publish the dirty flag so the storefront's reload check stands down ──
+     A version-triggered reload mid-edit would throw away unpublished work, so
+     VersionWatch reads this key and skips its check while it is set. */
+  useEffect(() => {
+    try {
+      if (dirty) window.localStorage.setItem(ADMIN_DIRTY_KEY, "1");
+      else window.localStorage.removeItem(ADMIN_DIRTY_KEY);
+    } catch {
+      // Storage unavailable — the reload guard degrades, edits do not.
+    }
+    return () => {
+      try {
+        window.localStorage.removeItem(ADMIN_DIRTY_KEY);
+      } catch {
+        /* nothing to clean up */
+      }
+    };
+  }, [dirty]);
+
+  /* ── park the draft locally so a crash or a closed tab is survivable ──
+     Note this is a *convenience copy*, never the source of truth: it is tagged
+     with the published version it came from and discarded on load if that has
+     moved on. Photos stay out of it — they are Files, not serialisable, and
+     they are what would blow the quota. */
+  useEffect(() => {
+    if (!loaded) return;
+    const t = window.setTimeout(() => {
+      try {
+        if (!dirty) {
+          window.localStorage.removeItem(DRAFT_KEY);
+          setStorageError(null);
+          return;
+        }
+        window.localStorage.setItem(
+          DRAFT_KEY,
+          JSON.stringify({ basedOn: baseUpdatedAt.current, draft }),
+        );
+        setStorageError(null);
+      } catch (e) {
+        // Never swallow this. If the browser refuses to hold the draft the
+        // admin must know now, while they can still publish, rather than
+        // discovering it after a crash has eaten the work.
+        const quota = e instanceof DOMException && /quota/i.test(e.name);
+        setStorageError(
+          quota
+            ? "This browser is out of local storage, so your work-in-progress cannot be " +
+              "backed up on this device. Publish now to avoid losing it."
+            : `Could not back up your draft on this device: ${
+                e instanceof Error ? e.message : String(e)
+              }`,
+        );
+      }
+    }, 600);
+    return () => window.clearTimeout(t);
+  }, [draft, dirty, loaded]);
+
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(null), 4000);
@@ -166,44 +289,97 @@ export function AdminClient() {
     [pending],
   );
 
-  /* ── save (upload pending images, then PUT the whole catalog) ── */
+  /**
+   * Publish: stage every pending photo, then write the whole catalogue.
+   *
+   * Photos go straight from this browser to Blob storage (see uploadPhoto) —
+   * routing them through the API would cap them at Vercel's 4.5 MB request-body
+   * limit, which is smaller than a typical phone photo. Each is named by a hash
+   * of its own bytes, so uploading the same picture twice stores it once.
+   */
   const save = async () => {
     setSaving(true);
     setError(null);
+    const entries = Object.entries(pending);
+    setProgress({ done: 0, total: entries.length });
     try {
       const next = clone(draft);
-      for (const [token, { file }] of Object.entries(pending)) {
+      for (const [token, { file }] of entries) {
         const [kind, slug] = token.split(":");
-        const fd = new FormData();
-        fd.append("file", file);
-        fd.append("slug", slug);
-        const up = await fetch("/api/catalog/upload", { method: "POST", body: fd });
-        if (!up.ok) throw new Error((await up.json().catch(() => ({}))).error || "Image upload failed.");
-        const { path } = await up.json();
+        const { url } = await uploadPhoto(file);
         if (kind === "spec") {
-          const s = next.specimens.find((x) => x.slug === slug);
-          if (s) s.image = path;
+          const sp = next.specimens.find((x) => x.slug === slug);
+          if (sp) sp.image = url;
         } else {
           const c = next.collections.find((x) => x.slug === slug);
-          if (c) c.cover = path;
+          if (c) c.cover = url;
         }
+        setProgress((p) => (p ? { ...p, done: p.done + 1 } : p));
       }
+      setProgress(null);
+
       const res = await fetch("/api/catalog", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(next),
+        // The version this session started from. If the stored catalogue has
+        // moved past it, the server answers 409 rather than overwriting
+        // whoever published in the meantime.
+        body: JSON.stringify({ ...next, baseUpdatedAt: baseUpdatedAt.current }),
       });
-      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || "Save failed.");
-      const { catalog } = await res.json();
+
+      if (res.status === 409) {
+        const body = (await res.json().catch(() => ({}))) as {
+          error?: string;
+          liveUpdatedAt?: string;
+        };
+        setDrift(body.liveUpdatedAt ?? "unknown");
+        throw new Error(body.error || "The live catalogue changed while you were editing.");
+      }
+      if (!res.ok) {
+        const body = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(body.error || `Save failed (${res.status}).`);
+      }
+
+      const { catalog } = (await res.json()) as { catalog: Catalog };
       Object.values(pending).forEach((p) => URL.revokeObjectURL(p.url));
       setPending({});
+      baseUpdatedAt.current = catalog.updatedAt ?? null;
       setLoaded(catalog);
       setDraft(clone(catalog));
-      setToast({ kind: "ok", msg: "Saved — your storefront is now live." });
+      setDrift(null);
+      try {
+        window.localStorage.removeItem(DRAFT_KEY);
+      } catch {
+        /* nothing to clean up */
+      }
+      setToast({ kind: "ok", msg: "Published — the live site is updating now." });
     } catch (e) {
       setToast({ kind: "err", msg: e instanceof Error ? e.message : "Something went wrong." });
     } finally {
+      setProgress(null);
       setSaving(false);
+    }
+  };
+
+  /** Throw away local edits and take whatever is live right now. */
+  const loadLatest = async () => {
+    try {
+      const res = await fetch("/api/catalog", { cache: "no-store" });
+      const live = (await res.json()) as Catalog;
+      Object.values(pending).forEach((p) => URL.revokeObjectURL(p.url));
+      setPending({});
+      baseUpdatedAt.current = live.updatedAt ?? null;
+      setLoaded(live);
+      setDraft(clone(live));
+      setDrift(null);
+      try {
+        window.localStorage.removeItem(DRAFT_KEY);
+      } catch {
+        /* nothing to clean up */
+      }
+      setToast({ kind: "ok", msg: "Loaded the latest live catalogue." });
+    } catch {
+      setToast({ kind: "err", msg: "Could not reach the live catalogue." });
     }
   };
 
@@ -398,6 +574,37 @@ export function AdminClient() {
 
   return (
     <div className="min-h-svh bg-parchment pb-24 text-bitumen">
+      {/* ── The live catalogue moved on beneath this session ── */}
+      {drift && (
+        <div className="border-b border-brass/40 bg-brass/10 px-5 py-3 sm:px-8">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-[0.72rem] leading-relaxed text-bitumen">
+              <strong className="font-medium">The live site has been updated elsewhere.</strong>{" "}
+              Someone published from another device or browser
+              {drift !== "unknown" ? ` at ${new Date(drift).toLocaleString()}` : ""}.
+              {dirty
+                ? " Publishing now would overwrite their changes, so it will be refused."
+                : " You are viewing an older copy."}
+            </p>
+            <button
+              onClick={loadLatest}
+              className="shrink-0 rounded-full border border-bitumen/30 px-3.5 py-1.5 text-[0.6rem] uppercase tracking-wider2 text-bitumen transition-colors hover:bg-bitumen hover:text-parchment-pale"
+            >
+              {dirty ? "Discard mine & load latest" : "Load latest"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── The browser refused to back up the draft ── */}
+      {storageError && (
+        <div className="border-b border-red-400/50 bg-red-50 px-5 py-3 sm:px-8">
+          <p className="text-[0.72rem] leading-relaxed text-red-800">
+            <strong className="font-medium">Local backup failed.</strong> {storageError}
+          </p>
+        </div>
+      )}
+
       {/* ── Top bar ── */}
       <header className="sticky top-0 z-30 border-b border-line/70 bg-parchment/85 backdrop-blur">
         <div className="flex w-full items-center justify-between gap-3 px-5 py-3 sm:px-8">
@@ -405,8 +612,11 @@ export function AdminClient() {
             <p className="font-display text-lg leading-none text-bitumen sm:text-xl">Velora CMS</p>
             <p className="mt-0.5 truncate text-[0.58rem] uppercase tracking-wider2 text-ash">
               {dirty
-                ? `${changes.added} added · ${changes.edited} edited · ${changes.removed} removed`
-                : "All changes saved"}
+                ? `${changes.added} added · ${changes.edited} edited · ${changes.removed} removed` +
+                  (drift ? " · behind live" : " · unpublished")
+                : drift
+                  ? "Live site updated elsewhere"
+                  : "Published & in sync"}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
@@ -435,7 +645,13 @@ export function AdminClient() {
                   : "cursor-not-allowed bg-line text-ash",
               )}
             >
-              {saving ? "Saving…" : dirty ? "Save & publish" : "Saved"}
+              {saving
+                ? progress && progress.total > 0
+                  ? `Photos ${progress.done}/${progress.total}…`
+                  : "Publishing…"
+                : dirty
+                  ? "Save & publish"
+                  : "Published"}
             </button>
           </div>
         </div>

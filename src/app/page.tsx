@@ -19,6 +19,15 @@ import {
 } from "@/lib/data";
 import { readCatalog } from "@/lib/catalog-store";
 
+/**
+ * Safety net over `revalidatePath("/")`. This page is prerendered at build
+ * time, so if a purge is ever missed — a deploy racing a publish, an edge that
+ * never got the invalidation — it would otherwise serve build-time products
+ * forever. A 60s window means the worst case is one stale minute, not one stale
+ * deploy. The purge still does the fast path; this only catches what it drops.
+ */
+export const revalidate = 60;
+
 export default async function Home() {
   const catalog = await readCatalog();
 
@@ -31,7 +40,7 @@ export default async function Home() {
         <Marquee
           items={PRESS.map((p) => (
             <span key={p.source} className="flex items-center gap-4">
-              <span className="font-display text-[1.05rem] italic text-stone">
+              <span className="serif-italic text-[1.05rem] text-stone">
                 &ldquo;{p.quote}&rdquo;
               </span>
               <span className="text-[0.6rem] uppercase tracking-wider2 text-brass-deep">
@@ -55,7 +64,7 @@ export default async function Home() {
       </div>
 
       {/* ───────────────── The maison line ───────────────── */}
-      <Section pad="md" className="text-center">
+      <Section pad="md" defer intrinsicHeight={1040} className="text-center">
         <Shell>
           <Reveal variant="blur">
             <Eyebrow className="justify-center">The Velora Maison</Eyebrow>
@@ -83,7 +92,7 @@ export default async function Home() {
             items={TICKER.map((t) => (
               <span
                 key={t}
-                className="font-display text-[clamp(1.8rem,4.5vw,3.2rem)] italic text-brass-leaf/70"
+                className="serif-italic text-[clamp(1.8rem,4.5vw,3.2rem)] text-brass-leaf/70"
               >
                 {t}
               </span>
@@ -94,7 +103,7 @@ export default async function Home() {
       </Section>
 
       {/* ───────────────── The craft ───────────────── */}
-      <Section pad="xl" className="pt-[clamp(40px,5vw,72px)]">
+      <Section pad="xl" defer intrinsicHeight={1570} className="pt-[clamp(40px,5vw,72px)]">
         <Shell>
           <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr]">
             <div className="lg:sticky lg:top-28 lg:self-start">
@@ -143,7 +152,7 @@ export default async function Home() {
       </Section>
 
       {/* ───────────────── Stats (dark) — v3.0 museum placards ───────────────── */}
-      <Section tint pad="xl">
+      <Section tint pad="xl" defer intrinsicHeight={820}>
         <Shell>
           {/* auto-rows-fr equalises the two mobile rows; h-full lets each card
               fill its cell, so all four placards match regardless of how many
@@ -168,7 +177,7 @@ export default async function Home() {
       </Section>
 
       {/* ───────────────── Trade ───────────────── */}
-      <Section pad="md" className="bg-parchment-deep/45">
+      <Section pad="md" defer intrinsicHeight={840} className="bg-parchment-deep/45">
         <Shell>
           <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
             <div>
@@ -203,7 +212,7 @@ export default async function Home() {
       </Section>
 
       {/* ───────────────── Catalogue CTA (dark) ───────────────── */}
-      <Section tint pad="md" id="catalogue" className="overflow-hidden">
+      <Section tint pad="md" id="catalogue" defer intrinsicHeight={940} className="overflow-hidden">
         <Shell>
           <div className="grid gap-14 lg:grid-cols-2 lg:items-center">
             <div>

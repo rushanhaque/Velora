@@ -64,7 +64,7 @@ export const COLLECTIONS: Collection[] = [
     tone: "brass",
     index: "I",
     subcategories: ["Lamps", "Candle Holders & Stands"],
-    cover: "/media/catalog/cover-lighting.jpg",
+    cover: "/media/catalog/cover-lighting.webp",
   },
   {
     slug: "decor",
@@ -77,7 +77,7 @@ export const COLLECTIONS: Collection[] = [
     tone: "bronze",
     index: "II",
     subcategories: ["Vases", "Frames"],
-    cover: "/media/catalog/cover-decor.jpg",
+    cover: "/media/catalog/cover-decor.webp",
   },
   {
     slug: "kitchenware",
@@ -90,7 +90,7 @@ export const COLLECTIONS: Collection[] = [
     tone: "silver",
     index: "III",
     subcategories: ["Bowls", "Cake Stands", "Dinner Sets", "Trays"],
-    cover: "/media/catalog/cover-kitchenware.jpg",
+    cover: "/media/catalog/cover-kitchenware.webp",
   },
   {
     slug: "accessories",
@@ -102,7 +102,7 @@ export const COLLECTIONS: Collection[] = [
       "Hand-blown glass creatures, painted figurines and faceted crystal catch-alls — the small, weighted objects that finish a space.",
     tone: "copper",
     index: "IV",
-    cover: "/media/catalog/cover-accessories.jpg",
+    cover: "/media/catalog/cover-accessories.webp",
   },
   {
     slug: "clocks",
@@ -114,7 +114,7 @@ export const COLLECTIONS: Collection[] = [
       "Skeleton movements set in optical crystal and gilded brass — desk clocks that show their workings as openly as they show the hour.",
     tone: "brass",
     index: "V",
-    cover: "/media/catalog/cover-clocks.jpg",
+    cover: "/media/catalog/cover-clocks.webp",
   },
   {
     slug: "wedding",
@@ -127,7 +127,7 @@ export const COLLECTIONS: Collection[] = [
     tone: "silver",
     index: "VI",
     subcategories: ["Invitations", "Invitation Boxes", "Hampers", "Silver Gifting"],
-    cover: "/media/catalog/cover-wedding.jpg",
+    cover: "/media/catalog/cover-wedding.webp",
   },
 ];
 
@@ -152,7 +152,7 @@ export interface Specimen {
   /* ── Manual media (optional) ──────────────────────────────
      Product photos live in /public/media/catalog and are pointed to here.
      When absent, the hand-built SVG art renders instead.
-       image:   "/media/catalog/cheetah-glass-table-lamp.jpg"
+       image:   "/media/catalog/cheetah-glass-table-lamp.webp"
        video:   "/media/catalog/<slug>.mp4"  (muted, looping)
        poster:  fallback frame for the video (defaults to `image`)
        gallery: extra stills shown on the detail page              */
@@ -178,7 +178,7 @@ export const SPECIMENS: Specimen[] = [
       "The cheetah is caught mid-stride around the stem, so the lamp reads as movement held still. Wired and shade-fitted to order.",
     tags: ["Statement", "Bedside"],
     featured: true,
-    image: "/media/catalog/cheetah-glass-table-lamp.jpg",
+    image: "/media/catalog/cheetah-glass-table-lamp.webp",
   },
   {
     ref: "VL-02",
@@ -193,7 +193,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The dimpled body scatters lamplight like water; the panther is cast separately and set by hand so it truly grips the curve.",
     tags: ["Statement", "Evening"],
-    image: "/media/catalog/panther-hammered-lamp.jpg",
+    image: "/media/catalog/panther-hammered-lamp.webp",
   },
   {
     ref: "VL-03",
@@ -208,7 +208,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Every leaf and songbird is cast from a real cutting, then the branch is grown around the glass so the flame sits in a little thicket.",
     tags: ["Hurricane", "Nature"],
-    image: "/media/catalog/twig-hurricane-candle-stand.jpg",
+    image: "/media/catalog/twig-hurricane-candle-stand.webp",
   },
   {
     ref: "VL-04",
@@ -223,7 +223,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Solid crystal, cut and polished by hand until the arms disappear into light. Lit, it throws small rainbows across the cloth.",
     tags: ["Table", "Three-light"],
-    image: "/media/catalog/crystal-candelabra-trio.jpg",
+    image: "/media/catalog/crystal-candelabra-trio.webp",
   },
   {
     ref: "VL-05",
@@ -238,7 +238,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The column is cut with long flat facets that catch the flame and lengthen it. Sold singly or paired for a symmetrical table.",
     tags: ["Table", "Pair"],
-    image: "/media/catalog/crystal-pillar-candlestick.jpg",
+    image: "/media/catalog/crystal-pillar-candlestick.webp",
   },
   {
     ref: "VL-06",
@@ -253,7 +253,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The dark cone anchors the light rather than competing with it — a study in contrast, cut from two crystals in one piece.",
     tags: ["Table", "Contrast"],
-    image: "/media/catalog/onyx-crystal-candle-stand.jpg",
+    image: "/media/catalog/onyx-crystal-candle-stand.webp",
   },
   {
     ref: "VL-07",
@@ -268,7 +268,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The pierced band is cut like a little coronet so candlelight throws a lace of shadow onto whatever it stands upon.",
     tags: ["Hurricane", "Filigree"],
-    image: "/media/catalog/filigree-hurricane-lantern.jpg",
+    image: "/media/catalog/filigree-hurricane-lantern.webp",
   },
 
   /* ── II · DECOR ───────────────────────────────────────────── */
@@ -285,7 +285,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The metalwork is grown up one side of the glass so the vase looks half-reclaimed by the garden it will hold.",
     tags: ["Stems", "Nature"],
-    image: "/media/catalog/sylvan-birds-bud-vase.jpg",
+    image: "/media/catalog/sylvan-birds-bud-vase.webp",
   },
   {
     ref: "VD-02",
@@ -301,7 +301,7 @@ export const SPECIMENS: Specimen[] = [
       "Built for long stems — lilies, gladioli — with the brass mount doubling as ballast so a full arrangement never tips.",
     tags: ["Floor", "Statement"],
     featured: true,
-    image: "/media/catalog/hummingbird-smoke-vase.jpg",
+    image: "/media/catalog/hummingbird-smoke-vase.webp",
   },
   {
     ref: "VD-03",
@@ -316,7 +316,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Each diamond facet is ground by hand, so the body glitters like a pineapple of glass whether it is filled or left empty.",
     tags: ["Stems", "Facet-cut"],
-    image: "/media/catalog/facet-cut-olive-vase.jpg",
+    image: "/media/catalog/facet-cut-olive-vase.webp",
   },
   {
     ref: "VD-04",
@@ -331,7 +331,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The dimpled brass is planished by hand; the cat is cast, oxidised dark and set proud of the frame so it casts its own shadow.",
     tags: ["5×7", "Tabletop"],
-    image: "/media/catalog/panther-hammered-frame.jpg",
+    image: "/media/catalog/panther-hammered-frame.webp",
   },
   {
     ref: "VD-05",
@@ -346,7 +346,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Painted in the pichwai manner over a sealed wood ground, then outlined in raised gold so the blossoms sit up from the surface.",
     tags: ["5×7", "Floral"],
-    image: "/media/catalog/blush-blossom-enamel-frame.jpg",
+    image: "/media/catalog/blush-blossom-enamel-frame.webp",
   },
   {
     ref: "VD-06",
@@ -361,7 +361,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The enamel motifs are laid by hand and the mirror border set chip by chip — a technique borrowed from Rajasthani palace doors.",
     tags: ["5×7", "Meenakari"],
-    image: "/media/catalog/meenakari-mirror-frame.jpg",
+    image: "/media/catalog/meenakari-mirror-frame.webp",
   },
   {
     ref: "VD-07",
@@ -376,7 +376,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The bird and bloom are modelled full-round and brazed to the branch, so the frame turns a photograph into a little diorama.",
     tags: ["5×7", "Nature"],
-    image: "/media/catalog/hummingbird-branch-frame.jpg",
+    image: "/media/catalog/hummingbird-branch-frame.webp",
   },
 
   /* ── III · KITCHENWARE ────────────────────────────────────── */
@@ -394,7 +394,7 @@ export const SPECIMENS: Specimen[] = [
       "The pomegranate — anaar — is an old sign of abundance; here it is cast in brass and copper and coaxed around a hand-blown bowl.",
     tags: ["Centrepiece", "Fruit"],
     featured: true,
-    image: "/media/catalog/pomegranate-branch-bowl.jpg",
+    image: "/media/catalog/pomegranate-branch-bowl.webp",
   },
   {
     ref: "VK-02",
@@ -409,7 +409,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Three heights, one hand — the lids are cast, gilded and matched to each body so the set reads as a grown thing, not a stacked one.",
     tags: ["Storage", "Set"],
-    image: "/media/catalog/pomegranate-gilt-jar-set.jpg",
+    image: "/media/catalog/pomegranate-gilt-jar-set.webp",
   },
   {
     ref: "VK-03",
@@ -424,7 +424,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Raised on a diamond-cut stem, it lifts fruit or sweets a few bright centimetres off the table and doubles the candlelight around them.",
     tags: ["Footed", "Fruit"],
-    image: "/media/catalog/crystal-pedestal-compote.jpg",
+    image: "/media/catalog/crystal-pedestal-compote.webp",
   },
   {
     ref: "VK-04",
@@ -439,7 +439,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The silvered glass is stippled so a single flame multiplies across it. Presented in a gold-bordered keepsake box.",
     tags: ["Votive", "Gift"],
-    image: "/media/catalog/mercury-votive-set.jpg",
+    image: "/media/catalog/mercury-votive-set.webp",
   },
   {
     ref: "VK-05",
@@ -454,7 +454,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Made to sit on a dressing table and hold small precious things; the faceted knob is the only ornament it needs.",
     tags: ["Lidded", "Vanity"],
-    image: "/media/catalog/mirrored-keepsake-box.jpg",
+    image: "/media/catalog/mirrored-keepsake-box.webp",
   },
   {
     ref: "VK-06",
@@ -469,7 +469,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The dome lifts to serve and settles to keep — the cheetah coiled around the stem the same beast that prowls the Shikar lamp.",
     tags: ["Domed", "Serving"],
-    image: "/media/catalog/cheetah-dome-cake-stand.jpg",
+    image: "/media/catalog/cheetah-dome-cake-stand.webp",
   },
   {
     ref: "VK-07",
@@ -484,7 +484,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The dark, dimpled column throws the polished gold cat into relief — a cake stand that holds the room as well as the cake.",
     tags: ["Footed", "Serving"],
-    image: "/media/catalog/panther-footed-cake-stand.jpg",
+    image: "/media/catalog/panther-footed-cake-stand.webp",
   },
   {
     ref: "VK-08",
@@ -499,7 +499,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "A modern miniature-painting print fired onto translucent bone china, presented in a botanical gift case for the table that entertains.",
     tags: ["Bone china", "Gift-boxed"],
-    image: "/media/catalog/ichkan-heritage-dinner-set.jpg",
+    image: "/media/catalog/ichkan-heritage-dinner-set.webp",
   },
   {
     ref: "VK-09",
@@ -514,7 +514,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Light enough to read the tea through, printed with a single palm so each cup feels like a small painted window.",
     tags: ["Tea", "Set of six"],
-    image: "/media/catalog/ichkan-palm-teacup-set.jpg",
+    image: "/media/catalog/ichkan-palm-teacup-set.webp",
   },
   {
     ref: "VK-10",
@@ -529,7 +529,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "A morning-coffee set built around a serving tray, printed with the same wildflower garden that runs through the box.",
     tags: ["Coffee", "Gift-boxed"],
-    image: "/media/catalog/ichkan-floral-mug-set.jpg",
+    image: "/media/catalog/ichkan-floral-mug-set.webp",
   },
   {
     ref: "VK-11",
@@ -544,7 +544,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Greek key, grid and lattice drawn in a single dark line: the quiet, architectural counterpoint to the painted heritage sets.",
     tags: ["Modern", "Place setting"],
-    image: "/media/catalog/monochrome-place-setting.jpg",
+    image: "/media/catalog/monochrome-place-setting.webp",
   },
   {
     ref: "VK-12",
@@ -559,7 +559,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Geometric-bordered plates on a gilt spine, topped by a songbird finial — high tea, raised to two storeys.",
     tags: ["Tiered", "Dessert"],
-    image: "/media/catalog/two-tier-dessert-stand.jpg",
+    image: "/media/catalog/two-tier-dessert-stand.webp",
   },
   {
     ref: "VK-13",
@@ -574,7 +574,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The peacock is drawn mid-step around the cup so the tail spills onto the saucer — presented in the house's botanical gift case.",
     tags: ["Tea", "Set of six"],
-    image: "/media/catalog/ichkan-peacock-teacup-set.jpg",
+    image: "/media/catalog/ichkan-peacock-teacup-set.webp",
   },
   {
     ref: "VK-14",
@@ -589,7 +589,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The mirror-mesh base is bordered in cast gold ginkgo — every leaf chased by hand so the light runs along the veins.",
     tags: ["Serving", "Gilt"],
-    image: "/media/catalog/ginkgo-gilt-tray.jpg",
+    image: "/media/catalog/ginkgo-gilt-tray.webp",
   },
   {
     ref: "VK-15",
@@ -604,7 +604,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The face is worked until it looks like a still pour of metal; the brass handles are the only straight line on it.",
     tags: ["Serving", "Oval"],
-    image: "/media/catalog/molten-silver-oval-tray.jpg",
+    image: "/media/catalog/molten-silver-oval-tray.webp",
   },
 
   /* ── IV · ACCESSORIES ─────────────────────────────────────── */
@@ -621,7 +621,7 @@ export const SPECIMENS: Specimen[] = [
       "Blown and pulled from a single gather of molten glass; the amber core sits inside a clear body like light trapped in motion.",
     tags: ["Sculpture", "Art glass"],
     featured: true,
-    image: "/media/catalog/amber-glass-bull.jpg",
+    image: "/media/catalog/amber-glass-bull.webp",
   },
   {
     ref: "VA-02",
@@ -635,7 +635,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The orange swirls are folded into the body while it is still molten, so no two fish ever swim the same pattern.",
     tags: ["Sculpture", "Art glass"],
-    image: "/media/catalog/art-glass-fish.jpg",
+    image: "/media/catalog/art-glass-fish.webp",
   },
   {
     ref: "VA-03",
@@ -649,7 +649,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Gold leaf is rolled into the molten glass and stretched, scattering flecks of light through a form that is different from every angle.",
     tags: ["Sculpture", "Abstract"],
-    image: "/media/catalog/aurora-art-glass.jpg",
+    image: "/media/catalog/aurora-art-glass.webp",
   },
   {
     ref: "VA-04",
@@ -663,7 +663,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Heavy in the hand and cold to the touch, it holds keys, cufflinks or nothing at all — the facets do the work.",
     tags: ["Catch-all", "Desk"],
-    image: "/media/catalog/onyx-faceted-crystal-bowl.jpg",
+    image: "/media/catalog/onyx-faceted-crystal-bowl.webp",
   },
   {
     ref: "VA-05",
@@ -677,7 +677,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Cut so the round well floats inside the square block — a small architecture for the things a pocket empties at day's end.",
     tags: ["Catch-all", "Desk"],
-    image: "/media/catalog/smoke-crystal-catch-all.jpg",
+    image: "/media/catalog/smoke-crystal-catch-all.webp",
   },
   {
     ref: "VA-06",
@@ -691,7 +691,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Each feather is drawn by brush over a crackle glaze, so the bird carries the faint web of age from the day it is made.",
     tags: ["Figurine", "Ceramic"],
-    image: "/media/catalog/heritage-owl-figurine.jpg",
+    image: "/media/catalog/heritage-owl-figurine.webp",
   },
   {
     ref: "VA-07",
@@ -705,7 +705,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Modelled with the trunk curled for luck and dressed in hand-painted regalia in the old Kangra palette.",
     tags: ["Figurine", "Ceramic"],
-    image: "/media/catalog/heritage-elephant-figurine.jpg",
+    image: "/media/catalog/heritage-elephant-figurine.webp",
   },
   {
     ref: "VA-08",
@@ -719,7 +719,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Sold as a facing pair — one sitting up, one at rest — hand-painted so their flower coats mirror without matching.",
     tags: ["Figurine", "Pair"],
-    image: "/media/catalog/blossom-rabbit-pair.jpg",
+    image: "/media/catalog/blossom-rabbit-pair.webp",
   },
   {
     ref: "VA-09",
@@ -733,7 +733,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "A quiet charm for a shelf or a shop counter, hand-painted with blue-tipped ears and a heart pendant for luck.",
     tags: ["Figurine", "Charm"],
-    image: "/media/catalog/fortune-cat-figurine.jpg",
+    image: "/media/catalog/fortune-cat-figurine.webp",
   },
   {
     ref: "VA-10",
@@ -747,7 +747,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Each bloom and pad is cast in porcelain and hand-glazed, then set on brass reeds so the whole thing sways at a touch.",
     tags: ["Sculpture", "Floral"],
-    image: "/media/catalog/porcelain-lotus-stem.jpg",
+    image: "/media/catalog/porcelain-lotus-stem.webp",
   },
   {
     ref: "VA-11",
@@ -761,7 +761,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The dragonfly perches on the rim as if it has just landed — a warm wooden dish for a desk, a hall, a bedside.",
     tags: ["Catch-all", "Desk"],
-    image: "/media/catalog/dragonfly-catch-all.jpg",
+    image: "/media/catalog/dragonfly-catch-all.webp",
   },
   {
     ref: "VA-12",
@@ -775,7 +775,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The stripes are scored back through the black glaze to the pale clay beneath, so each piece carries a hand-drawn grain.",
     tags: ["Bath", "Set of four"],
-    image: "/media/catalog/noir-stripe-vanity-set.jpg",
+    image: "/media/catalog/noir-stripe-vanity-set.webp",
   },
   {
     ref: "VA-13",
@@ -789,7 +789,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "A small sculpture about lift and trust — the figures are cast rough and dark against the smooth stone they climb.",
     tags: ["Sculpture", "Bronze"],
-    image: "/media/catalog/ascent-bronze-figures.jpg",
+    image: "/media/catalog/ascent-bronze-figures.webp",
   },
 
   /* ── V · CLOCKS ───────────────────────────────────────────── */
@@ -806,7 +806,7 @@ export const SPECIMENS: Specimen[] = [
       "The exposed gears turn openly within a polished gimbal, so the clock shows its heartbeat as plainly as the hour.",
     tags: ["Desk", "Skeleton"],
     featured: true,
-    image: "/media/catalog/gimbal-skeleton-clock.jpg",
+    image: "/media/catalog/gimbal-skeleton-clock.webp",
   },
   {
     ref: "VC-02",
@@ -820,7 +820,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The movement seems to hang in mid-air inside the polished crystal — a paperweight that happens to keep perfect time.",
     tags: ["Desk", "Crystal"],
-    image: "/media/catalog/arch-skeleton-desk-clock.jpg",
+    image: "/media/catalog/arch-skeleton-desk-clock.webp",
   },
 
   /* ── VI · WEDDING ─────────────────────────────────────────── */
@@ -837,7 +837,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "A round format for the day-events — mehendi and haldi — each disc foiled in gold and stood on a little acrylic easel.",
     tags: ["Invitation", "Ceremony"],
-    image: "/media/catalog/mehendi-haldi-round-invite.jpg",
+    image: "/media/catalog/mehendi-haldi-round-invite.webp",
   },
   {
     ref: "VW-02",
@@ -852,7 +852,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The couple is drawn as a miniature royal pair beneath a jharokha arch, peacocks at the border — bespoke to each name.",
     tags: ["Invitation", "Portrait"],
-    image: "/media/catalog/royal-portrait-invite.jpg",
+    image: "/media/catalog/royal-portrait-invite.webp",
   },
   {
     ref: "VW-03",
@@ -867,7 +867,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The sacred Kamadhenu herd is rendered in the Nathdwara pichwai style and foil-stamped over a jewel-pink ground.",
     tags: ["Invitation", "Pichwai"],
-    image: "/media/catalog/pichwai-kamadhenu-invite.jpg",
+    image: "/media/catalog/pichwai-kamadhenu-invite.webp",
   },
   {
     ref: "VW-04",
@@ -882,7 +882,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Framed like a little palace window — jharokha — with painted birds in each niche and a gold foil centre for the names.",
     tags: ["Invitation", "Meenakari"],
-    image: "/media/catalog/jharokha-birds-invite-mount.jpg",
+    image: "/media/catalog/jharokha-birds-invite-mount.webp",
   },
   {
     ref: "VW-05",
@@ -897,7 +897,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "An invitation that arrives as a gift — the framed card flanked by scented candle jars in the same hand-painted garden.",
     tags: ["Invitation", "Gift set"],
-    image: "/media/catalog/pichwai-shagun-card-set.jpg",
+    image: "/media/catalog/pichwai-shagun-card-set.webp",
   },
   {
     ref: "VW-06",
@@ -913,7 +913,7 @@ export const SPECIMENS: Specimen[] = [
       "The façade is printed with jharokha windows; the doors swing open to the card and a pair of gilded canisters within.",
     tags: ["Invitation box", "Statement"],
     featured: true,
-    image: "/media/catalog/haveli-invitation-box.jpg",
+    image: "/media/catalog/haveli-invitation-box.webp",
   },
   {
     ref: "VW-07",
@@ -928,7 +928,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Peacocks and a devotional miniature set the tone; the gold-lidded jars hold sweets or dry fruit for the first call.",
     tags: ["Invitation box", "Devotional"],
-    image: "/media/catalog/radha-krishna-invite-box.jpg",
+    image: "/media/catalog/radha-krishna-invite-box.webp",
   },
   {
     ref: "VW-08",
@@ -943,7 +943,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "A trousseau box for the bride's side — the lid a lotus pond of grazing cows, the interval velvet-lined for its treasures.",
     tags: ["Trunk", "Trousseau"],
-    image: "/media/catalog/pichwai-trunk-hamper.jpg",
+    image: "/media/catalog/pichwai-trunk-hamper.webp",
   },
   {
     ref: "VW-09",
@@ -958,7 +958,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Opened to bless the beginning of things — a painted casket for the token gift that travels with the invitation.",
     tags: ["Shagun", "Auspicious"],
-    image: "/media/catalog/ganesha-shagun-box.jpg",
+    image: "/media/catalog/ganesha-shagun-box.webp",
   },
   {
     ref: "VW-10",
@@ -973,7 +973,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Painted with a field of marigolds at the base and lined in pink velvet — an invitation that doubles as the first gift.",
     tags: ["Trunk", "Trousseau"],
-    image: "/media/catalog/blush-velvet-invite-trunk.jpg",
+    image: "/media/catalog/blush-velvet-invite-trunk.webp",
   },
   {
     ref: "VW-11",
@@ -988,7 +988,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "A see-through keepsake hamper — the contents are the ornament — finished with a raw-jute ribbon for a garden wedding.",
     tags: ["Hamper", "Keepsake"],
-    image: "/media/catalog/botanica-glass-hamper.jpg",
+    image: "/media/catalog/botanica-glass-hamper.webp",
   },
   {
     ref: "VW-12",
@@ -1003,7 +1003,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Miniature court scenes wrap the candles; the whole tray is dressed with roses and a scented votive for the welcome table.",
     tags: ["Hamper", "Candles"],
-    image: "/media/catalog/bagh-candle-hamper.jpg",
+    image: "/media/catalog/bagh-candle-hamper.webp",
   },
   {
     ref: "VW-13",
@@ -1018,7 +1018,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The remover of obstacles rides his mouse at the centre; the canisters carry sweets for the ceremony that follows.",
     tags: ["Hamper", "Auspicious"],
-    image: "/media/catalog/ganesha-blessing-hamper.jpg",
+    image: "/media/catalog/ganesha-blessing-hamper.webp",
   },
   {
     ref: "VW-14",
@@ -1033,7 +1033,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "The raas-leela painted around the jars, a silver swan bowl between them — a hamper made to be photographed before it is opened.",
     tags: ["Hamper", "Devotional"],
-    image: "/media/catalog/raas-radha-krishna-hamper.jpg",
+    image: "/media/catalog/raas-radha-krishna-hamper.webp",
   },
   {
     ref: "VW-15",
@@ -1048,7 +1048,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Made for the ring exchange — a little fairy-tale coach, tasselled and flowered, that presents both rings at once.",
     tags: ["Ring ceremony", "Statement"],
-    image: "/media/catalog/carriage-ring-platter.jpg",
+    image: "/media/catalog/carriage-ring-platter.webp",
   },
   {
     ref: "VW-16",
@@ -1063,7 +1063,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "A full gifting suite in bright silver plate — repoussé domes with crystal knobs, staged for the sweets table.",
     tags: ["Silver", "Gifting suite"],
-    image: "/media/catalog/silver-dryfruit-dome-set.jpg",
+    image: "/media/catalog/silver-dryfruit-dome-set.webp",
   },
   {
     ref: "VW-17",
@@ -1078,7 +1078,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Greek-key pierced sides and a glass insert divided for four kinds of dry fruit — the lid a clear dome with a faceted finial.",
     tags: ["Silver", "Dry-fruit"],
-    image: "/media/catalog/silver-partition-domes.jpg",
+    image: "/media/catalog/silver-partition-domes.webp",
   },
   {
     ref: "VW-18",
@@ -1093,7 +1093,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Woven in silver plate and hung with a rope-twist handle — a fruit or flower basket for the gift that is meant to be kept.",
     tags: ["Silver", "Basket"],
-    image: "/media/catalog/silver-fruit-basket.jpg",
+    image: "/media/catalog/silver-fruit-basket.webp",
   },
   {
     ref: "VW-19",
@@ -1108,7 +1108,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "A little novelty for the sweet or the token gift — the flowering wheels roll, the bowl lifts out to serve.",
     tags: ["Silver", "Novelty"],
-    image: "/media/catalog/silver-cycle-bowl.jpg",
+    image: "/media/catalog/silver-cycle-bowl.webp",
   },
   {
     ref: "VW-20",
@@ -1123,7 +1123,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Made to carry mithai to a guest — the roses at each handle are cast solid, the field lightly planished to hide use.",
     tags: ["Silver", "Sweets"],
-    image: "/media/catalog/silver-rose-sweet-tray.jpg",
+    image: "/media/catalog/silver-rose-sweet-tray.webp",
   },
   {
     ref: "VW-21",
@@ -1138,7 +1138,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "Three lidded wells swing from a central pillar — one hand lifts the whole service of nuts and sweets to the table.",
     tags: ["Silver", "Dry-fruit"],
-    image: "/media/catalog/silver-dryfruit-caddy.jpg",
+    image: "/media/catalog/silver-dryfruit-caddy.webp",
   },
   {
     ref: "VW-22",
@@ -1153,7 +1153,7 @@ export const SPECIMENS: Specimen[] = [
     story:
       "A return-gift ensemble — a keepsake photo frame and a pair of silver-collared cups, staged on a flowered tray.",
     tags: ["Gifting suite", "Keepsake"],
-    image: "/media/catalog/regalia-frame-cup-hamper.jpg",
+    image: "/media/catalog/regalia-frame-cup-hamper.webp",
   },
 ];
 
@@ -1213,31 +1213,31 @@ export const PROCESS: Step[] = [
     n: "01",
     title: "The disc",
     body: "Every piece begins as a flat disc of sheet metal and a fire. The maker chooses the gauge by the object it will become — and by hand, never machine.",
-    image: "/media/about/process-01-disc.png",
+    image: "/media/about/process-01-disc.webp",
   },
   {
     n: "02",
     title: "Raising",
     body: "Struck thousands of times against a stake, the flat sheet climbs into a vessel. The metal hardens as it rises and is annealed in fire to soften it again — over and over, for days.",
-    image: "/media/about/process-02-raising.png",
+    image: "/media/about/process-02-raising.webp",
   },
   {
     n: "03",
     title: "Chasing",
     body: "Line and ornament are walked into the surface with hammer and punch — from the front for relief, from the back for repoussé. Each maker's hand is recognisable to the others.",
-    image: "/media/about/process-03-chasing.png",
+    image: "/media/about/process-03-chasing.webp",
   },
   {
     n: "04",
     title: "Patina",
     body: "Colour is drawn from the metal with heat, time and a few quiet chemistries — antique, oxblood, verdigris or blackened — then arrested at the exact moment it is right.",
-    image: "/media/about/process-04-patina.png",
+    image: "/media/about/process-04-patina.webp",
   },
   {
     n: "05",
     title: "Burnish",
     body: "The surface is brought to its final lustre by hand against stone and steel. A piece is finished not when the clock says so, but when the maker can find nothing left to improve.",
-    image: "/media/about/process-05-burnish.png",
+    image: "/media/about/process-05-burnish.webp",
   },
 ];
 
@@ -1255,10 +1255,10 @@ export const STATS = [
    sequence stays deliberate even as products come and go.
    To swap one: drop a new photo in that folder and change the `src`.  */
 export const SIGNATURE_PIECES: { src: string; name: string }[] = [
-  { src: "/media/signature/shikar-cheetah-table-lamp.jpg", name: "Shikar Cheetah Table Lamp" },
-  { src: "/media/signature/shikar-domed-cake-stand.jpg", name: "Shikar Domed Cake Stand" },
-  { src: "/media/signature/noor-mercury-votive-set.jpg", name: "Noor Mercury Votive Set" },
-  { src: "/media/signature/ginkgo-gilt-serving-tray.jpg", name: "Ginkgo Gilt Serving Tray" },
+  { src: "/media/signature/shikar-cheetah-table-lamp.webp", name: "Shikar Cheetah Table Lamp" },
+  { src: "/media/signature/shikar-domed-cake-stand.webp", name: "Shikar Domed Cake Stand" },
+  { src: "/media/signature/noor-mercury-votive-set.webp", name: "Noor Mercury Votive Set" },
+  { src: "/media/signature/ginkgo-gilt-serving-tray.webp", name: "Ginkgo Gilt Serving Tray" },
 ];
 
 export const PRINCIPLES = [

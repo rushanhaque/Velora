@@ -38,20 +38,77 @@ npm run start    # serve the production build
 
 | Route | Page |
 |---|---|
-| `/` | Home — hero, press, specimen spotlight, the maison, four houses, the craft, stats, lookbook, trade, catalogue request |
-| `/collections` | The Catalogue — live filter (house + metal), **sort**, deep-linkable `?house=`, per-card "add to enquiry" |
-| `/collections/[slug]` | Specimen detail — 21 pieces, finish selector, spec sheet, add-to-enquiry, related |
-| `/journal` + `/journal/[slug]` | The Journal — 4 editorial pieces from the atelier |
-| `/craft` | The Craft — process, pull-quote, the five stages, the metals |
-| `/maison` | The Maison — heritage, five-chapter timeline, principles, ateliers |
-| `/bespoke` | Bespoke & Private Label — services, commission steps, finishes, enquiry form |
-| `/trade` | Trade Enquiry — trade desk, contact, open-account form |
-| `/faq` | Trade FAQ — minimums, pricing, shipping, care (accessible accordions) |
-| `/enquiry` | Your trade-enquiry basket (localStorage), with a single submit |
+| `/` | Home — hero, press, collections, signature pieces, the craft, stats, trade, catalogue request |
+| `/collections` | The Catalogue — deep-linkable `?house=`, per-collection filters |
+| `/collections/[slug]` | Specimen detail — spec sheet, add-to-enquiry, related pieces |
+| `/about` | About the maison — heritage, process, metals |
+| `/contact` | Contact & trade enquiry |
+| `/faq` | Trade FAQ |
+| `/admin` | **Velora CMS** — manage products, collections and photos (password-protected) |
 | `*` | A bespoke 404 |
+
+API routes: `/api/catalog` (live catalogue, read + publish), `/api/catalog/upload`
+(product photos), `/api/admin/login` (session), `/api/health` (diagnostics),
+`/version.json` (build ID for the freshness check).
 
 Plus `sitemap.xml`, `robots.txt`, `manifest.webmanifest`, a generated Open-Graph
 image, and an SVG favicon.
+
+## The CMS, and how content reaches the live site
+
+The catalogue is **not** rebuilt into the site. It lives in Vercel Blob and is
+read through `/api/catalog` on every request, so pressing **Save & publish**
+shows up on the storefront within seconds — no redeploy.
+
+```
+CMS  ──photos──▶  Vercel Blob (direct from the browser)
+     ──catalogue─▶  /api/catalog  ──▶  Blob  ──▶  storefront
+```
+
+**Two environment variables are required in production.** Without them nothing
+the CMS saves can persist, and the site silently serves the compiled seed from
+`src/lib/data.ts` instead:
+
+| Variable | Why |
+|---|---|
+| `BLOB_READ_WRITE_TOKEN` | Injected by Vercel once a Blob store is **connected to the project**. Creating the store alone is not enough. |
+| `ADMIN_PASSWORD` | The CMS login. There is no default — an unset value locks the CMS rather than falling back to a password committed in a public repo. |
+
+Photos are uploaded **directly from the browser to Blob storage**, not through
+the API. Vercel caps a serverless function's request body at 4.5 MB, which is
+smaller than a typical phone photo; routing uploads through the function silently
+killed them. Each photo is named by a SHA-256 hash of its own bytes, so the same
+photo uploaded twice is stored once, and the URL can be cached forever.
+
+## Staying fresh on every device
+
+- Every HTML document is served `max-age=0, must-revalidate`, so no browser
+  renders a page without asking the origin first (the CDN still caches it).
+- `/admin` is `no-store` everywhere and never prerendered.
+- The build ID is baked into the bundle and served, uncached, from
+  `/version.json`. Each page compares the two on load, on focus, on
+  `visibilitychange` and on bfcache restore, and reloads once if they differ —
+  guarded against reload loops, and suppressed while the CMS holds unpublished
+  edits.
+
+## Diagnostics
+
+```bash
+npm run check:live        # is the deploy current? is storage working? are cache headers right?
+npm run check:config      # validate vercel.json before it silently rejects a deploy
+npm test                  # unit tests for the refresh chain, photo filing and publish endpoint
+```
+
+`check:live` is the first thing to run when the site looks wrong. It reports
+which build is serving, whether every API route exists, whether the catalogue is
+a real published one or the fallback seed, and whether each cache header is
+correct. Target another environment with
+`npm run check:live -- https://staging.example.com`.
+
+`check:config` also runs automatically as `prebuild`. Vercel sets
+`additionalProperties: false` on its config schema, so one unknown key — a `"//"`
+comment key being the classic — rejects the whole deploy with no error surfaced
+anywhere. That failure looks exactly like "the site just never updates".
 
 ## Design system
 
@@ -65,11 +122,12 @@ image, and an SVG favicon.
   turning each piece's `shape` + `tone` into a turned-metal studio illustration,
   with deterministic per-piece variation so no two pieces look identical.
 
-## Adding product images & video (manual)
+## Adding product images & video
 
-The site ships with SVG art so nothing is ever empty. To use real media, drop files
-in `public/media/…` and point to them from `src/lib/data.ts`. Precedence per piece is
-**video → image → SVG**, with automatic fallback if a file is missing.
+Product photos are normally added through the CMS at `/admin`, which files them
+in Blob storage automatically. To ship an image with the repository instead, drop
+it in `public/media/…` and point to it from `src/lib/data.ts`. Precedence per
+piece is **video → image → SVG**, with automatic fallback if a file is missing.
 Full guide: [`public/media/README.md`](public/media/README.md).
 
 ## Accessibility & performance
@@ -84,7 +142,12 @@ Full guide: [`public/media/README.md`](public/media/README.md).
 
 1. Set `NEXT_PUBLIC_SITE_URL` to your domain (see `.env.example`) — used by the
    sitemap, robots and OG/canonical URLs.
-2. Deploy to any Next.js host (Vercel recommended): `npm run build` then `npm run start`,
-   or connect the repo to Vercel for zero-config builds.
+2. Set `ADMIN_PASSWORD`. **Required** — the CMS is locked without it.
+3. Create a Vercel Blob store and **connect it to the project**, so
+   `BLOB_READ_WRITE_TOKEN` is injected. **Required** — publishing cannot persist
+   without it.
+4. Connect the repo to Vercel for zero-config builds.
+5. Run `npm run check:live` afterwards to confirm the deploy is actually serving
+   your latest commit and that storage is wired up.
 
 > All names, figures, addresses and contact details are illustrative demo content.

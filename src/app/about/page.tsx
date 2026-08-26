@@ -19,11 +19,11 @@ export const metadata: Metadata = {
 };
 
 const METALS = [
-  { name: "Brass", image: "/media/about/metal-brass.png", note: "The maison's first language — warm, weighty, raised to a deep mirror." },
-  { name: "Copper", image: "/media/about/metal-copper.png", note: "Drawn into living colour; rose, umber and verdigris pulled from the metal." },
-  { name: "Iron", image: "/media/about/metal-iron.png", note: "Forged dark and strong — the backbone of structure, wrought to hold and endure." },
-  { name: "Aluminium", image: "/media/about/metal-aluminium.png", note: "Light as air, cool to the touch — brushed or anodised for a clean, modern edge." },
-  { name: "Steel", image: "/media/about/metal-steel.png", note: "Mirror-polished or satin-drawn — the cool precision that anchors every line." },
+  { name: "Brass", image: "/media/about/metal-brass.webp", note: "The maison's first language — warm, weighty, raised to a deep mirror." },
+  { name: "Copper", image: "/media/about/metal-copper.webp", note: "Drawn into living colour; rose, umber and verdigris pulled from the metal." },
+  { name: "Iron", image: "/media/about/metal-iron.webp", note: "Forged dark and strong — the backbone of structure, wrought to hold and endure." },
+  { name: "Aluminium", image: "/media/about/metal-aluminium.webp", note: "Light as air, cool to the touch — brushed or anodised for a clean, modern edge." },
+  { name: "Steel", image: "/media/about/metal-steel.webp", note: "Mirror-polished or satin-drawn — the cool precision that anchors every line." },
 ];
 
 export default function CraftPage() {
@@ -44,7 +44,7 @@ export default function CraftPage() {
             <Parallax distance={36}>
               <div className="mx-auto max-w-[28rem] overflow-hidden rounded-xl2">
                 <Image
-                  src="/media/about/craftsman-hands.png"
+                  src="/media/about/craftsman-hands.webp"
                   alt="A craftsman's skilled hands carefully hand-raising a brass bowl in a traditional Moradabad atelier"
                   width={640}
                   height={640}
@@ -209,7 +209,7 @@ export default function CraftPage() {
         <div className="mt-14">
           <Marquee
             items={["Raise", "Chase", "Patinate", "Burnish", "Inspect", "Repeat"].map((t) => (
-              <span key={t} className="font-display text-[clamp(1.6rem,4vw,2.8rem)] italic text-brass-deep/20">
+              <span key={t} className="serif-italic text-[clamp(1.6rem,4vw,2.8rem)] text-brass-deep/20">
                 {t}
               </span>
             ))}

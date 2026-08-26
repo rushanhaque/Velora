@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, CSSProperties } from "react";
 import { cn } from "@/lib/utils";
 
 type Pad = "sm" | "md" | "lg" | "xl";
@@ -17,6 +17,8 @@ export function Section({
   dark = false,
   tint = false,
   id,
+  defer = false,
+  intrinsicHeight,
 }: {
   children: ReactNode;
   className?: string;
@@ -24,10 +26,24 @@ export function Section({
   dark?: boolean;
   tint?: boolean;
   id?: string;
+  /**
+   * Skip style, layout and paint for this section while it is far off-screen
+   * (see `[data-defer]` in globals.css). Only for sections below the fold —
+   * anything visible on load must render immediately.
+   */
+  defer?: boolean;
+  /** Assumed height while skipped. Keeps the scrollbar stable; prevents CLS. */
+  intrinsicHeight?: number;
 }) {
   return (
     <section
       id={id}
+      data-defer={defer ? "" : undefined}
+      style={
+        defer && intrinsicHeight
+          ? ({ containIntrinsicSize: `auto ${intrinsicHeight}px` } as CSSProperties)
+          : undefined
+      }
       className={cn(
         "relative",
         PAD[pad],

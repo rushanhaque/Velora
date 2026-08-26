@@ -7,6 +7,15 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+/**
+ * Never prerender the CMS. As a static page it was served with
+ * `X-Vercel-Cache: PRERENDER`, so an admin could open the panel and be handed
+ * an edge snapshot from before their own last publish. Paired with the
+ * no-store headers in middleware.ts and next.config.mjs.
+ */
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function AdminPage() {
   return <AdminClient />;
 }

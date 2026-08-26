@@ -35,3 +35,7 @@ next-env.d.ts
 
 # claude code
 .claude/
+
+# runtime catalogue + uploaded photos (local dev only — production uses Vercel Blob)
+/data
+/public/product-photos

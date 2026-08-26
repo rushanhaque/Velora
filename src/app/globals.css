@@ -211,7 +211,11 @@ body {
 }
 
 .serif-italic {
-  font-family: var(--font-display);
+  /* Must name the italic family, not --font-display. next/font registers each
+     instance under its own generated family name, so asking --font-display for
+     `font-style: italic` gets a browser-synthesised slant of the roman rather
+     than Cormorant's real italic cut. */
+  font-family: var(--font-display-italic), "Cormorant Garamond", Georgia, serif;
   font-style: italic;
   font-weight: 400;
 }
@@ -395,12 +399,20 @@ body {
   transition:
     transform 0.7s var(--ease-silk),
     filter 0.7s var(--ease-silk);
-  will-change: transform, filter;
+  /* Deliberately NOT `will-change: filter`. Promising a filter change promotes
+     every unrevealed heading to its own composited layer at page load and holds
+     a blur pass on each one until it scrolls into view — eight such layers were
+     live on the home page, several over 120,000px². Promoting only `transform`
+     keeps the slide cheap without paying for the blur up front. */
+  will-change: transform;
 }
 .mask-text.is-in .mask-inner {
   transform: none;
-  filter: blur(0);
-  will-change: auto; /* release the GPU layer once the reveal has played */
+  /* `none`, not `blur(0)`. A zero-radius blur is still a filter, so the browser
+     keeps the element on its own layer and keeps running the filter pipeline
+     over it forever. `none` drops the layer and the pipeline with it. */
+  filter: none;
+  will-change: auto;
 }
 
 /* Clip-reveal for images */
@@ -1503,5 +1515,152 @@ html.lite .grain {
   .eyebrow-settle {
     animation: none !important;
     opacity: 1 !important;
+  }
+}
+
+
+/* ============================================================
+   OFF-SCREEN RENDERING SKIP
+   ============================================================
+   The home page is ~8,000px tall, and the browser was doing style, layout and
+   paint work for every section of it on load — including the eight or nine the
+   visitor cannot see yet. `content-visibility: auto` lets it skip all three for
+   anything well outside the viewport and do the work lazily on approach.
+
+   `contain-intrinsic-size` is what makes this safe: it tells the browser how
+   tall to assume a skipped section is, so the scrollbar stays stable and
+   nothing shifts as sections are realised. Without it this trades a rendering
+   win for a layout-shift bug.
+
+   Opted into per-section via `data-defer`, never blanket-applied — the hero and
+   anything above the fold must render immediately. */
+[data-defer] {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 640px;
+}
+
+/* Reveal animations inside a skipped section have not run yet, and a section
+   realised mid-scroll can pop. Honour the same reduced-motion and low-end
+   opt-outs the rest of the motion layer uses. */
+@media (prefers-reduced-motion: reduce) {
+  [data-defer] {
+    content-visibility: visible;
+  }
+}
+html.lite [data-defer] {
+  content-visibility: visible;
+}
+
+
+/* ============================================================
+   PAGE ENTRANCE  (see src/app/template.tsx)
+   ============================================================
+   Pure CSS on purpose. The previous implementation server-rendered the page
+   inside an `opacity: 0` wrapper and cleared it from a React effect, so the
+   document stayed blank until the whole bundle had downloaded and hydrated —
+   first paint of real content was gated on JavaScript.
+
+   An animation starts at first paint instead. Content is visible and moving
+   while the JS is still in flight, and if the JS never arrives at all the page
+   still ends up in the right state. */
+@keyframes page-enter {
+  from {
+    transform: translateY(16px);
+  }
+  to {
+    transform: none;
+  }
+}
+
+.page-enter {
+  /* Transform only — no opacity — and that is the whole point.
+   *
+   * An animation that starts from `opacity: 0` makes the page invisible for as
+   * long as it has not advanced, and a paused animation still applies its first
+   * keyframe. A tab opened in the background, a restored bfcache page or a
+   * throttled compositor would all sit on a blank document, which is exactly
+   * the bug this replaced.
+   *
+   * Animating only `transform` means the worst case is content sitting 16px
+   * low — always readable, never hidden. It is also the cheapest thing to
+   * animate: the compositor handles it without a single repaint. */
+  animation: page-enter 0.62s var(--ease-silk);
+}
+
+@keyframes page-thread {
+  0% {
+    transform: scaleX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+}
+
+.page-thread {
+  /* Rests invisible and is only shown *by* the animation, so the same "if it
+     never runs" rule leaves no stray brass line across the top of the page. */
+  opacity: 0;
+  animation: page-thread 0.9s var(--ease-silk);
+}
+
+/* Reduced motion, and the low-end `lite` path, get the destination with no
+   travel — never a hidden page. */
+/* Reduced motion and the low-end `lite` path skip the travel entirely. The
+   resting state is already the destination, so removing the animation is all
+   that is needed. */
+@media (prefers-reduced-motion: reduce) {
+  .page-enter,
+  .page-thread {
+    animation: none;
+  }
+}
+
+html.lite .page-enter,
+html.lite .page-thread {
+  animation: none;
+}
+
+
+/* ============================================================
+   REVEAL FAILSAFE
+   ============================================================
+   `[data-reveal]` and `.mask-inner` start hidden and are revealed by an
+   IntersectionObserver, so until the bundle has downloaded and hydrated, that
+   content does not exist as far as the reader is concerned. The <noscript>
+   block in layout.tsx covers JavaScript being *off*; it does nothing for
+   JavaScript merely being *slow*, which on a mid-range phone over mobile data
+   is the common case.
+
+   These animations are a deadline. If the observer has not revealed an element
+   within a few seconds, CSS reveals it anyway — no JavaScript involved. When
+   hydration arrives on time (the normal path) `.is-in` has already transitioned
+   the element and the animation lands on identical values, so nothing visibly
+   changes. Content can never be permanently stranded behind a script. */
+@keyframes reveal-failsafe {
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+[data-reveal]:not(.is-in),
+[data-section-reveal]:not(.is-in) {
+  animation: reveal-failsafe 0.4s var(--ease-silk) 2.5s forwards;
+}
+
+.mask-text:not(.is-in) .mask-inner {
+  animation: reveal-failsafe 0.5s var(--ease-silk) 2.5s forwards;
+}
+
+/* Reduced motion and low-end devices skip the observer entirely and are shown
+   content immediately, so the deadline is redundant there. */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal]:not(.is-in),
+  [data-section-reveal]:not(.is-in),
+  .mask-text:not(.is-in) .mask-inner {
+    animation: none;
   }
 }

@@ -21,7 +21,11 @@ export async function POST(req: Request) {
 
   if (!adminConfigured()) {
     return NextResponse.json(
-      { error: "Admin password is not configured on the server." },
+      {
+        error:
+          "ADMIN_PASSWORD is not set on the server, so the CMS is locked. Set it in " +
+          "Vercel → Settings → Environment Variables and redeploy.",
+      },
       { status: 503 },
     );
   }
