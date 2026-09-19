@@ -234,12 +234,7 @@ function SlideMedia({
         quality={72}
         priority={priority}
         sizes="100vw"
-        // `contain` everywhere: the whole piece is always visible rather than
-        // cropped to fill (a 3:2 photo cropped to a tall screen showed a sliver).
-        className="object-contain"
-        // Backs the letterboxing, and shows instantly while the photo streams
-        // in — no blank flash.
-        style={{ backgroundColor: "#0A0907" }}
+        className="object-cover"
         draggable={false}
       />
     );
