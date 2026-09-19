@@ -1,50 +1,31 @@
 import { NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
-import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
+import sharp from "sharp";
 import {
-  usingBlob,
   photoName,
-  isValidPhotoPath,
-  PHOTO_PREFIX,
 } from "@/lib/catalog-store";
 import { isAuthed } from "@/lib/admin-auth";
+import { commitFiles, isGitHubConfigured, GitHubCommitError } from "@/lib/github-commit";
 
 export const dynamic = "force-dynamic";
 
 const DIR = path.join(process.cwd(), "public", "product-photos");
-const EXT: Record<string, string> = {
-  "image/jpeg": "jpg",
-  "image/png": "png",
-  "image/webp": "webp",
-  "image/avif": "avif",
-  "image/gif": "gif",
-};
-const ALLOWED_TYPES = Object.keys(EXT);
+const ALLOWED_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/avif",
+  "image/gif",
+];
 const MAX_BYTES = 15 * 1024 * 1024;
-/**
- * Vercel caps a serverless function's *request body* at 4.5 MB. Anything larger
- * is rejected at the edge before this handler runs, so a photo sent through the
- * function can never exceed it — which is why the multipart path below is only
- * a local-dev / small-file fallback and the real path is a client upload.
- */
-const FUNCTION_BODY_LIMIT = 4.5 * 1024 * 1024;
 
 /**
- * Product photo intake. Two paths, deliberately:
+ * Product photo intake — converts to WebP, then commits to GitHub.
  *
- *  1. **Client upload (production).** The browser hashes the file, asks this
- *     route for a scoped token, then uploads *directly* to Vercel Blob. The
- *     bytes never pass through the function, so the 4.5 MB body limit does not
- *     apply — which is what previously broke every photo over ~4.5 MB (i.e.
- *     most phone photos) with an opaque platform 413.
- *
- *  2. **Multipart (local dev, and small files).** Writes into
- *     public/product-photos so `next dev` needs no Blob store.
- *
- * Either way the filename is content-addressed — 20 hex chars of the bytes'
- * SHA-256 — so the same photo uploaded twice is stored exactly once, and the
- * URL can be cached forever because its content can never change.
+ * Every uploaded image is converted to WebP via sharp. In production the WebP
+ * file is committed directly to the GitHub repo via the Git Data API, which
+ * triggers a Vercel redeploy. In local dev it writes to the filesystem instead.
  */
 export async function POST(req: Request) {
   if (!isAuthed()) {
@@ -53,55 +34,15 @@ export async function POST(req: Request) {
 
   const contentType = req.headers.get("content-type") ?? "";
 
-  // ── Path 1: client-upload token handshake ────────────────────────────────
+  // Reject the client-upload JSON handshake — we no longer use Vercel Blob.
   if (contentType.includes("application/json")) {
-    if (!usingBlob) {
-      return NextResponse.json(
-        {
-          error:
-            "Direct uploads need a Vercel Blob store. Connect one to this project " +
-            "(Storage → Create → Blob) so BLOB_READ_WRITE_TOKEN is injected.",
-        },
-        { status: 503 },
-      );
-    }
-
-    const body = (await req.json()) as HandleUploadBody;
-    try {
-      const result = await handleUpload({
-        body,
-        request: req,
-        onBeforeGenerateToken: async (pathname) => {
-          // The browser proposes the pathname, so it is untrusted input. Only a
-          // well-formed content-addressed photo path is allowed — this is what
-          // stops `../../server.js` or any other traversal from being written.
-          if (!isValidPhotoPath(pathname)) {
-            throw new Error(`Rejected photo path: ${pathname}`);
-          }
-          return {
-            allowedContentTypes: ALLOWED_TYPES,
-            maximumSizeInBytes: MAX_BYTES,
-            // Content-addressed names are already unique by construction; a
-            // random suffix would defeat deduplication.
-            addRandomSuffix: false,
-            allowOverwrite: true,
-          };
-        },
-        onUploadCompleted: async () => {
-          // Nothing to do — the CMS records the returned URL in the catalogue
-          // and commits it with the next publish.
-        },
-      });
-      return NextResponse.json(result);
-    } catch (e) {
-      return NextResponse.json(
-        { error: e instanceof Error ? e.message : "Upload authorisation failed." },
-        { status: 400 },
-      );
-    }
+    return NextResponse.json(
+      { error: "Blob storage is not used. Photos are saved locally." },
+      { status: 400 },
+    );
   }
 
-  // ── Path 2: multipart fallback ───────────────────────────────────────────
+  // ── Multipart upload ─────────────────────────────────────────────────────
   let form: FormData;
   try {
     form = await req.formData();
@@ -113,8 +54,7 @@ export async function POST(req: Request) {
   if (!(file instanceof File)) {
     return NextResponse.json({ error: "No file provided." }, { status: 400 });
   }
-  const ext = EXT[file.type];
-  if (!ext) {
+  if (!ALLOWED_TYPES.includes(file.type)) {
     return NextResponse.json(
       { error: "Unsupported image type (use JPG, PNG, WebP, AVIF or GIF)." },
       { status: 415 },
@@ -123,35 +63,35 @@ export async function POST(req: Request) {
   if (file.size > MAX_BYTES) {
     return NextResponse.json({ error: "Image is larger than 15 MB." }, { status: 413 });
   }
-  if (usingBlob && file.size > FUNCTION_BODY_LIMIT) {
-    // Should be unreachable — the CMS routes anything this size through the
-    // client-upload path — but say so plainly rather than letting the platform
-    // return a bare 413 with no explanation.
-    return NextResponse.json(
-      {
-        error:
-          `This photo is ${(file.size / 1024 / 1024).toFixed(1)} MB. Vercel limits a request ` +
-          "body to 4.5 MB, so it must be uploaded directly to Blob storage instead.",
-      },
-      { status: 413 },
-    );
+
+  // Convert to WebP using sharp
+  const rawBytes = new Uint8Array(await file.arrayBuffer());
+  const webpBytes = await sharp(rawBytes)
+    .webp({ quality: 82 })
+    .toBuffer();
+
+  const webpUint8 = new Uint8Array(webpBytes);
+  const name = photoName(webpUint8, "webp");
+  const repoPath = `public/product-photos/${name}`;
+  const publicPath = `/product-photos/${name}`;
+
+  // ── Production: commit to GitHub ─────────────────────────────────────────
+  if (isGitHubConfigured()) {
+    try {
+      await commitFiles(
+        [{ path: repoPath, content: Buffer.from(webpUint8), binary: true }],
+        `📸 Add product photo ${name}`,
+      );
+      return NextResponse.json({ path: publicPath, name, deduplicated: false });
+    } catch (e) {
+      if (e instanceof GitHubCommitError) {
+        return NextResponse.json({ error: e.message }, { status: 502 });
+      }
+      throw e;
+    }
   }
 
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  const name = photoName(bytes, ext);
-
-  if (usingBlob) {
-    const { put } = await import("@vercel/blob");
-    const blob = await put(`${PHOTO_PREFIX}${name}`, Buffer.from(bytes), {
-      access: "public",
-      addRandomSuffix: false,
-      allowOverwrite: true,
-      contentType: file.type,
-    });
-    return NextResponse.json({ path: blob.url, name, deduplicated: true });
-  }
-
-  // Local dev — content-addressed, so re-uploading the same photo is a no-op.
+  // ── Local dev: write to filesystem ───────────────────────────────────────
   await fs.mkdir(DIR, { recursive: true });
   const dest = path.join(DIR, name);
   let existed = true;
@@ -159,7 +99,9 @@ export async function POST(req: Request) {
     await fs.access(dest);
   } catch {
     existed = false;
-    await fs.writeFile(dest, bytes);
+    await fs.writeFile(dest, webpUint8);
   }
-  return NextResponse.json({ path: `/product-photos/${name}`, name, deduplicated: existed });
+  return NextResponse.json({ path: publicPath, name, deduplicated: existed });
 }
+
+

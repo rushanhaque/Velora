@@ -2,6 +2,12 @@ import "server-only";
 import { promises as fs } from "fs";
 import path from "path";
 import { createHash } from "crypto";
+import {
+  commitFiles,
+  readFileFromGitHub,
+  isGitHubConfigured,
+  GitHubCommitError,
+} from "./github-commit";
 import { unstable_cache } from "next/cache";
 import {
   COLLECTIONS as SEED_COLLECTIONS,
@@ -89,6 +95,7 @@ type Tagged = Catalog & { __source: CatalogSource };
 async function loadRaw(): Promise<Tagged> {
   const tag = (c: Catalog, source: CatalogSource): Tagged => ({ ...c, __source: source });
 
+  // ── Vercel Blob (legacy, if still configured) ────────────────────────────
   if (usingBlob) {
     try {
       const { list } = await import("@vercel/blob");
@@ -96,9 +103,6 @@ async function loadRaw(): Promise<Tagged> {
       const found = blobs.find((b) => b.pathname === BLOB_KEY);
       if (!found) return tag(seed(), "seed:blob-empty");
 
-      // The blob URL is stable across overwrites, so bust the fetch cache to
-      // avoid serving a previous version's JSON. This only runs on a cache
-      // miss (first read, or after revalidateTag), so it is cheap.
       const res = await fetch(`${found.url}?ts=${Date.now()}`, { cache: "no-store" });
       if (!res.ok) return tag(seed(), "seed:blob-error");
       const data = await res.json();
@@ -109,19 +113,34 @@ async function loadRaw(): Promise<Tagged> {
     }
   }
 
+  // ── Local filesystem ─────────────────────────────────────────────────────
   try {
     const raw = await fs.readFile(FILE, "utf8");
     const data = JSON.parse(raw);
     if (!isCatalog(data)) return tag(seed(), "seed:corrupt");
     return tag(data, "file");
   } catch {
-    // On Vercel with no Blob store connected, this is where every request
-    // lands: process.cwd() is read-only and data/catalog.json will never exist.
-    return tag(
-      seed(),
-      process.env.VERCEL ? "seed:blob-unconfigured" : "seed:file-missing",
-    );
+    // fall through
   }
+
+  // ── GitHub (deployed on Vercel with GitHub integration) ──────────────────
+  if (process.env.VERCEL && isGitHubConfigured()) {
+    try {
+      const raw = await readFileFromGitHub("data/catalog.json");
+      if (raw) {
+        const data = JSON.parse(raw);
+        if (isCatalog(data)) return tag(data, "file");
+        return tag(seed(), "seed:corrupt");
+      }
+    } catch {
+      // fall through to seed
+    }
+  }
+
+  return tag(
+    seed(),
+    process.env.VERCEL ? "seed:blob-unconfigured" : "seed:file-missing",
+  );
 }
 
 const cachedLoad = unstable_cache(loadRaw, ["velora-catalog"], { tags: [CATALOG_TAG] });
@@ -173,6 +192,23 @@ export async function writeCatalog(input: Catalog): Promise<Catalog> {
   const data = normalizeCatalog({ ...input, updatedAt: new Date().toISOString() });
   const json = JSON.stringify(data, null, 2);
 
+  // ── GitHub (production on Vercel) ────────────────────────────────────────
+  if (isGitHubConfigured()) {
+    try {
+      await commitFiles(
+        [{ path: "data/catalog.json", content: json }],
+        `📦 Update product catalogue — ${new Date().toISOString()}`,
+      );
+    } catch (e) {
+      if (e instanceof GitHubCommitError) {
+        throw new CatalogWriteError(`GitHub commit failed: ${e.message}`, 502);
+      }
+      throw e;
+    }
+    return data;
+  }
+
+  // ── Vercel Blob (legacy, if still configured) ────────────────────────────
   if (usingBlob) {
     try {
       const { put } = await import("@vercel/blob");
@@ -194,16 +230,15 @@ export async function writeCatalog(input: Catalog): Promise<Catalog> {
   }
 
   if (process.env.VERCEL) {
-    // Guard, rather than letting fs.writeFile throw EROFS deep in the stack and
-    // surface as an opaque 500 the CMS reports as a generic failure.
     throw new CatalogWriteError(
-      "No Blob store is connected to this project, so there is nowhere to save. " +
-        "Vercel's filesystem is read-only. Create a Blob store (Storage → Create → Blob), " +
-        "connect it to this project so BLOB_READ_WRITE_TOKEN is injected, then redeploy.",
+      "Neither GITHUB_TOKEN nor BLOB_READ_WRITE_TOKEN is set. " +
+        "The CMS cannot save on Vercel without one of these. " +
+        "Set GITHUB_TOKEN and GITHUB_REPO in your Vercel environment variables.",
       503,
     );
   }
 
+  // ── Local dev: write to filesystem ───────────────────────────────────────
   try {
     await fs.mkdir(DATA_DIR, { recursive: true });
     await fs.writeFile(FILE, json, "utf8");
