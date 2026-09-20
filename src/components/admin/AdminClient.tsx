@@ -607,19 +607,19 @@ export function AdminClient() {
 
       {/* ── Top bar ── */}
       <header className="sticky top-0 z-30 border-b border-line/70 bg-parchment/85 backdrop-blur">
-        <div className="flex w-full items-center justify-between gap-3 px-5 py-3 sm:px-8">
+        <div className="flex w-full items-center justify-between gap-2 px-4 py-2.5 sm:gap-3 sm:px-8 sm:py-3">
           <div className="min-w-0">
-            <p className="font-display text-lg leading-none text-bitumen sm:text-xl">Velora CMS</p>
-            <p className="mt-0.5 truncate text-[0.58rem] uppercase tracking-wider2 text-ash">
+            <p className="font-display text-base leading-none text-bitumen sm:text-xl">Velora CMS</p>
+            <p className="mt-0.5 truncate text-[0.52rem] uppercase tracking-wider2 text-ash sm:text-[0.58rem]">
               {dirty
                 ? `${changes.added} added · ${changes.edited} edited · ${changes.removed} removed` +
-                  (drift ? " · behind live" : " · unpublished")
+                  (drift ? " · behind live" : "")
                 : drift
-                  ? "Live site updated elsewhere"
-                  : "Published & in sync"}
+                  ? "Updated elsewhere"
+                  : "In sync"}
             </p>
           </div>
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <button
               onClick={logout}
               className="hidden rounded-full px-3 py-2 text-[0.62rem] uppercase tracking-wider2 text-ash transition-colors hover:text-stone sm:block"
@@ -630,7 +630,7 @@ export function AdminClient() {
               <button
                 onClick={discard}
                 disabled={saving}
-                className="rounded-full border border-line px-3.5 py-2 text-[0.62rem] uppercase tracking-wider2 text-stone transition-colors hover:border-stone/40 disabled:opacity-40"
+                className="rounded-full border border-line px-2.5 py-1.5 text-[0.56rem] uppercase tracking-wider2 text-stone transition-colors hover:border-stone/40 disabled:opacity-40 sm:px-3.5 sm:py-2 sm:text-[0.62rem]"
               >
                 Discard
               </button>
@@ -639,7 +639,7 @@ export function AdminClient() {
               onClick={save}
               disabled={!dirty || saving}
               className={cn(
-                "rounded-full px-5 py-2 text-[0.62rem] uppercase tracking-wider2 transition-all duration-300",
+                "rounded-full px-3 py-1.5 text-[0.56rem] uppercase tracking-wider2 transition-all duration-300 sm:px-5 sm:py-2 sm:text-[0.62rem]",
                 dirty && !saving
                   ? "bg-bitumen text-parchment-pale hover:bg-bitumen-umber"
                   : "cursor-not-allowed bg-line text-ash",
@@ -647,22 +647,22 @@ export function AdminClient() {
             >
               {saving
                 ? progress && progress.total > 0
-                  ? `Photos ${progress.done}/${progress.total}…`
-                  : "Publishing…"
+                  ? `${progress.done}/${progress.total}…`
+                  : "Saving…"
                 : dirty
-                  ? "Save & publish"
-                  : "Published"}
+                  ? <>Save<span className="hidden sm:inline"> & publish</span></>
+                  : "Saved"}
             </button>
           </div>
         </div>
         {/* Tabs */}
-        <div className="flex w-full gap-1 px-5 sm:px-8">
+        <div className="flex w-full gap-0.5 px-4 sm:gap-1 sm:px-8">
           {(["products", "collections"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
               className={cn(
-                "relative -mb-px border-b-2 px-3 py-2.5 text-[0.7rem] uppercase tracking-wide3 transition-colors",
+                "relative -mb-px border-b-2 px-2.5 py-2 text-[0.62rem] uppercase tracking-wide3 transition-colors sm:px-3 sm:py-2.5 sm:text-[0.7rem]",
                 tab === t ? "border-brass text-bitumen" : "border-transparent text-ash hover:text-stone",
               )}
             >
@@ -672,31 +672,32 @@ export function AdminClient() {
         </div>
       </header>
 
-      <main className="w-full px-5 py-6 sm:px-8">
+      <main className="w-full px-4 py-5 sm:px-8 sm:py-6">
         {tab === "products" ? (
           <>
             {/* Controls */}
-            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="mb-4 flex flex-col gap-2.5 sm:mb-5 sm:flex-row sm:items-center sm:gap-3">
               <TextInput
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search products…"
                 className="sm:max-w-xs"
               />
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <SelectInput
                   value={filterCol}
                   onChange={setFilterCol}
                   placeholder="All collections"
                   options={draft.collections.map((c) => ({ value: c.slug, label: c.name }))}
-                  className="min-w-[10rem]"
+                  className="min-w-0 flex-1 sm:min-w-[10rem] sm:flex-none"
                 />
                 <button
                   onClick={openNewSpec}
                   disabled={draft.collections.length === 0}
-                  className="ml-auto shrink-0 rounded-full bg-brass px-4 py-2.5 text-[0.62rem] uppercase tracking-wider2 text-bitumen transition-colors hover:bg-brass-leaf disabled:opacity-40 sm:ml-0"
+                  className="shrink-0 rounded-full bg-brass px-3.5 py-2 text-[0.58rem] uppercase tracking-wider2 text-bitumen transition-colors hover:bg-brass-leaf disabled:opacity-40 sm:px-4 sm:py-2.5 sm:text-[0.62rem]"
                 >
-                  + Add product
+                  + Add
+                  <span className="hidden sm:inline"> product</span>
                 </button>
               </div>
             </div>
@@ -704,81 +705,133 @@ export function AdminClient() {
             {filtered.length === 0 ? (
               <p className="py-16 text-center text-sm text-ash">No products match.</p>
             ) : (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                {filtered.map((s) => (
-                  <div
-                    key={s.slug}
-                    className="group flex flex-col overflow-hidden rounded-xl border border-line bg-white transition-shadow hover:shadow-[0_14px_30px_-20px_rgba(34,26,12,0.35)]"
-                  >
-                    <div className="relative aspect-[4/5] overflow-hidden bg-parchment-pale">
-                      {imgFor("spec", s.slug, s.image) ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={imgFor("spec", s.slug, s.image)} alt="" className="absolute inset-0 h-full w-full object-cover" />
-                      ) : (
-                        <span className="absolute inset-0 grid place-items-center text-[0.6rem] uppercase tracking-wider2 text-ash/60">
-                          No image
-                        </span>
-                      )}
-                      {s.featured && (
-                        <span className="absolute left-2 top-2 rounded-full bg-brass/90 px-2 py-0.5 text-[0.52rem] uppercase tracking-wider2 text-bitumen">
-                          Featured
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex flex-1 flex-col p-3.5">
-                      <p className="font-display text-[1.05rem] leading-tight text-bitumen">{s.name || "Untitled"}</p>
-                      <p className="mt-1 text-[0.62rem] uppercase tracking-wider2 text-ash">
-                        {colName(s.collection)}
-                        {s.subcategory ? ` · ${s.subcategory}` : ""}
-                      </p>
-                      <p className="mt-1 text-[0.62rem] text-ash/70">{s.ref}</p>
-                      <div className="mt-3 flex items-center gap-1.5 border-t border-line/70 pt-3 text-[0.62rem] uppercase tracking-wider2">
-                        <button onClick={() => setEditSpec({ spec: clone(s), originalSlug: s.slug })} className="rounded-full px-2.5 py-1 text-brass-deep transition-colors hover:bg-brass/10">
-                          Edit
-                        </button>
-                        <button onClick={() => duplicateSpec(s)} className="rounded-full px-2.5 py-1 text-stone transition-colors hover:bg-line/60">
-                          Duplicate
-                        </button>
-                        <button onClick={() => deleteSpec(s)} className="ml-auto rounded-full px-2.5 py-1 text-red-700/80 transition-colors hover:bg-red-700/10">
-                          Delete
-                        </button>
+              <>
+                {/* ── Mobile: single-column horizontal cards ── */}
+                <div className="flex flex-col gap-2.5 sm:hidden">
+                  {filtered.map((s) => (
+                    <div
+                      key={s.slug}
+                      className="group flex overflow-hidden rounded-xl border border-line bg-white transition-shadow hover:shadow-[0_14px_30px_-20px_rgba(34,26,12,0.35)]"
+                    >
+                      {/* Thumbnail */}
+                      <div className="relative w-24 shrink-0 overflow-hidden bg-parchment-pale">
+                        {imgFor("spec", s.slug, s.image) ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={imgFor("spec", s.slug, s.image)} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                        ) : (
+                          <span className="absolute inset-0 grid place-items-center text-[0.5rem] uppercase tracking-wider2 text-ash/50">
+                            No img
+                          </span>
+                        )}
+                        {s.featured && (
+                          <span className="absolute left-1 top-1 rounded-full bg-brass/90 px-1.5 py-px text-[0.45rem] uppercase tracking-wider2 text-bitumen">
+                            ★
+                          </span>
+                        )}
+                      </div>
+                      {/* Details */}
+                      <div className="flex min-w-0 flex-1 flex-col justify-between p-3">
+                        <div className="min-w-0">
+                          <p className="truncate font-display text-[0.95rem] leading-tight text-bitumen">{s.name || "Untitled"}</p>
+                          <p className="mt-0.5 truncate text-[0.55rem] uppercase tracking-wider2 text-ash">
+                            {colName(s.collection)}
+                            {s.subcategory ? ` · ${s.subcategory}` : ""}
+                            {s.ref ? ` · ${s.ref}` : ""}
+                          </p>
+                        </div>
+                        {/* Actions row — compact icon-style buttons */}
+                        <div className="mt-2 flex items-center gap-1 text-[0.56rem] uppercase tracking-wider2">
+                          <button onClick={() => setEditSpec({ spec: clone(s), originalSlug: s.slug })} className="rounded-full bg-brass/10 px-2.5 py-1 text-brass-deep transition-colors hover:bg-brass/20">
+                            Edit
+                          </button>
+                          <button onClick={() => duplicateSpec(s)} className="rounded-full bg-line/50 px-2.5 py-1 text-stone transition-colors hover:bg-line">
+                            Copy
+                          </button>
+                          <button onClick={() => deleteSpec(s)} className="ml-auto rounded-full px-2 py-1 text-red-700/70 transition-colors hover:bg-red-700/10">
+                            ✕
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+                {/* ── Desktop: grid cards ── */}
+                <div className="hidden gap-3 sm:grid sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                  {filtered.map((s) => (
+                    <div
+                      key={s.slug}
+                      className="group flex flex-col overflow-hidden rounded-xl border border-line bg-white transition-shadow hover:shadow-[0_14px_30px_-20px_rgba(34,26,12,0.35)]"
+                    >
+                      <div className="relative aspect-[4/5] overflow-hidden bg-parchment-pale">
+                        {imgFor("spec", s.slug, s.image) ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={imgFor("spec", s.slug, s.image)} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                        ) : (
+                          <span className="absolute inset-0 grid place-items-center text-[0.6rem] uppercase tracking-wider2 text-ash/60">
+                            No image
+                          </span>
+                        )}
+                        {s.featured && (
+                          <span className="absolute left-2 top-2 rounded-full bg-brass/90 px-2 py-0.5 text-[0.52rem] uppercase tracking-wider2 text-bitumen">
+                            Featured
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-1 flex-col p-3.5">
+                        <p className="font-display text-[1.05rem] leading-tight text-bitumen">{s.name || "Untitled"}</p>
+                        <p className="mt-1 text-[0.62rem] uppercase tracking-wider2 text-ash">
+                          {colName(s.collection)}
+                          {s.subcategory ? ` · ${s.subcategory}` : ""}
+                        </p>
+                        <p className="mt-1 text-[0.62rem] text-ash/70">{s.ref}</p>
+                        <div className="mt-3 flex items-center gap-1.5 border-t border-line/70 pt-3 text-[0.62rem] uppercase tracking-wider2">
+                          <button onClick={() => setEditSpec({ spec: clone(s), originalSlug: s.slug })} className="rounded-full px-2.5 py-1 text-brass-deep transition-colors hover:bg-brass/10">
+                            Edit
+                          </button>
+                          <button onClick={() => duplicateSpec(s)} className="rounded-full px-2.5 py-1 text-stone transition-colors hover:bg-line/60">
+                            Duplicate
+                          </button>
+                          <button onClick={() => deleteSpec(s)} className="ml-auto rounded-full px-2.5 py-1 text-red-700/80 transition-colors hover:bg-red-700/10">
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </>
         ) : (
           <>
-            <div className="mb-5">
-              <p className="text-sm text-stone">
+            <div className="mb-4 sm:mb-5">
+              <p className="text-[0.78rem] leading-relaxed text-stone sm:text-sm">
                 Edit your collections &amp; their subcategories. The set of collections is
                 fixed — add new pieces from the Products tab.
               </p>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid gap-2.5 sm:gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {draft.collections.map((c) => {
                 const n = draft.specimens.filter((s) => s.collection === c.slug).length;
                 return (
-                  <div key={c.slug} className="flex gap-3.5 rounded-xl border border-line bg-white p-3.5">
-                    <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-parchment-pale">
+                  <div key={c.slug} className="flex gap-3 rounded-xl border border-line bg-white p-3 sm:gap-3.5 sm:p-3.5">
+                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-parchment-pale sm:h-20 sm:w-20">
                       {imgFor("col", c.slug, c.cover) && (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={imgFor("col", c.slug, c.cover)} alt="" className="absolute inset-0 h-full w-full object-cover" />
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-[0.6rem] text-brass-deep">{c.index}</span>
-                        <p className="truncate font-display text-lg text-bitumen">{c.name}</p>
+                      <div className="flex items-baseline gap-1.5 sm:gap-2">
+                        <span className="text-[0.55rem] text-brass-deep sm:text-[0.6rem]">{c.index}</span>
+                        <p className="truncate font-display text-base text-bitumen sm:text-lg">{c.name}</p>
                       </div>
-                      <p className="mt-0.5 text-[0.62rem] uppercase tracking-wider2 text-ash">
+                      <p className="mt-0.5 text-[0.55rem] uppercase tracking-wider2 text-ash sm:text-[0.62rem]">
                         {n} piece{n === 1 ? "" : "s"}
-                        {c.subcategories?.length ? ` · ${c.subcategories.length} categories` : ""}
+                        {c.subcategories?.length ? ` · ${c.subcategories.length} cat.` : ""}
                       </p>
-                      <div className="mt-2.5 flex gap-1.5 text-[0.62rem] uppercase tracking-wider2">
-                        <button onClick={() => setEditCol({ col: clone(c), originalSlug: c.slug })} className="rounded-full px-2.5 py-1 text-brass-deep transition-colors hover:bg-brass/10">
+                      <div className="mt-2 flex gap-1 text-[0.56rem] uppercase tracking-wider2 sm:mt-2.5 sm:gap-1.5 sm:text-[0.62rem]">
+                        <button onClick={() => setEditCol({ col: clone(c), originalSlug: c.slug })} className="rounded-full bg-brass/10 px-2.5 py-1 text-brass-deep transition-colors hover:bg-brass/20 sm:bg-transparent">
                           Edit
                         </button>
                         <button onClick={() => deleteCol(c)} className="rounded-full px-2.5 py-1 text-red-700/80 transition-colors hover:bg-red-700/10">
@@ -824,7 +877,7 @@ export function AdminClient() {
       {toast && (
         <div
           className={cn(
-            "fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-full px-5 py-2.5 text-[0.7rem] uppercase tracking-wide3 shadow-lg",
+            "fixed bottom-5 left-4 right-4 z-50 rounded-xl px-4 py-2.5 text-center text-[0.65rem] uppercase tracking-wide3 shadow-lg sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:rounded-full sm:px-5 sm:text-[0.7rem]",
             toast.kind === "ok" ? "bg-bitumen text-parchment-pale" : "bg-red-800 text-white",
           )}
         >
