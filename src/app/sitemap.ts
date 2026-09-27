@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import type { MetadataRoute } from "next";
 import { readCatalog } from "@/lib/catalog-store";
 
@@ -10,8 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes = [
     "",
     "/collections",
-    "/craft",
-    "/maison",
+    "/about",
     "/contact",
     "/faq",
   ].map((path) => ({

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import Image from "@/components/ui/SiteImage";
 import { cn } from "@/lib/utils";
 
 type Step = { n: string; title: string; body: string; image?: string };

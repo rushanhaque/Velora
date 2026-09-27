@@ -19,14 +19,7 @@ import {
 } from "@/lib/data";
 import { readCatalog } from "@/lib/catalog-store";
 
-/**
- * Safety net over `revalidatePath("/")`. This page is prerendered at build
- * time, so if a purge is ever missed — a deploy racing a publish, an edge that
- * never got the invalidation — it would otherwise serve build-time products
- * forever. A 60s window means the worst case is one stale minute, not one stale
- * deploy. The purge still does the fast path; this only catches what it drops.
- */
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const catalog = await readCatalog();

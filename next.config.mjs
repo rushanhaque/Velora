@@ -1,13 +1,8 @@
-/**
- * Build identity. On Vercel every deploy has a distinct commit SHA; locally the
- * wall clock stands in. This value is inlined into the client bundle and also
- * served (uncached) from /version.json, so a browser can tell whether the code
- * it is running is the code currently deployed. See src/lib/build-id.ts.
- */
+/** A deployment identity shared by server, browser and mutable media URLs. */
 const BUILD_ID =
-  process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 12) ??
+  process.env.VERCEL_DEPLOYMENT_ID ??
   process.env.NEXT_PUBLIC_BUILD_ID ??
-  String(Date.now());
+  `${process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 12) ?? "local"}-${Date.now()}`;
 
 /** The CMS must never be cached anywhere, by anyone, ever. */
 const NO_STORE = "no-store, no-cache, must-revalidate, max-age=0";
@@ -22,8 +17,7 @@ const nextConfig = {
 
   env: { NEXT_PUBLIC_BUILD_ID: BUILD_ID },
 
-  // Tie Next's own asset hashing to the deploy, so a new deploy can never serve
-  // a half-old / half-new mix of chunks to a browser holding cached HTML.
+  // Next also emits content-hashed JS/CSS; keep those immutable.
   generateBuildId: async () => BUILD_ID,
 
   compiler: {
@@ -40,9 +34,8 @@ const nextConfig = {
     // backgrounds and product shots never need 4K here, and a 3840px AVIF is
     // slow to encode + download — this is what made the signature photos lag.
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
-    // Cache optimized images for 31 days (default is 60s, which forces the
-    // optimizer to re-encode AVIF/WebP for every photo on repeat visits).
-    minimumCacheTTL: 2678400,
+    // Mutable media URLs include the build ID; uploads are content addressed.
+    minimumCacheTTL: 60,
   },
   experimental: {
     // Tree-shake heavy libs so only the used pieces ship to the client.
@@ -75,22 +68,17 @@ const nextConfig = {
           { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
         ],
       },
-      // Long-lived caching for directly-served /media assets. Not `immutable`
-      // because media is managed by hand and may be replaced in place — stale-
-      // while-revalidate keeps repeat loads instant while picking up changes.
+      // Mutable repository media must revalidate; rendered URLs are versioned.
       {
         source: "/media/:path*",
         headers: [
           {
             key: "Cache-Control",
-            value: "public, max-age=86400, stale-while-revalidate=2592000",
+            value: "public, max-age=0, must-revalidate",
           },
         ],
       },
-      // NOTE: HTML documents are handled in src/middleware.ts, not here. A page
-      // with `export const revalidate` gets its Cache-Control from ISR, which
-      // wins over anything declared in this file — middleware runs later and is
-      // the only place that reliably overrides it.
+      // Dynamic layouts disable the Full Route Cache; middleware disables CDN caching.
     ];
   },
 };

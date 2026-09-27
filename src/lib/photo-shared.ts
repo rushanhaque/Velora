@@ -35,7 +35,7 @@ export function isValidPhotoPath(p: string): boolean {
       return false;
     }
   }
-  return PHOTO_PATTERN.test(p);
+  return PHOTO_PATTERN.test(p.replace(/^\//, ""));
 }
 
 /**

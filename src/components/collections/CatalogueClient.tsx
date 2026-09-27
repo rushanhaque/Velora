@@ -35,6 +35,10 @@ export function CatalogueClient({
     [subcategories, specimens],
   );
 
+  useEffect(() => {
+    if (cat !== "All" && !groups.includes(cat)) setCat("All");
+  }, [cat, groups]);
+
   const filtered = useMemo(() => {
     const scoped = cat === "All" ? specimens : specimens.filter((s) => s.subcategory === cat);
     if (sort === "A–Z") return [...scoped].sort((a, b) => a.name.localeCompare(b.name));

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import Image from "@/components/ui/SiteImage";
 import type { Collection } from "@/lib/data";
 import { specimensByCollection } from "@/lib/data";
 import { Specimen as SpecimenArt } from "@/components/visual/Specimen";

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import type { Metadata } from "next";
 import { Section, Shell } from "@/components/ui/Section";
 import { DrumIndex } from "@/components/collections/DrumIndex";

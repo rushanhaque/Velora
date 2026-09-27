@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
+import Image from "@/components/ui/SiteImage";
 import { cn } from "@/lib/utils";
 import { prefersLite } from "@/lib/perf";
 

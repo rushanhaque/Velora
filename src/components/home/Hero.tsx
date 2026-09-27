@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/ui/SiteImage";
 
 /**
  * Home hero — the stage the fixed <HeroBrand/> wordmark lives over.

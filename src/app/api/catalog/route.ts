@@ -15,19 +15,14 @@ import { isAuthed } from "@/lib/admin-auth";
 // The CMS must always read/write live data, never a cached response.
 export const dynamic = "force-dynamic";
 
-/**
- * The live catalogue endpoint. Every public page reads through this, so a
- * publish is visible on the storefront within seconds without a rebuild.
- *
- * `s-maxage=10, stale-while-revalidate=30` lets the CDN answer almost every
- * request from the edge while capping how long a publish can stay invisible at
- * ten seconds. `stale-while-revalidate` means the refresh happens behind the
- * scenes, so nobody ever waits for the origin.
- */
-const LIVE_CACHE = "public, s-maxage=10, stale-while-revalidate=30";
+const LIVE_CACHE = "no-store, max-age=0";
 
 export async function GET() {
-  const catalog = await readCatalog();
+  let catalog: Catalog;
+  try { catalog = await readCatalog(); }
+  catch { return NextResponse.json({ error: "Catalogue storage unavailable. Please try again." }, {
+    status: 503, headers: { "Cache-Control": LIVE_CACHE, "CDN-Cache-Control": LIVE_CACHE, "Vercel-CDN-Cache-Control": LIVE_CACHE },
+  }); }
   return NextResponse.json(catalog, {
     headers: {
       "Cache-Control": LIVE_CACHE,
@@ -60,14 +55,22 @@ export async function PUT(req: Request) {
   }
 
   // Guard: every specimen must have a slug and belong to a real collection.
+  const collectionSlugs = new Set<string>();
+  for (const c of body.collections) {
+    if (!c || typeof c.slug !== "string" || !c.slug || collectionSlugs.has(c.slug)) {
+      return NextResponse.json({ error: "Collection slugs must be unique and non-empty." }, { status: 400 });
+    }
+    collectionSlugs.add(c.slug);
+  }
   const slugs = new Set<string>();
   for (const s of body.specimens) {
-    if (!s.slug || typeof s.slug !== "string") {
+    if (!s || !s.slug || typeof s.slug !== "string") {
       return NextResponse.json({ error: `A product is missing a slug.` }, { status: 400 });
     }
     if (slugs.has(s.slug)) {
       return NextResponse.json({ error: `Duplicate product slug: ${s.slug}.` }, { status: 400 });
     }
+    if (!collectionSlugs.has(s.collection)) return NextResponse.json({ error: "Product collection does not exist." }, { status: 400 });
     slugs.add(s.slug);
   }
 
@@ -107,9 +110,11 @@ export async function PUT(req: Request) {
   // catalogue has moved on since then, somebody else published in the meantime
   // and blindly writing would erase their work. Report the conflict and let a
   // human decide — never overwrite silently.
-  const current = await readCatalogFresh();
+  let current: Catalog;
+  try { current = await readCatalogFresh(); }
+  catch { return NextResponse.json({ error: "Cannot verify the live catalogue. Publish was not attempted." }, { status: 503 }); }
   const base = body.baseUpdatedAt ?? null;
-  if (base !== null && current.updatedAt && current.updatedAt !== base) {
+  if ((current.updatedAt ?? null) !== base) {
     return NextResponse.json(
       {
         error:
@@ -125,7 +130,7 @@ export async function PUT(req: Request) {
 
   let saved: Catalog;
   try {
-    saved = await writeCatalog({ collections: body.collections, specimens: body.specimens });
+    saved = await writeCatalog({ collections: body.collections, specimens: body.specimens }, base);
   } catch (e) {
     if (e instanceof CatalogWriteError) {
       // A real, actionable message instead of an opaque 500. This is the path

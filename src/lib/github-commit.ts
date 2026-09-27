@@ -35,7 +35,7 @@ function branch(): string {
 }
 
 export class GitHubCommitError extends Error {
-  constructor(message: string) {
+  constructor(message: string, readonly status = 502, readonly upstreamStatus?: number) {
     super(message);
     this.name = "GitHubCommitError";
   }
@@ -62,7 +62,9 @@ async function ghFetch(
   const url = endpoint.startsWith("http") ? endpoint : `${GITHUB_API}${endpoint}`;
   const res = await fetch(url, {
     ...options,
+    cache: "no-store",
     headers: {
+      "Cache-Control": "no-cache",
       Authorization: `Bearer ${token()}`,
       Accept: "application/vnd.github+json",
       "X-GitHub-Api-Version": "2022-11-28",
@@ -74,6 +76,8 @@ async function ghFetch(
     const body = await res.text().catch(() => "");
     throw new GitHubCommitError(
       `GitHub API ${res.status} on ${endpoint}: ${body.slice(0, 300)}`,
+      res.status === 409 || res.status === 422 ? 409 : 502,
+      res.status,
     );
   }
 
@@ -94,6 +98,7 @@ async function ghFetch(
 export async function commitFiles(
   files: FileToCommit[],
   message: string,
+  expectedCatalogVersion?: string | null,
 ): Promise<{ commitSha: string; commitUrl: string }> {
   if (!files.length) throw new GitHubCommitError("No files to commit.");
 
@@ -104,6 +109,21 @@ export async function commitFiles(
   const refData = await ghFetch(`/repos/${r}/git/ref/heads/${b}`);
   const headSha = ((refData.object as Record<string, unknown>)?.sha as string) ?? "";
   if (!headSha) throw new GitHubCommitError("Could not resolve branch HEAD.");
+
+  // Compare against the same immutable HEAD used as the commit parent. A
+  // concurrent publish after this read is rejected by the non-force ref update.
+  if (expectedCatalogVersion !== undefined) {
+    let current: { updatedAt?: string } = {};
+    try {
+      const snapshot = await ghFetch(`/repos/${r}/contents/data/catalog.json?ref=${headSha}`);
+      current = JSON.parse(Buffer.from(String(snapshot.content), "base64").toString("utf8"));
+    } catch (error) {
+      if (!(error instanceof GitHubCommitError) || error.upstreamStatus !== 404) throw error;
+    }
+    if ((current.updatedAt ?? null) !== expectedCatalogVersion) {
+      throw new GitHubCommitError("The catalogue changed. Load the latest version before publishing.", 409);
+    }
+  }
 
   // 2. Get the tree from HEAD commit
   const commitData = await ghFetch(`/repos/${r}/git/commits/${headSha}`);
@@ -172,13 +192,25 @@ export async function commitFiles(
   // 6. Update branch ref
   await ghFetch(`/repos/${r}/git/refs/heads/${b}`, {
     method: "PATCH",
-    body: JSON.stringify({ sha: newCommitSha }),
+    body: JSON.stringify({ sha: newCommitSha, force: false }),
   });
 
   return {
     commitSha: newCommitSha,
     commitUrl: `https://github.com/${r}/commit/${newCommitSha}`,
   };
+}
+
+/** Read an image before the static deployment containing it is ready. */
+export async function readPhotoFromGitHub(filePath: string): Promise<Uint8Array> {
+  const data = await ghFetch(`/repos/${repo()}/contents/${filePath}?ref=${encodeURIComponent(branch())}`);
+  if (typeof data.content !== "string" || data.encoding !== "base64") {
+    // Contents API omits content for larger files; use its immutable Git blob.
+    if (typeof data.sha !== "string") throw new GitHubCommitError("Photo content missing.");
+    const blob = await ghFetch(`/repos/${repo()}/git/blobs/${data.sha}`);
+    return new Uint8Array(Buffer.from(String(blob.content), "base64"));
+  }
+  return new Uint8Array(Buffer.from(data.content, "base64"));
 }
 
 /**
@@ -191,13 +223,23 @@ export async function readFileFromGitHub(filePath: string): Promise<string | nul
 
   try {
     const data = await ghFetch(
-      `/repos/${r}/contents/${encodeURIComponent(filePath)}?ref=${b}`,
+      `/repos/${r}/contents/${filePath.split("/").map(encodeURIComponent).join("/")}?ref=${encodeURIComponent(b)}`,
     );
-    const content = data.content as string | undefined;
-    if (!content) return null;
+    let content = data.content as string | undefined;
+    if ((!content || data.encoding === "none") && typeof data.sha === "string") {
+      const blob = await ghFetch(`/repos/${r}/git/blobs/${data.sha}`);
+      content = blob.content as string | undefined;
+    }
+    if (!content) throw new GitHubCommitError("GitHub catalogue content is empty or unsupported.");
     // GitHub returns base64-encoded content
     return Buffer.from(content.replace(/\n/g, ""), "base64").toString("utf-8");
-  } catch {
-    return null;
+  } catch (error) {
+    if (error instanceof GitHubCommitError && error.upstreamStatus === 404) {
+      // Verify access to the branch before treating a missing catalogue as a
+      // first publish. Wrong repo/branch/credentials must never look empty.
+      await ghFetch(`/repos/${r}/git/ref/heads/${encodeURIComponent(b)}`);
+      return null;
+    }
+    throw error;
   }
 }

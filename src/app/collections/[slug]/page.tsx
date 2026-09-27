@@ -14,17 +14,11 @@ import {
   selectRelated,
 } from "@/lib/catalog-store";
 
-/** See the note on the home page — a fallback window so a missed purge cannot
- *  pin a product page to its build-time content permanently. */
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 /** Products added in the CMS after this build must still render on demand. */
 export const dynamicParams = true;
 
-export async function generateStaticParams() {
-  const catalog = await readCatalog();
-  return catalog.specimens.map((s) => ({ slug: s.slug }));
-}
 
 export async function generateMetadata({
   params,

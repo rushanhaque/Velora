@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import Image from "@/components/ui/SiteImage";
 import { motion } from "framer-motion";
 import type { Specimen, Collection } from "@/lib/data";
 import { FINISHES, hasMedia } from "@/lib/data";
@@ -31,6 +31,7 @@ export function SpecimenDetail({
   collection?: Collection;
 }) {
   const [finish, setFinish] = useState(s.finish);
+  useEffect(() => setFinish(s.finish), [s.finish]);
   const added = useInEnquiry(s.slug);
 
   const finishOptions = FINISHES.filter(

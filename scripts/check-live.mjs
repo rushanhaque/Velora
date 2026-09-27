@@ -111,7 +111,7 @@ async function checkBuild() {
   const head = localHead();
   if (head) {
     const short = head.slice(0, 12);
-    if (buildId === short) {
+    if (buildId === short || buildId.startsWith(short + "-")) {
       line(PASS, "deployed commit", `${short} matches local HEAD`);
     } else {
       line(WARN, "deployed commit", `serving ${buildId}, local HEAD is ${short}`);
@@ -144,19 +144,20 @@ async function checkRoutes() {
 async function checkHealth() {
   const { res, error } = await get("/api/health");
   if (error || !res.ok) {
-    line(WARN, "/api/health", "unavailable — deploy the current branch for storage diagnostics");
+    line(FAIL, "/api/health", "storage diagnostics unavailable or unhealthy");
+    problems.push("Health endpoint failed; check production storage configuration.");
     return;
   }
   const h = await res.json();
 
   line(
-    h.storage.blobConfigured ? PASS : FAIL,
-    "Blob store connected",
-    h.storage.blobConfigured ? "BLOB_READ_WRITE_TOKEN present" : "BLOB_READ_WRITE_TOKEN missing",
+    h.storage.githubConfigured || h.storage.blobConfigured ? PASS : WARN,
+    "Remote storage configured",
+    h.storage.githubConfigured ? "GitHub" : h.storage.blobConfigured ? "Blob" : "local/seed",
   );
 
   const src = h.storage.catalogSource;
-  const live = src === "blob" || src === "file";
+  const live = src === "github" || src === "blob" || src === "file";
   line(
     live ? PASS : FAIL,
     "catalogue is a published one",
@@ -210,7 +211,7 @@ async function checkCaching() {
     const { res, error } = await get("/");
     if (!error) {
       const cc = res.headers.get("cache-control") ?? "";
-      const good = /must-revalidate/.test(cc) && /max-age=0/.test(cc);
+      const good = /no-store/.test(cc);
       line(good ? PASS : FAIL, "HTML revalidated per visit", cc || "(none)");
       if (!good) {
         problems.push(
@@ -221,18 +222,16 @@ async function checkCaching() {
     }
   }
 
-  // The live endpoint should be briefly edge-cached, not long-lived.
+  // Catalogue responses must bypass every shared cache.
   {
     const { res, error } = await get("/api/catalog");
     if (!error) {
       const cc = res.headers.get("cache-control") ?? "";
-      const m = /s-maxage=(\d+)/.exec(cc);
-      const good = m && Number(m[1]) <= 60;
-      line(good ? PASS : WARN, "/api/catalog edge cache", cc || "(none)");
+      const good = /no-store/.test(cc);
+      line(good ? PASS : FAIL, "/api/catalog no-store", cc || "(none)");
       if (!good) {
-        notes.push(
-          `/api/catalog is served with "${cc}". Expected s-maxage=10, ` +
-            "stale-while-revalidate=30 so a publish propagates within seconds.",
+        problems.push(
+          `/api/catalog is served with "${cc}". Expected no-store at browser and CDN layers.`,
         );
       }
     }
@@ -247,6 +246,11 @@ async function main() {
   await checkRoutes();
   await checkHealth();
   await checkCaching();
+  for (const path of ["/faq", "/collections"]) {
+    const { res } = await get(path);
+    if (!res?.ok) problems.push(`${path} is unavailable.`);
+    line(res?.ok ? PASS : FAIL, path, String(res?.status));
+  }
 
   if (notes.length) {
     console.log(c.warn(`\n${notes.length} note(s):`));

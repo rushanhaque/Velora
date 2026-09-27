@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { display, sans } from "@/lib/fonts";

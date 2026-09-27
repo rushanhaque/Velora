@@ -1,12 +1,13 @@
 "use client";
 
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { BUILD_ID, RELOAD_GUARD_KEY, ADMIN_DIRTY_KEY } from "@/lib/build-id";
+import { BUILD_ID, RELOAD_GUARD_KEY } from "@/lib/build-id";
 
 /** Don't hammer the endpoint — one check per this many ms at most. */
 const MIN_INTERVAL_MS = 30_000;
 /** Background heartbeat for a tab left open on a screen all day. */
-const POLL_MS = 5 * 60_000;
+const POLL_MS = 30_000;
 
 /**
  * Keeps every browser on the current deploy.
@@ -26,61 +27,66 @@ const POLL_MS = 5 * 60_000;
  *  • Inert in development, where `BUILD_ID` is "dev" and HMR already handles it.
  */
 export function VersionWatch() {
+  const router = useRouter();
+  const pathname = usePathname();
   useEffect(() => {
-    if (BUILD_ID === "dev") return;
+    if (process.env.NODE_ENV !== "production") return;
 
     let last = 0;
     let stopped = false;
+    let inFlight = false;
+    let catalogVersion: string | undefined;
 
-    const adminIsEditing = () => {
-      try {
-        return window.localStorage.getItem(ADMIN_DIRTY_KEY) === "1";
-      } catch {
-        // Private mode / storage disabled — assume not editing rather than
-        // permanently disabling the freshness check.
-        return false;
-      }
-    };
+    // Draft safety must not depend on browser storage being available.
+    const adminIsEditing = () => pathname.startsWith("/admin") && document.documentElement.dataset.adminDirty === "true";
 
     const alreadyReloadedFor = (id: string) => {
       try {
         return window.sessionStorage.getItem(RELOAD_GUARD_KEY) === id;
       } catch {
-        // Without sessionStorage we cannot guarantee loop safety, so decline to
-        // reload at all. A stale tab is better than an infinite refresh.
-        return true;
+        return new URL(window.location.href).searchParams.get("__velora_build") === id;
       }
     };
 
     const check = async () => {
-      if (stopped || document.visibilityState === "hidden") return;
+      if (stopped || inFlight || document.visibilityState === "hidden") return;
       const now = Date.now();
       if (now - last < MIN_INTERVAL_MS) return;
       last = now;
 
       if (adminIsEditing()) return;
 
+      inFlight = true;
       try {
         const res = await fetch("/version.json", {
           cache: "no-store",
           headers: { "Cache-Control": "no-cache" },
         });
         if (!res.ok) return;
-        const { buildId } = (await res.json()) as { buildId?: string };
+        const { buildId, catalogVersion: nextVersion } = (await res.json()) as { buildId?: string; catalogVersion?: string };
+        if (stopped) return;
+        if (nextVersion && nextVersion !== catalogVersion && !pathname.startsWith("/admin")) {
+          // Refresh on first check too: a publish may race the initial HTML.
+          catalogVersion = nextVersion;
+          router.refresh();
+        }
         if (!buildId || buildId === BUILD_ID) return;
         if (alreadyReloadedFor(buildId)) return;
 
+        const target = new URL(window.location.href);
         try {
           window.sessionStorage.setItem(RELOAD_GUARD_KEY, buildId);
         } catch {
-          return;
+          target.searchParams.set("__velora_build", buildId);
         }
         stopped = true;
         // `replace` rather than `reload` so the stale document does not stay in
         // the history stack for the back button to resurrect.
-        window.location.replace(window.location.href);
+        window.location.replace(target.href);
       } catch {
         // Offline or endpoint unreachable — try again on the next signal.
+      } finally {
+        inFlight = false;
       }
     };
 
@@ -111,7 +117,7 @@ export function VersionWatch() {
       window.removeEventListener("focus", check);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, []);
+  }, [router, pathname]);
 
   return null;
 }

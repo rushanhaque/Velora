@@ -105,6 +105,22 @@ export async function POST(req: Request) {
       }
     }
 
+    // ── Vercel without GitHub: explain what's wrong ─────────────────────────
+    if (process.env.VERCEL) {
+      const hasToken = Boolean(process.env.GITHUB_TOKEN);
+      const hasRepo = Boolean(process.env.GITHUB_REPO);
+      return NextResponse.json(
+        {
+          error:
+            `Cannot save photos on Vercel without GitHub integration. ` +
+            `GITHUB_TOKEN: ${hasToken ? "set" : "MISSING"}, ` +
+            `GITHUB_REPO: ${hasRepo ? "set" : "MISSING"}. ` +
+            `Add both to your Vercel project's Environment Variables and redeploy.`,
+        },
+        { status: 503 },
+      );
+    }
+
     // ── Local dev: write to filesystem ─────────────────────────────────────
     await fs.mkdir(DIR, { recursive: true });
     const dest = path.join(DIR, name);

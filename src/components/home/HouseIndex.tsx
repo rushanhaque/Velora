@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useMemo } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import Image from "@/components/ui/SiteImage";
 import { Section, Shell } from "@/components/ui/Section";
 import { Reveal } from "@/components/motion/Reveal";
 import { Eyebrow } from "@/components/ui/Atoms";

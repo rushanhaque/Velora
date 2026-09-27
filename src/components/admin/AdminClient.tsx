@@ -87,8 +87,8 @@ export function AdminClient() {
   const [loggingIn, setLoggingIn] = useState(false);
 
   useEffect(() => {
-    fetch("/api/admin/login")
-      .then((r) => r.json())
+    fetch("/api/admin/login", { cache: "no-store" })
+      .then((r) => { if (!r.ok) throw new Error("Request failed."); return r.json(); })
       .then((d: { authed: boolean; configured: boolean }) => {
         setAuthed(Boolean(d.authed));
         setConfigured(Boolean(d.configured));
@@ -170,7 +170,7 @@ export function AdminClient() {
         const live = (await res.json()) as Catalog;
         if (cancelled) return;
         const base = baseUpdatedAt.current;
-        setDrift(live.updatedAt && base !== null && live.updatedAt !== base ? live.updatedAt : null);
+        setDrift(live.updatedAt && live.updatedAt !== base ? live.updatedAt : null);
       } catch {
         // Offline — the banner simply stays as it is.
       }
@@ -189,6 +189,11 @@ export function AdminClient() {
     () => (loaded ? JSON.stringify(draft) !== JSON.stringify(loaded) : false) || Object.keys(pending).length > 0,
     [draft, loaded, pending],
   );
+
+  useEffect(() => {
+    document.documentElement.dataset.adminDirty = String(dirty || saving || editSpec !== null || editCol !== null);
+    return () => { delete document.documentElement.dataset.adminDirty; };
+  }, [dirty, saving, editSpec, editCol]);
 
   const changes = useMemo(() => {
     if (!loaded) return { added: 0, edited: 0, removed: 0 };
@@ -365,6 +370,7 @@ export function AdminClient() {
   const loadLatest = async () => {
     try {
       const res = await fetch("/api/catalog", { cache: "no-store" });
+      if (!res.ok) throw new Error("Catalogue unavailable.");
       const live = (await res.json()) as Catalog;
       Object.values(pending).forEach((p) => URL.revokeObjectURL(p.url));
       setPending({});
@@ -431,12 +437,21 @@ export function AdminClient() {
       return n;
     });
   };
-  const applySpec = (spec: Specimen, originalSlug: string | null, file: { file: File; url: string } | null) => {
+  const applySpec = (spec: Specimen, originalSlug: string | null, file: { file: File; url: string } | null, addedCategories: Record<string, string[]>) => {
     setDraft((d) => {
       const specimens = originalSlug
         ? d.specimens.map((x) => (x.slug === originalSlug ? spec : x))
         : [spec, ...d.specimens];
-      return { ...d, specimens };
+      const collections = d.collections.map((collection) => {
+        const additions = addedCategories[collection.slug];
+        if (!additions?.length) return collection;
+        const subcategories = [...(collection.subcategories ?? [])];
+        for (const name of additions) {
+          if (!subcategories.some((existing) => existing.toLocaleLowerCase() === name.toLocaleLowerCase())) subcategories.push(name);
+        }
+        return { ...collection, subcategories };
+      });
+      return { ...d, specimens, collections };
     });
     if (file || (originalSlug && originalSlug !== spec.slug)) {
       setPending((p) => {
@@ -934,14 +949,33 @@ function SpecEditor({
   existingSlugs: string[];
   initialImage: string;
   onCancel: () => void;
-  onApply: (spec: Specimen, originalSlug: string | null, file: { file: File; url: string } | null) => void;
+  onApply: (spec: Specimen, originalSlug: string | null, file: { file: File; url: string } | null, addedCategories: Record<string, string[]>) => void;
 }) {
   const [f, setF] = useState<Specimen>(initial);
   const [file, setFile] = useState<{ file: File; url: string } | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const set = <K extends keyof Specimen>(k: K, v: Specimen[K]) => setF((p) => ({ ...p, [k]: v }));
 
+  const [addedCategories, setAddedCategories] = useState<Record<string, string[]>>({});
+  const [addingCategory, setAddingCategory] = useState(false);
+  const [categoryName, setCategoryName] = useState("");
+  const [categoryError, setCategoryError] = useState<string | null>(null);
   const activeCol = collections.find((c) => c.slug === f.collection);
+  const categories = [...(activeCol?.subcategories ?? []), ...(addedCategories[f.collection] ?? [])];
+  const addCategory = () => {
+    if (!activeCol) return;
+    const name = categoryName.trim().replace(/\s+/g, " ");
+    if (!name) return setCategoryError("Enter a category name.");
+    const existing = categories.find((category) => category.toLocaleLowerCase() === name.toLocaleLowerCase());
+    if (!existing) {
+      setAddedCategories((current) => ({ ...current, [f.collection]: [...(current[f.collection] ?? []), name] }));
+    }
+    set("subcategory", existing ?? name);
+    setAddingCategory(false);
+    setCategoryName("");
+    setCategoryError(null);
+    setErr(null);
+  };
   // An existing piece keeps its web address; a new one derives it from the name.
   const slug = originalSlug ? f.slug : slugify(f.name);
   // Reference is derived from the collection — never typed by hand.
@@ -949,13 +983,14 @@ function SpecEditor({
   const preview = file?.url ?? initialImage;
 
   const submit = () => {
+    if (addingCategory) return setErr("Add the category or cancel its entry before saving the product.");
     const finalSlug = slugify(slug);
     if (!f.name.trim()) return setErr("Name is required.");
     if (!f.collection) return setErr("Choose a collection.");
     if (!finalSlug) return setErr("Could not build a web address from that name — add some letters or numbers.");
     const clash = existingSlugs.filter((s) => s !== originalSlug).includes(finalSlug);
     if (clash) return setErr("Another product already uses that name.");
-    onApply({ ...f, slug: finalSlug, ref, tags: f.tags ?? [] }, originalSlug, file);
+    onApply({ ...f, slug: finalSlug, ref, tags: f.tags ?? [] }, originalSlug, file, addedCategories);
   };
 
   return (
@@ -993,7 +1028,7 @@ function SpecEditor({
         <Field label="Collection" required>
           <SelectInput
             value={f.collection}
-            onChange={(v) => { set("collection", v); set("subcategory", undefined); }}
+            onChange={(v) => { set("collection", v); set("subcategory", undefined); setAddingCategory(false); setCategoryName(""); setCategoryError(null); setErr(null); }}
             placeholder="Choose a collection…"
             options={collections.map((c) => ({ value: c.slug, label: c.name }))}
           />
@@ -1001,15 +1036,45 @@ function SpecEditor({
 
         <Field
           label="Category"
-          hint={activeCol?.subcategories?.length ? "the filter on the collection page" : "this collection has no filters"}
+          hint="the filter on the collection page"
         >
           <SelectInput
             value={f.subcategory ?? ""}
             onChange={(v) => set("subcategory", v || undefined)}
             placeholder="—"
-            options={(activeCol?.subcategories ?? []).map((s) => ({ value: s, label: s }))}
+            options={categories.map((s) => ({ value: s, label: s }))}
           />
         </Field>
+
+        {addingCategory ? (
+          <div className="space-y-2 rounded-lg border border-line bg-parchment-pale/60 p-3">
+            <Field label="New category" hint={activeCol?.name}>
+              <TextInput
+                autoFocus
+                maxLength={80}
+                value={categoryName}
+                onChange={(event) => { setCategoryName(event.target.value); setCategoryError(null); }}
+                onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addCategory(); } }}
+                placeholder="e.g. Table lamps"
+                aria-invalid={Boolean(categoryError)}
+                aria-describedby={categoryError ? "category-error" : undefined}
+              />
+            </Field>
+            {categoryError && <p id="category-error" role="alert" className="text-xs text-red-700">{categoryError}</p>}
+            <div className="flex gap-3">
+              <button type="button" onClick={addCategory} className="rounded-full bg-bitumen px-4 py-2 text-xs text-parchment-pale">
+                Add category
+              </button>
+              <button type="button" onClick={() => { setAddingCategory(false); setCategoryName(""); setCategoryError(null); setErr(null); }} className="px-2 py-2 text-xs text-stone">
+                Cancel category
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button type="button" disabled={!activeCol} onClick={() => { setAddingCategory(true); setErr(null); }} className="text-xs text-brass-deep underline underline-offset-4 disabled:cursor-not-allowed disabled:opacity-50">
+            + Add a category
+          </button>
+        )}
 
         <Field label="Description" hint="sits under the title">
           <TextArea rows={3} value={f.desc} onChange={(e) => set("desc", e.target.value)} placeholder="One line that sits under the title." />

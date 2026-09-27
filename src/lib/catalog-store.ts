@@ -8,7 +8,8 @@ import {
   isGitHubConfigured,
   GitHubCommitError,
 } from "./github-commit";
-import { unstable_cache } from "next/cache";
+import { unstable_noStore } from "next/cache";
+import { cache } from "react";
 import {
   COLLECTIONS as SEED_COLLECTIONS,
   SPECIMENS as SEED_SPECIMENS,
@@ -16,28 +17,7 @@ import {
   type Specimen,
 } from "./data";
 
-/**
- * Runtime catalog store — works in two modes:
- *
- *  • Vercel (production): reads/writes a JSON blob in **Vercel Blob** storage,
- *    which survives deploys and the read-only serverless filesystem. Active
- *    whenever BLOB_READ_WRITE_TOKEN is present (Vercel injects it once you
- *    create a Blob store AND connect it to the project — creating the store on
- *    its own is not enough).
- *  • Local dev: falls back to `data/catalog.json` on disk, so `next dev` needs
- *    zero setup.
- *
- * Either way the compiled seed in data.ts is the last-resort fallback so the
- * storefront always renders.
- *
- * ── On silent failure ──────────────────────────────────────────────────────
- * The previous version wrapped every read in a bare `catch {}` that returned
- * the seed. That made four unrelated situations indistinguishable from outside:
- * Blob not configured, Blob unreachable, catalogue not yet written, and
- * catalogue corrupt. The live site served the seed and the CMS still reported
- * success. Every read now records *why* it returned what it did, and
- * `catalogSource()` exposes that to /api/health and the check:live diagnostic.
- */
+/** Read and write the same authoritative backend; remote failures never become seed data. */
 export interface Catalog {
   collections: Collection[];
   specimens: Specimen[];
@@ -57,6 +37,8 @@ export { PHOTO_PREFIX, PHOTO_PATTERN, isValidPhotoPath, isValidSha } from "./pho
 export const usingBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 
 export type CatalogSource =
+  | "seed:github-empty"
+  | "github"
   | "blob"
   | "file"
   | "seed:blob-empty"
@@ -95,21 +77,29 @@ type Tagged = Catalog & { __source: CatalogSource };
 async function loadRaw(): Promise<Tagged> {
   const tag = (c: Catalog, source: CatalogSource): Tagged => ({ ...c, __source: source });
 
+  if (isGitHubConfigured()) {
+    const raw = await readFileFromGitHub("data/catalog.json");
+    if (raw === null) return tag(seed(), "seed:github-empty");
+    const data = JSON.parse(raw);
+    if (!isCatalog(data)) throw new Error("GitHub catalogue is invalid.");
+    return tag(data, "github");
+  }
+
   // ── Vercel Blob (legacy, if still configured) ────────────────────────────
   if (usingBlob) {
     try {
       const { list } = await import("@vercel/blob");
       const { blobs } = await list({ prefix: BLOB_KEY, limit: 100 });
       const found = blobs.find((b) => b.pathname === BLOB_KEY);
-      if (!found) return tag(seed(), "seed:blob-empty");
+      if (!found) throw new Error("Blob catalogue missing.");
 
       const res = await fetch(`${found.url}?ts=${Date.now()}`, { cache: "no-store" });
-      if (!res.ok) return tag(seed(), "seed:blob-error");
+      if (!res.ok) throw new Error("Blob catalogue unavailable.");
       const data = await res.json();
-      if (!isCatalog(data)) return tag(seed(), "seed:corrupt");
+      if (!isCatalog(data)) throw new Error("Invalid Blob catalogue.");
       return tag(data, "blob");
-    } catch {
-      return tag(seed(), "seed:blob-error");
+    } catch (error) {
+      throw new Error("Authoritative Blob read failed.", { cause: error });
     }
   }
 
@@ -123,19 +113,6 @@ async function loadRaw(): Promise<Tagged> {
     // fall through
   }
 
-  // ── GitHub (deployed on Vercel with GitHub integration) ──────────────────
-  if (process.env.VERCEL && isGitHubConfigured()) {
-    try {
-      const raw = await readFileFromGitHub("data/catalog.json");
-      if (raw) {
-        const data = JSON.parse(raw);
-        if (isCatalog(data)) return tag(data, "file");
-        return tag(seed(), "seed:corrupt");
-      }
-    } catch {
-      // fall through to seed
-    }
-  }
 
   return tag(
     seed(),
@@ -143,17 +120,11 @@ async function loadRaw(): Promise<Tagged> {
   );
 }
 
-const cachedLoad = unstable_cache(loadRaw, ["velora-catalog"], { tags: [CATALOG_TAG] });
-
-/** Cross-request cached read; invalidated on save via revalidateTag(CATALOG_TAG). */
-export async function readCatalog(): Promise<Catalog> {
-  const { __source, ...catalog } = await cachedLoad();
-  // unstable_cache replays a memoised value without re-running loadRaw, so a
-  // module-level `lastSource` would go stale on every cache hit. Carry the
-  // provenance inside the cached payload and restore it on the way out.
-  lastSource = __source;
-  return catalog;
-}
+/** Request-scoped deduplication only. No persistent Next Data Cache. */
+export const readCatalog = cache(async (): Promise<Catalog> => {
+  unstable_noStore();
+  return readCatalogFresh();
+});
 
 /** Uncached read — the publish path must never diff against a cached copy. */
 export async function readCatalogFresh(): Promise<Catalog> {
@@ -185,7 +156,7 @@ export class CatalogWriteError extends Error {
   }
 }
 
-export async function writeCatalog(input: Catalog): Promise<Catalog> {
+export async function writeCatalog(input: Catalog, expectedVersion?: string | null): Promise<Catalog> {
   // Stamped here, on the server, from the server clock. A browser in another
   // timezone — or with a wrong clock — must not be able to write a catalogue
   // that looks older or newer than it really is.
@@ -198,10 +169,11 @@ export async function writeCatalog(input: Catalog): Promise<Catalog> {
       await commitFiles(
         [{ path: "data/catalog.json", content: json }],
         `📦 Update product catalogue — ${new Date().toISOString()}`,
+        expectedVersion,
       );
     } catch (e) {
       if (e instanceof GitHubCommitError) {
-        throw new CatalogWriteError(`GitHub commit failed: ${e.message}`, 502);
+        throw new CatalogWriteError(`GitHub commit failed: ${e.message}`, e.status);
       }
       throw e;
     }

@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { readCatalogFresh } from "@/lib/catalog-store";
+import { createHash } from "crypto";
 import { BUILD_ID } from "@/lib/build-id";
 
 /**
@@ -15,8 +17,15 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export async function GET() {
+  let catalogVersion: string | undefined;
+  try {
+    const catalog = await readCatalogFresh();
+    catalogVersion = createHash("sha256").update(JSON.stringify(catalog)).digest("hex");
+  } catch {
+    // A storage outage must not prevent clients discovering a code deployment.
+  }
   return NextResponse.json(
-    { buildId: BUILD_ID, serverTime: new Date().toISOString() },
+    { buildId: BUILD_ID, catalogVersion, serverTime: new Date().toISOString() },
     {
       headers: {
         "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",

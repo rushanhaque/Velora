@@ -24,7 +24,23 @@ export async function uploadPhoto(file: File): Promise<UploadResult> {
   }
 
   const fd = new FormData();
-  fd.append("file", file);
+  let payload = file;
+  if (file.size > 4 * 1024 * 1024) {
+    const bitmap = await createImageBitmap(file);
+    try {
+      const canvas = document.createElement("canvas");
+      const scale = Math.min(1, 2400 / Math.max(bitmap.width, bitmap.height));
+      canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+      canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Unable to prepare this image. Please resize it and try again.");
+      ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, "image/webp", 0.82));
+      if (!blob || blob.size > 4 * 1024 * 1024) throw new Error("Please resize this image below 4 MB before uploading.");
+      payload = new File([blob], "upload.webp", { type: blob.type });
+    } finally { bitmap.close(); }
+  }
+  fd.append("file", payload);
   const res = await fetch("/api/catalog/upload", { method: "POST", body: fd });
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as { error?: string };

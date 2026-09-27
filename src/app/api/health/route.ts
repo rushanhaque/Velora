@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readCatalogFresh, catalogSource, usingBlob } from "@/lib/catalog-store";
+import { isGitHubConfigured } from "@/lib/github-commit";
 import { BUILD_ID } from "@/lib/build-id";
 
 export const dynamic = "force-dynamic";
@@ -17,14 +18,18 @@ export const dynamic = "force-dynamic";
  * value. Consumed by `npm run check:live`.
  */
 export async function GET() {
-  const catalog = await readCatalogFresh();
+  let catalog;
+  try { catalog = await readCatalogFresh(); }
+  catch {
+    return NextResponse.json({ ok: false, buildId: BUILD_ID, problems: ["Authoritative catalogue storage is unreachable or invalid."] },
+      { status: 503, headers: { "Cache-Control": "no-store" } });
+  }
   const source = catalogSource();
 
   const problems: string[] = [];
-  if (!usingBlob) {
+  if (process.env.VERCEL && !usingBlob && !isGitHubConfigured()) {
     problems.push(
-      "BLOB_READ_WRITE_TOKEN is not set. Publishing cannot persist: Vercel's filesystem " +
-        "is read-only. Create a Blob store and connect it to this project.",
+      "No writable catalogue backend is configured. Set GITHUB_TOKEN and GITHUB_REPO.",
     );
   }
   if (source.startsWith("seed:")) {
@@ -40,6 +45,7 @@ export async function GET() {
       buildId: BUILD_ID,
       storage: {
         blobConfigured: usingBlob,
+        githubConfigured: isGitHubConfigured(),
         catalogSource: source,
         catalogUpdatedAt: catalog.updatedAt ?? null,
       },

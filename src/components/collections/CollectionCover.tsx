@@ -1,5 +1,6 @@
 "use client";
 
+import { mediaUrl } from "@/lib/media-url";
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 
@@ -39,7 +40,7 @@ export function CollectionCover({
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <motion.img
-        src={src}
+        src={mediaUrl(src)}
         alt={`${name} — ${material}`}
         style={reduce ? { scale: 1.12 } : { y, scale }}
         className="absolute inset-0 h-full w-full origin-center object-cover will-change-transform"

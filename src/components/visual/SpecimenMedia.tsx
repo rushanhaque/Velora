@@ -1,7 +1,8 @@
 "use client";
 
-import Image from "next/image";
-import { useState } from "react";
+import Image from "@/components/ui/SiteImage";
+import { mediaUrl } from "@/lib/media-url";
+import { useEffect, useState } from "react";
 import type { Specimen } from "@/lib/data";
 import { Specimen as SpecimenArt } from "./Specimen";
 import { cn } from "@/lib/utils";
@@ -28,17 +29,20 @@ export function SpecimenMedia({
   const [imgFailed, setImgFailed] = useState(false);
   const [vidFailed, setVidFailed] = useState(false);
 
+  useEffect(() => { setImgFailed(false); setVidFailed(false); }, [s.image, s.video]);
+
   const radius = rounded ? "rounded-card" : "";
 
   if (s.video && !vidFailed) {
     return (
       <video
         className={cn("absolute inset-0 h-full w-full object-cover", radius, className)}
+        src={mediaUrl(s.video)}
         autoPlay
         muted
         loop
         playsInline
-        poster={s.poster ?? s.image}
+        poster={s.poster || s.image ? mediaUrl((s.poster ?? s.image)!) : undefined}
         aria-label={`${s.name} — ${s.material}`}
         onError={() => setVidFailed(true)}
       />
