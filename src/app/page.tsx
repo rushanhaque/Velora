@@ -1,3 +1,5 @@
+import { CountriesServed } from "@/components/home/CountriesServed";
+import { ClientReviews } from "@/components/home/ClientReviews";
 import { Hero } from "@/components/home/Hero";
 import { HouseIndex } from "@/components/home/HouseIndex";
 import { SignatureScroll } from "@/components/home/SignatureScroll";
@@ -204,6 +206,8 @@ export default async function Home() {
         </Shell>
       </Section>
 
+      <CountriesServed />
+
       {/* ───────────────── Catalogue CTA (dark) ───────────────── */}
       <Section tint pad="md" id="catalogue" defer intrinsicHeight={940} className="overflow-hidden">
         <Shell>
@@ -233,6 +237,7 @@ export default async function Home() {
           </div>
         </Shell>
       </Section>
+      <ClientReviews />
     </>
   );
 }

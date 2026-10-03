@@ -56,34 +56,34 @@ image, and an SVG favicon.
 
 ## The CMS, and how content reaches the live site
 
-The catalogue is **not** rebuilt into the site. It lives in Vercel Blob and is
-read through `/api/catalog` on every request, so pressing **Save & publish**
-shows up on the storefront within seconds — no redeploy.
+The admin publishes photos to `public/product-photos/` and product/category data
+to `data/catalog.json` using the server-side GitHub API. Both reads and writes
+use the same repository and branch. Vercel builds commits from its connected
+production branch; storefront catalogue reads do not wait for that build.
 
-```
-CMS  ──photos──▶  Vercel Blob (direct from the browser)
-     ──catalogue─▶  /api/catalog  ──▶  Blob  ──▶  storefront
-```
-
-**Two environment variables are required in production.** Without them nothing
-the CMS saves can persist, and the site silently serves the compiled seed from
-`src/lib/data.ts` instead:
+Required Vercel environment variables:
 
 | Variable | Why |
 |---|---|
-| `BLOB_READ_WRITE_TOKEN` | Injected by Vercel once a Blob store is **connected to the project**. Creating the store alone is not enough. |
-| `ADMIN_PASSWORD` | The CMS login. There is no default — an unset value locks the CMS rather than falling back to a password committed in a public repo. |
+| `GITHUB_TOKEN` | Fine-grained token with access to this repository and **Contents: Read and write**. |
+| `ADMIN_PASSWORD` | Admin login password. |
 
-Photos are uploaded **directly from the browser to Blob storage**, not through
-the API. Vercel caps a serverless function's request body at 4.5 MB, which is
-smaller than a typical phone photo; routing uploads through the function silently
-killed them. Each photo is named by a SHA-256 hash of its own bytes, so the same
-photo uploaded twice is stored once, and the URL can be cached forever.
+The repository defaults to Vercel's connected repository, or
+`rushanhaque/Velora` when that metadata is unavailable. The branch defaults to
+`main`. `GITHUB_REPO` (`owner/repo`) and `GITHUB_BRANCH` are optional overrides.
+After changing environment variables, redeploy so the functions receive them.
+No Blob store is needed. Production storage failures are reported instead of
+silently serving an old bundled catalogue. Without a token, local development
+uses `data/catalog.json` on disk.
+
+Photos pass through the authenticated upload API, are converted to WebP, and
+receive content-hashed filenames. Large source photos are resized in the browser
+before upload to stay within Vercel's request limit.
 
 ## Staying fresh on every device
 
-- Every HTML document is served `max-age=0, must-revalidate`, so no browser
-  renders a page without asking the origin first (the CDN still caches it).
+- Dynamic storefront HTML and catalogue responses use `no-store` headers,
+  including Vercel CDN headers, so each request reads the current GitHub catalogue.
 - `/admin` is `no-store` everywhere and never prerendered.
 - The build ID is baked into the bundle and served, uncached, from
   `/version.json`. Each page compares the two on load, on focus, on
@@ -125,7 +125,7 @@ anywhere. That failure looks exactly like "the site just never updates".
 ## Adding product images & video
 
 Product photos are normally added through the CMS at `/admin`, which files them
-in Blob storage automatically. To ship an image with the repository instead, drop
+in GitHub automatically. To ship an image with the repository instead, drop
 it in `public/media/…` and point to it from `src/lib/data.ts`. Precedence per
 piece is **video → image → SVG**, with automatic fallback if a file is missing.
 Full guide: [`public/media/README.md`](public/media/README.md).

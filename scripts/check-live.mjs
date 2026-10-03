@@ -151,9 +151,9 @@ async function checkHealth() {
   const h = await res.json();
 
   line(
-    h.storage.githubConfigured || h.storage.blobConfigured ? PASS : WARN,
+    h.storage.githubConfigured ? PASS : WARN,
     "Remote storage configured",
-    h.storage.githubConfigured ? "GitHub" : h.storage.blobConfigured ? "Blob" : "local/seed",
+    h.storage.githubConfigured ? "GitHub" : "local/seed",
   );
 
   const src = h.storage.catalogSource;

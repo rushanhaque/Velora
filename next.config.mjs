@@ -9,6 +9,8 @@ const NO_STORE = "no-store, no-cache, must-revalidate, max-age=0";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Allow isolated production checks while the local dev server is running.
+  distDir: process.env.NEXT_BUILD_DIR || ".next",
   reactStrictMode: true,
   // No X-Powered-By: Next.js header on every response.
   poweredByHeader: false,
@@ -24,7 +26,7 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error", "warn"] } : false,
   },
   images: {
-    // CMS-uploaded product photos are served from Vercel Blob.
+    // Keep existing legacy image URLs working; new uploads are committed to GitHub.
     remotePatterns: [
       { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
     ],

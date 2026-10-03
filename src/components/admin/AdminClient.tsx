@@ -297,10 +297,8 @@ export function AdminClient() {
   /**
    * Publish: stage every pending photo, then write the whole catalogue.
    *
-   * Photos go straight from this browser to Blob storage (see uploadPhoto) —
-   * routing them through the API would cap them at Vercel's 4.5 MB request-body
-   * limit, which is smaller than a typical phone photo. Each is named by a hash
-   * of its own bytes, so uploading the same picture twice stores it once.
+   * Photos are resized when necessary, uploaded through the API and committed
+   * to GitHub. The catalogue commit follows after every photo succeeds.
    */
   const save = async () => {
     setSaving(true);

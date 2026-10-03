@@ -6,16 +6,28 @@ import "server-only";
  * Uses the low-level blobs → tree → commit → update-ref workflow so that
  * multiple files land in a single atomic commit (no partial states).
  *
- * Required env vars:
+ * Configuration:
  *   GITHUB_TOKEN  — fine-grained PAT with Contents: Read and write
- *   GITHUB_REPO   — "owner/repo" (e.g. "rushanhaque/Velora")
- *   GITHUB_BRANCH — target branch, defaults to "main"
+ *   GITHUB_REPO   — optional "owner/repo" override
+ *   GITHUB_BRANCH — optional target branch override, defaults to "main"
+ * Repository defaults to Vercel's connected Git repository, then this project.
  */
 
 const GITHUB_API = "https://api.github.com";
 
 function env(key: string, fallback = ""): string {
-  return process.env[key] ?? fallback;
+  return process.env[key]?.trim() || fallback;
+}
+
+/** Non-secret destination shared by uploads, catalogue reads/writes and diagnostics. */
+export function githubTarget(): { repository: string; branch: string } {
+  const owner = env("VERCEL_GIT_REPO_OWNER");
+  const slug = env("VERCEL_GIT_REPO_SLUG");
+  return {
+    repository: env("GITHUB_REPO", owner && slug ? `${owner}/${slug}` : "rushanhaque/Velora"),
+    // Never take a transient preview commit/ref as the publishing destination.
+    branch: env("GITHUB_BRANCH", "main"),
+  };
 }
 
 function token(): string {
@@ -25,13 +37,15 @@ function token(): string {
 }
 
 function repo(): string {
-  const r = env("GITHUB_REPO");
-  if (!r) throw new GitHubCommitError("GITHUB_REPO is not set.");
+  const r = githubTarget().repository;
+  if (!/^[\w.-]+\/[\w.-]+$/.test(r)) {
+    throw new GitHubCommitError("GITHUB_REPO must be owner/repository, for example rushanhaque/Velora.", 503);
+  }
   return r;
 }
 
 function branch(): string {
-  return env("GITHUB_BRANCH", "main");
+  return githubTarget().branch;
 }
 
 export class GitHubCommitError extends Error {
@@ -41,9 +55,9 @@ export class GitHubCommitError extends Error {
   }
 }
 
-/** Whether GitHub committing is configured (all required env vars present). */
+/** The token is the only required publishing setting; the destination has defaults. */
 export function isGitHubConfigured(): boolean {
-  return Boolean(env("GITHUB_TOKEN") && env("GITHUB_REPO"));
+  return Boolean(env("GITHUB_TOKEN"));
 }
 
 interface FileToCommit {
@@ -74,8 +88,15 @@ async function ghFetch(
 
   if (!res.ok) {
     const body = await res.text().catch(() => "");
+    const hint = res.status === 401
+      ? "The GitHub token is invalid or expired. Update GITHUB_TOKEN in Vercel and redeploy."
+      : res.status === 403
+        ? "GitHub refused the request. Check the token's repository access, Contents read/write permission and API rate limit."
+        : res.status === 404
+          ? `Check token access to ${repo()} and that branch ${branch()} exists.`
+          : "";
     throw new GitHubCommitError(
-      `GitHub API ${res.status} on ${endpoint}: ${body.slice(0, 300)}`,
+      `GitHub API ${res.status}. ${hint || body.slice(0, 300)}`,
       res.status === 409 || res.status === 422 ? 409 : 502,
       res.status,
     );

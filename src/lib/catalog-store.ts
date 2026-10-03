@@ -26,7 +26,6 @@ export interface Catalog {
 }
 
 export const CATALOG_TAG = "catalog";
-const BLOB_KEY = "catalog.json";
 const DATA_DIR = path.join(process.cwd(), "data");
 const FILE = path.join(DATA_DIR, "catalog.json");
 
@@ -34,22 +33,14 @@ const FILE = path.join(DATA_DIR, "catalog.json");
 // them too — this module is server-only and cannot cross that boundary.
 export { PHOTO_PREFIX, PHOTO_PATTERN, isValidPhotoPath, isValidSha } from "./photo-shared";
 
-export const usingBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
-
 export type CatalogSource =
   | "seed:github-empty"
   | "github"
-  | "blob"
   | "file"
-  | "seed:blob-empty"
-  | "seed:blob-error"
-  | "seed:blob-unconfigured"
   | "seed:file-missing"
   | "seed:corrupt";
 
-let lastSource: CatalogSource = usingBlob
-  ? "seed:blob-empty"
-  : "seed:blob-unconfigured";
+let lastSource: CatalogSource = "seed:file-missing";
 
 /** How the most recent read resolved — surfaced by /api/health. */
 export function catalogSource(): CatalogSource {
@@ -85,22 +76,8 @@ async function loadRaw(): Promise<Tagged> {
     return tag(data, "github");
   }
 
-  // ── Vercel Blob (legacy, if still configured) ────────────────────────────
-  if (usingBlob) {
-    try {
-      const { list } = await import("@vercel/blob");
-      const { blobs } = await list({ prefix: BLOB_KEY, limit: 100 });
-      const found = blobs.find((b) => b.pathname === BLOB_KEY);
-      if (!found) throw new Error("Blob catalogue missing.");
-
-      const res = await fetch(`${found.url}?ts=${Date.now()}`, { cache: "no-store" });
-      if (!res.ok) throw new Error("Blob catalogue unavailable.");
-      const data = await res.json();
-      if (!isCatalog(data)) throw new Error("Invalid Blob catalogue.");
-      return tag(data, "blob");
-    } catch (error) {
-      throw new Error("Authoritative Blob read failed.", { cause: error });
-    }
+  if (process.env.VERCEL) {
+    throw new Error("GITHUB_TOKEN is not set. Configure the fine-grained token in Vercel and redeploy.");
   }
 
   // ── Local filesystem ─────────────────────────────────────────────────────
@@ -114,10 +91,7 @@ async function loadRaw(): Promise<Tagged> {
   }
 
 
-  return tag(
-    seed(),
-    process.env.VERCEL ? "seed:blob-unconfigured" : "seed:file-missing",
-  );
+  return tag(seed(), "seed:file-missing");
 }
 
 /** Request-scoped deduplication only. No persistent Next Data Cache. */
@@ -180,32 +154,9 @@ export async function writeCatalog(input: Catalog, expectedVersion?: string | nu
     return data;
   }
 
-  // ── Vercel Blob (legacy, if still configured) ────────────────────────────
-  if (usingBlob) {
-    try {
-      const { put } = await import("@vercel/blob");
-      await put(BLOB_KEY, json, {
-        access: "public",
-        addRandomSuffix: false,
-        allowOverwrite: true,
-        contentType: "application/json",
-      });
-    } catch (e) {
-      throw new CatalogWriteError(
-        `Could not write the catalogue to Vercel Blob: ${
-          e instanceof Error ? e.message : String(e)
-        }`,
-        502,
-      );
-    }
-    return data;
-  }
-
   if (process.env.VERCEL) {
     throw new CatalogWriteError(
-      "Neither GITHUB_TOKEN nor BLOB_READ_WRITE_TOKEN is set. " +
-        "The CMS cannot save on Vercel without one of these. " +
-        "Set GITHUB_TOKEN and GITHUB_REPO in your Vercel environment variables.",
+      "GITHUB_TOKEN is not set. Add your fine-grained GitHub token in Vercel and redeploy.",
       503,
     );
   }

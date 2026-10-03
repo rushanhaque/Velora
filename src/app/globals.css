@@ -1664,3 +1664,67 @@ html.lite .page-thread {
     animation: none;
   }
 }
+
+/* Worldwide trade — a quiet, tactile flag carousel. */
+.countries-section { padding: clamp(36px, 5vw, 72px) 0; }
+.countries-panel { overflow: hidden; border: 1px solid #d7c5ac; border-radius: 28px; background: radial-gradient(ellipse at 50% 0, #f5eee2, transparent 75%), #eae0d1; box-shadow: inset 0 1px 0 #fff9, 0 16px 44px -34px #634a2a66; }
+.countries-header { display: flex; align-items: center; justify-content: center; gap: 20px; padding: 30px 36px 22px; text-align: center; }
+.countries-title-lockup { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.countries-globe { display: grid; place-items: center; width: 54px; height: 54px; flex-shrink: 0; border: 1px solid #af8c5555; border-radius: 50%; color: #8c703a; }
+.countries-globe svg { width: 35px; height: 35px; }
+.countries-track:focus-visible { outline: 2px solid #8c703a; outline-offset: 3px; }
+.countries-track { position: relative; display: flex; gap: 16px; padding: 18px 36px 28px; overflow-x: auto; scrollbar-width: none; scroll-padding-inline: 36px; overscroll-behavior-x: contain; }
+.countries-track::-webkit-scrollbar { display: none; }
+.country-card { flex: 0 0 160px; text-align: center; padding: 0 4px; }
+.country-flag-frame { height: 78px; display: grid; place-items: center; }
+.country-flag { width: 96px; height: 72px; object-fit: contain; border-radius: 4px; filter: drop-shadow(0 6px 5px #49382218); transition: transform .35s; }
+.country-card:hover .country-flag { transform: translateY(-4px); }
+.countries-footer { display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: center; gap: 18px; border-top: 1px solid #c8b59966; margin: 0 36px; padding: 19px 0 23px; font-size: 12px; color: #6e6657; }
+.countries-footer a { display: inline-flex; gap: 14px; align-items: center; color: #715831; }
+.countries-footer a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+/* Client journal — six editorial cards, never a fabricated rating summary. */
+.client-notes { position: relative; padding: clamp(64px, 8vw, 112px) 0 0; background: radial-gradient(ellipse at 0 30%, #eadcc34d, transparent 55%), #f3eee5; border-top: 1px solid #e3dccd; }
+.client-notes-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 36px; margin-bottom: 44px; }
+.client-notes-intro { max-width: 310px; padding-bottom: 4px; }
+.review-preview-label { display: inline-flex; align-items: center; gap: 8px; border: 1px solid #b89b6a66; border-radius: 999px; padding: 6px 11px; font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: #715831; }
+.review-preview-label::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: #8c703a; }
+.client-notes-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.client-note { display: flex; flex-direction: column; height: 100%; min-height: 344px; padding: clamp(22px, 2.5vw, 34px); border: 1px solid #dfd5c3; border-radius: 16px; background: linear-gradient(140deg, #fffcf6, #f8f4eb); box-shadow: 0 2px 0 #fff9 inset, 0 12px 32px -28px #70532c66; transition: transform .4s, border-color .4s, box-shadow .4s; }
+.client-note:hover { transform: translateY(-4px); border-color: #b89b6a99; box-shadow: 0 18px 32px -24px #70532c55; }
+.client-note-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.review-stars { color: #95703d; font-size: 12px; letter-spacing: 3px; }
+.review-sample { font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: #80735e; }
+.client-note-author { display: flex; align-items: center; gap: 12px; border-top: 1px solid #e3dccd; margin-top: 26px; padding-top: 22px; }
+.review-monogram { display: grid; flex-shrink: 0; place-items: center; width: 42px; height: 42px; border-radius: 50%; font-family: var(--font-display), serif; font-size: 19px; border: 1px solid #b99b7140; color: #705937; }
+.review-monogram-0 { background: #ece1cf; }
+.review-monogram-1 { background: #e3e7df; color: #53614c; border-color: #abb7a74d; }
+.review-monogram-2 { background: #eae0d9; color: #805f50; }
+.review-quote-mark { margin-left: auto; align-self: flex-start; height: 38px; font-family: var(--font-display), serif; font-size: 60px; line-height: 1; color: #c3ad875e; }
+.client-notes-foot { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-top: 48px; padding: 27px 0 36px; border-top: 1px solid #dacfba; }
+@media (min-width: 1600px) { .country-card { flex-basis: 180px; } }
+@media (max-width: 1023px) {
+  .client-notes-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .client-notes-heading { align-items: flex-start; }
+  .client-notes-intro { max-width: 260px; }
+}
+@media (max-width: 639px) {
+  .countries-panel { border-radius: 20px; }
+  .countries-header { padding: 24px 20px 12px; gap: 12px; flex-wrap: wrap; }
+  .countries-title-lockup { gap: 11px; }
+  .countries-globe { width: 40px; height: 40px; }
+  .countries-globe svg { width: 29px; height: 29px; }
+  .countries-track { padding: 18px 20px 24px; scroll-padding-inline: 20px; }
+  .country-card { flex-basis: 136px; }
+  .countries-footer { margin-inline: 20px; flex-direction: column; gap: 9px; font-size: 11px; }
+  .client-notes-heading { flex-direction: column; gap: 22px; margin-bottom: 28px; }
+  .client-notes-intro { max-width: 100%; }
+  .client-notes-grid { grid-template-columns: 1fr; gap: 14px; }
+  .client-note { min-height: 0; padding: 26px; }
+  .client-note-author { margin-top: 23px; }
+  .client-notes-foot { align-items: flex-start; flex-direction: column; gap: 18px; margin-top: 30px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .country-flag, .client-note { transition: none; }
+  .country-card:hover .country-flag, .client-note:hover { transform: none; }
+}

@@ -37,7 +37,7 @@ export async function POST(req: Request) {
   // Reject the client-upload JSON handshake — we no longer use Vercel Blob.
   if (contentType.includes("application/json")) {
     return NextResponse.json(
-      { error: "Blob storage is not used. Photos are saved locally." },
+      { error: "Send the photo as multipart form data. Photos are committed to GitHub." },
       { status: 400 },
     );
   }
@@ -95,7 +95,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ path: publicPath, name, deduplicated: false });
       } catch (e) {
         if (e instanceof GitHubCommitError) {
-          return NextResponse.json({ error: e.message }, { status: 502 });
+          return NextResponse.json({ error: e.message }, { status: e.status });
         }
         console.error("GitHub commit failed (non-GitHubCommitError):", e);
         return NextResponse.json(
@@ -107,16 +107,8 @@ export async function POST(req: Request) {
 
     // ── Vercel without GitHub: explain what's wrong ─────────────────────────
     if (process.env.VERCEL) {
-      const hasToken = Boolean(process.env.GITHUB_TOKEN);
-      const hasRepo = Boolean(process.env.GITHUB_REPO);
       return NextResponse.json(
-        {
-          error:
-            `Cannot save photos on Vercel without GitHub integration. ` +
-            `GITHUB_TOKEN: ${hasToken ? "set" : "MISSING"}, ` +
-            `GITHUB_REPO: ${hasRepo ? "set" : "MISSING"}. ` +
-            `Add both to your Vercel project's Environment Variables and redeploy.`,
-        },
+        { error: "GITHUB_TOKEN is not set. Add your fine-grained GitHub token in Vercel and redeploy." },
         { status: 503 },
       );
     }
