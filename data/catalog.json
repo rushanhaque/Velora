@@ -4,7 +4,7 @@
       "slug": "lighting",
       "name": "Lighting",
       "material": "Brass, bronze & crystal",
-      "count": 8,
+      "count": 7,
       "tagline": "Light & shadow",
       "blurb": "Table lamps, candle stands and hurricanes that carry a warm, living light — cast brass and hand-blown glass, lit to throw shadow as deliberately as glow.",
       "tone": "brass",
@@ -88,20 +88,6 @@
     }
   ],
   "specimens": [
-    {
-      "ref": "VL-08",
-      "slug": "pogatoga-tabletop-lamp",
-      "name": "Pogatoga tabletop lamp",
-      "collection": "lighting",
-      "subcategory": "Lamps",
-      "material": "",
-      "tone": "brass",
-      "shape": "vase",
-      "desc": "Tabletop lamp available in Siege green, Frost white & Matte black",
-      "story": "",
-      "tags": [],
-      "image": "/product-photos/b55653341d398ae5d020.webp"
-    },
     {
       "ref": "VL-01",
       "slug": "cheetah-glass-table-lamp",
@@ -1216,5 +1202,5 @@
       "image": "/media/catalog/regalia-frame-cup-hamper.webp"
     }
   ],
-  "updatedAt": "2026-10-13T11:28:41.323Z"
+  "updatedAt": "2026-10-18T19:03:33.284Z"
 }
